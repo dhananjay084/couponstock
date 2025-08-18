@@ -47,7 +47,8 @@ const DealDetailsContent = ({ params }) => {
       try {
         setLoading(true);
         const res = await axios.get(
-          `http://localhost:5000/api/deals/${id}`
+          `https://mycouponstock-production.up.railway.app
+/api/deals/${id}`
         );
         setDealDetails(res.data);
       } catch (err) {

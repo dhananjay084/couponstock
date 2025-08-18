@@ -1,8 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-const API_URL = 'https://mycouponstock-production.up.railway.app
-/api/reviews';
+const API_URL = 'https://mycouponstock-production.up.railway.app/api/reviews';
 
 export const fetchReviews = createAsyncThunk('reviews/fetchReviews', async () => {
   const res = await axios.get(API_URL);

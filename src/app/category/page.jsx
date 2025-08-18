@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { Menu, MenuItem, Typography } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import TextLink from "@/components/Minor/TextLink";
@@ -13,27 +13,26 @@ import { fetchReviews } from "@/redux/review/reviewSlice";
 import { getDeals } from "@/redux/deal/dealSlice";
 import { useSelector, useDispatch } from "react-redux";
 import { useSearchParams } from "next/navigation";
-
-const SingleCategory = () => {
-  const dispatch = useDispatch();
-  const { reviews = [] } = useSelector((state) => state.reviews);
-  const { deals = [] } = useSelector((state) => state.deal);
-
-  const searchParams = useSearchParams();
-  const category = searchParams.get("name");
-
-  const filteredDeals = deals.filter((deal) => deal.categorySelect === category);
-
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
-
-  const handleSortClick = (event) => setAnchorEl(event.currentTarget);
-  const handleClose = () => setAnchorEl(null);
-
-  useEffect(() => {
-    dispatch(getDeals());
-    dispatch(fetchReviews());
-  }, [dispatch]);
+const SingleCategoryContent = () => {
+    const dispatch = useDispatch();
+    const { reviews = [] } = useSelector((state) => state.reviews);
+    const { deals = [] } = useSelector((state) => state.deal);
+  
+    const searchParams = useSearchParams();
+    const category = searchParams?.get("name") || "All";
+  
+    const filteredDeals = deals.filter((deal) => deal.categorySelect === category);
+  
+    const [anchorEl, setAnchorEl] = useState(null);
+    const open = Boolean(anchorEl);
+  
+    const handleSortClick = (event) => setAnchorEl(event.currentTarget);
+    const handleClose = () => setAnchorEl(null);
+  
+    useEffect(() => {
+      dispatch(getDeals());
+      dispatch(fetchReviews());
+    }, [dispatch]);
 
   return (
     <div>
@@ -130,5 +129,11 @@ const SingleCategory = () => {
     </div>
   );
 };
-
+const SingleCategory = () => {
+    return (
+      <Suspense fallback={<div>Loading...</div>}>
+        <SingleCategoryContent />
+      </Suspense>
+    );
+  };
 export default SingleCategory;

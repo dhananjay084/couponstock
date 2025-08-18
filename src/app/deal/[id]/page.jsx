@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Banner from "@/components/Minor/Banner";
 import Image from "@/assets/banner-image.webp";
 import { Typography } from "@mui/material";
@@ -15,7 +15,7 @@ import TextLink from "@/components/Minor/TextLink";
 import CouponModal from "@/components/modals/couponModels.jsx";
 import axios from "axios";
 
-const DealDetails = ({ params }) => { // Receive dynamic param from Next.js dynamic route
+const DealDetails = ({ params }) => {
   const dispatch = useDispatch();
   const searchParams = useSearchParams();
 
@@ -23,8 +23,9 @@ const DealDetails = ({ params }) => { // Receive dynamic param from Next.js dyna
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const id = params?.id; // Get dynamic route param
-  const category = searchParams.get("category");
+  // Safely unwrap params.id
+  const id = params?.id || null;
+  const category = searchParams?.get("category") || "";
 
   const { deals = [] } = useSelector((state) => state.deal);
   const { reviews = [] } = useSelector((state) => state.reviews);
@@ -32,13 +33,14 @@ const DealDetails = ({ params }) => { // Receive dynamic param from Next.js dyna
   const handleCardClick = () => setModalOpen(true);
 
   useEffect(() => {
-    if (!id) return; // Wait until `id` is available
+    if (!id) return;
 
     const fetchDealById = async () => {
       try {
         setLoading(true);
-        const res = await axios.get(`https://mycouponstock-production.up.railway.app
-/api/deals/${id}`);
+        const res = await axios.get(
+          `https://mycouponstock-production.up.railway.app/api/deals/${id}`
+        );
         setDealDetails(res.data);
       } catch (err) {
         console.error("Error fetching deal:", err);
@@ -48,7 +50,7 @@ const DealDetails = ({ params }) => { // Receive dynamic param from Next.js dyna
     };
 
     fetchDealById();
-  }, [id, category]);
+  }, [id]);
 
   useEffect(() => {
     dispatch(getDeals());

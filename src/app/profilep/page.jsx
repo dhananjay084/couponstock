@@ -1,4 +1,3 @@
-// src/app/profile/page.jsx
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -11,32 +10,38 @@ import ReviewCard from "../../components/cards/ReviewCard";
 import TextLink from "../../components/Minor/TextLink";
 import { fetchReviews, addReview } from "../../redux/review/reviewSlice.js";
 import { useSelector, useDispatch } from "react-redux";
-import BannerImage from "@/assets/banner-image.webp"
+import BannerImage from "@/assets/banner-image.webp";
+
 const DEFAULT_REVIEW_IMAGE =
   "https://cdn-icons-png.flaticon.com/512/219/219988.png";
-
-// simple cookie reader
-const getCookie = (name) => {
-  const match = document.cookie.match(
-    new RegExp("(^| )" + name + "=([^;]+)")
-  );
-  return match ? decodeURIComponent(match[2]) : "";
-};
 
 const ProfilePage = () => {
   const router = useRouter();
   const dispatch = useDispatch();
 
-  // get user info from cookies; fallback to defaults
-  const userNameFromCookie = getCookie("userName");
-  const userEmailFromCookie = getCookie("userEmail");
-  const userId = getCookie("userId");
+  const [userNameFromCookie, setUserNameFromCookie] = useState("");
+  const [userEmailFromCookie, setUserEmailFromCookie] = useState("");
+  const [userId, setUserId] = useState("");
 
+  // safe cookie reading
   useEffect(() => {
-    if (!userNameFromCookie && !userEmailFromCookie && !userId) {
-      router.push(`/`);
+    if (typeof window !== "undefined") {
+      const getCookie = (name) => {
+        const match = document.cookie.match(
+          new RegExp("(^| )" + name + "=([^;]+)")
+        );
+        return match ? decodeURIComponent(match[2]) : "";
+      };
+
+      setUserNameFromCookie(getCookie("userName"));
+      setUserEmailFromCookie(getCookie("userEmail"));
+      setUserId(getCookie("userId"));
+
+      if (!getCookie("userName") && !getCookie("userEmail") && !getCookie("userId")) {
+        router.push(`/`);
+      }
     }
-  }, [userNameFromCookie, userEmailFromCookie, userId, router]);
+  }, [router]);
 
   const { reviews = [], loading } = useSelector((state) => state.reviews);
 
@@ -51,6 +56,7 @@ const ProfilePage = () => {
     designation: "user",
   };
 
+  // ...rest of your component stays the same
   const [desc, setDesc] = useState("");
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);

@@ -1,103 +1,225 @@
-import Image from "next/image";
+"use client";
 
+import { useEffect, useState } from "react";
+import Banner from "@/components/Minor/Banner";
+import BannerCard from "@/components/cards/BannerCards";
+import { getHomeAdminData } from "@/redux/admin/homeAdminSlice";
+import { useSelector, useDispatch } from "react-redux";
+import TextLink from "@/components/Minor/TextLink";
+import { getDeals } from "@/redux/deal/dealSlice";
+import DealCard from "@/components/cards/DealCard";
+import DesktopCard from "@/components/cards/DealsDesktopCard";
+import { getStores } from "../redux/store/storeSlice";
+import BrandCard from "@/components/cards/BrandCard";
+import DesktopStoreCard from '@/components/cards/DesktopStoreCard';
+import CategoryCard from "@/components/cards/CategoryCard";
+import PopularBrandCard from "@/components/cards/PopularBrandCard";
+import { getCategories } from "../redux/category/categorySlice";
+import PopularStores from "@/components/cards/PopularStores";
+import Coupons_Deals from "@/components/cards/Coupons_Deals";
+import FeaturedPost from "@/components/cards/FeaturedPost";
+import ReviewCard from "@/components/cards/ReviewCard";
+import NewsLetter from '@/components/Minor/NewsLetter';
+import { fetchReviews } from "../redux/review/reviewSlice.js";
+import { fetchBlogs } from "../redux/blog/blogSlice";
+import DealOfWeek from "@/components/cards/DealOfWeek";
+import FAQ from '@/components/Minor/Faq'
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const dispatch = useDispatch();
+  const { deals = [] } = useSelector((state) => state.deal);
+  const { stores = [] } = useSelector((state) => state.store);
+  const { categories = [] } = useSelector((state) => state.category);
+  const { reviews = [] } = useSelector((state) => state.reviews);
+  const { blogs = [],  } = useSelector((state) => state.blogs || {});
+   const homeAdmin = useSelector((state) => state.homeAdmin) || { data: [] };
+    const data = homeAdmin.data?.[0] || {};
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  // Safe filter function to avoid errors
+  const safeFilter = (arr, callback) => Array.isArray(arr) ? arr.filter(callback) : [];
+
+  useEffect(() => {
+ 
+        // Wait for deals data
+         dispatch(getDeals());
+         dispatch(getStores());
+         dispatch(getCategories());
+         dispatch(fetchReviews());
+         dispatch(fetchBlogs());
+         dispatch(getHomeAdminData());
+
+  }, [dispatch]);
+
+
+
+  return (
+    <>
+      {/* Mobile Banner */}
+      <div className="lg:hidden">
+        <Banner
+          Text="Every day we the most interesting things"
+          ColorText="discuss"
+          BgImage={data.homepageBanner || ""}
+        />
+      </div>
+
+      {/* Desktop Banner Cards */}
+      <div className="lg:flex flex-wrap gap-4 p-4 justify-center lg:justify-between hidden">
+        {Array.isArray(data.bannerDeals) && data.bannerDeals.length > 0 ? (
+          data.bannerDeals.map((deal) => (
+            <div className="w-full sm:w-[48%] lg:w-[32%]" key={deal._id}>
+              <BannerCard data={deal} />
+            </div>
+          ))
+        ) : (
+          <div className="text-center w-full">No deals available</div>
+        )}
+      </div>
+
+      {/* TextLink */}
+      <TextLink
+        text="Today's Top"
+        colorText="Deals"
+        link="/allcoupons"
+        linkText="View All"
+      />
+
+      {/* Desktop Top Deals */}
+      <div className="md:flex overflow-x-scroll gap-4 px-4 hidden">
+        {safeFilter(deals, (deal) =>
+          deal?.showOnHomepage &&
+          deal?.dealType === "Today's Top Deal" &&
+          deal?.dealCategory === "deal"
+        ).map((deal) => (
+          <DesktopCard key={deal._id} data={deal} />
+        ))}
+      </div>
+
+      {/* Mobile Top Deals */}
+      <div className="flex overflow-x-scroll gap-4 md:hidden">
+        {safeFilter(deals, (deal) =>
+          deal?.showOnHomepage &&
+          deal?.dealType === "Today's Top Deal" &&
+          deal?.dealCategory === "deal"
+        ).map((deal) => (
+          <DealCard key={deal._id} data={deal} />
+        ))}
+      </div>
+
+      <TextLink text="Brands" colorText="" link="/allstores" linkText="View All" />
+      <div className="flex overflow-x-scroll md:hidden">
+        {safeFilter(stores, (store) => store?.showOnHomepage && store?.storeType === "Brands").map((store) => (
+          <BrandCard key={store._id} data={store} />
+        ))}
+      </div>
+      <div className="md:flex overflow-x-scroll hidden px-4 gap-4">
+        {safeFilter(stores, (store) => store?.showOnHomepage && store?.storeType === "Brands").map((store) => (
+          <DesktopStoreCard key={store._id} data={store} />
+        ))}
+      </div>
+      <TextLink text="Popular Categories" colorText="" link="/allcategories" linkText="View All" />
+      <div className="px-4 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-4 mb-10">
+        {Array.isArray(categories) && categories.length > 0 ? (
+          safeFilter(categories, (cat) => cat?.showOnHomepage).map((cat) => (
+            <CategoryCard key={cat._id} data={cat} />
+          ))
+        ) : (
+          <p className="text-center w-full">No categories found.</p>
+        )}
+      </div>
+
+      {/* Popular Brands */}
+      <TextLink text="Popular" colorText="Brands" link="/allstores" linkText="View All" />
+      <div className="flex overflow-x-auto space-x-4 p-4 pt-0 scrollbar-hide md:hidden">
+        {safeFilter(stores, (store) => store?.showOnHomepage && store?.storeType === "Popular").map((store) => (
+          <PopularBrandCard key={store._id} data={store} />
+        ))}
+      </div>
+      <div className="md:flex overflow-x-auto space-x-4 p-4 pt-0 scrollbar-hide hidden px-4">
+        {safeFilter(stores, (store) => store?.showOnHomepage && store?.storeType === "Popular").map((store) => (
+          <DesktopStoreCard key={store._id} data={store} />
+        ))}
+      </div>
+      <div className="hidden md:block">
+        <Banner
+          Text="Every day we the most interesting things"
+          ColorText="discuss"
+          BgImage={data.midHomepageBanner}
+        />
+      </div>
+
+      {/* Hot Deals */}
+      <TextLink text="Hot" colorText="Deals" link="/allcoupons" linkText="View All" />
+      <div className="flex overflow-x-scroll md:hidden">
+        {safeFilter(deals, (deal) =>
+          deal?.showOnHomepage &&
+          deal?.dealType === "Hot" &&
+          deal?.dealCategory === "deal"
+        ).map((deal) => (
+          <DealCard key={deal._id} data={deal} />
+        ))}
+      </div>
+      <div className="md:flex overflow-x-scroll gap-4 hidden px-4">
+        {safeFilter(deals, (deal) =>
+          deal?.showOnHomepage &&
+          deal?.dealType === "Hot" &&
+          deal?.dealCategory === "deal"
+        ).map((deal) => (
+          <DesktopCard key={deal._id} data={deal} />
+        ))}
+      </div>
+      <TextLink text="Popular" colorText="Stores" link="/allstores" linkText="View All" />
+      <div className="flex overflow-x-auto space-x-4 p-4 scrollbar-hide">
+        {safeFilter(stores, (store) =>
+          store?.showOnHomepage && store?.storeType === "Popular Store"
+        ).map((store) => (
+          <PopularStores key={store._id} data={store} />
+        ))}
+      </div>
+
+      {/* Coupons & Deals */}
+      <TextLink text="Coupons" colorText="& Deals" link="/allcoupons" linkText="View All" />
+      <div className="space-y-4 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:justify-around">
+        {safeFilter(deals, (deal) =>
+          deal?.showOnHomepage &&
+          deal?.dealType === "Coupons/Deals" &&
+          deal?.dealCategory === "coupon"
+        ).map((deal) => (
+          <Coupons_Deals key={deal._id} data={deal} />
+        ))}
+      </div>
+      <div className="md:flex md:justify-around md:items-center">
+        <div className="md:w-1/2">
+          <NewsLetter />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+        <div className="md:w-1/2">
+          <TextLink text="Featured" colorText="Post" link="" linkText="" />
+          {safeFilter(blogs, (blog) => blog?.featuredPost).map((blog) => (
+            <FeaturedPost key={blog._id} blog={blog} />
+          ))}
+        </div>
+      </div>
+
+      {/* Reviews */}
+      <TextLink text="Public" colorText="Reviews" link="" linkText="" />
+      <div className="p-4 flex gap-4 overflow-x-scroll">
+        {Array.isArray(reviews) && reviews.length > 0 ? (
+          reviews.map((review) => <ReviewCard key={review._id} data={review} />)
+        ) : (
+          <p>No reviews found.</p>
+        )}
+      </div>
+      <TextLink text="Deal of the " colorText="Week" link="/allcoupons" linkText="View All" />
+      <div className="flex overflow-x-scroll gap-4 px-4">
+        {safeFilter(deals, (deal) =>
+          deal?.showOnHomepage &&
+          deal?.dealType === "Deal of week" &&
+          deal?.dealCategory === "deal"
+        ).map((deal) => (
+          <DealOfWeek key={deal._id} data={deal} />
+        ))}
+      </div>
+
+      <FAQ data={data.faqs} />
+    </>
   );
 }

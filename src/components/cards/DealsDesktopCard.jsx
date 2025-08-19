@@ -39,14 +39,14 @@ const BannerCard = ({ data }) => {
 
           {data.dealCategory === "deal" ? (
             <button
-              className="bg-[#E5DBF9] text-[#592EA9] px-6 py-2 text-sm rounded-full shadow-md hover:bg-[#d6c6f5] transition-all"
+              className="bg-[#E5DBF9] text-[#592EA9] px-6 py-2 text-sm rounded-full shadow-md hover:bg-[#d6c6f5] transition-all cursor-pointer"
               onClick={handleCardClick}
             >
               Shop Now
             </button>
           ) : (
             <button
-              className="bg-[#E5DBF9] text-[#592EA9] px-6 py-2 text-sm rounded-full shadow-md hover:bg-[#d6c6f5] transition-all"
+              className="bg-[#E5DBF9] text-[#592EA9] px-6 py-2 text-sm rounded-full shadow-md hover:bg-[#d6c6f5] transition-all cursor-pointer"
               onClick={handleModalClick}
             >
               Show Code

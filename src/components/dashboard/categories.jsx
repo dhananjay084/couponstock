@@ -116,13 +116,13 @@ export default function CategoriesPage() {
         <div className="flex space-x-2 items-center h-full">
           <button
             onClick={() => handleDelete(params.value)}
-            className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-xs"
+            className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-xs cursor-pointer"
           >
             Delete
           </button>
           <button
             onClick={() => handleEdit(params.data)}
-            className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-xs"
+            className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-xs cursor-pointer"
           >
             Edit
           </button>
@@ -227,7 +227,7 @@ export default function CategoriesPage() {
             <button
               type="submit"
               disabled={loading}
-              className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700"
+              className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 cursor-pointer"
             >
               {loading ? "Submitting..." : editCategory ? "Update Category" : "Add Category"}
             </button>

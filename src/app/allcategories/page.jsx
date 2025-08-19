@@ -154,7 +154,7 @@ const AllCategories = () => {
           </Typography>
 
           <Box className="flex items-center gap-2 relative">
-            <IconButton className="!bg-[#592EA9] !rounded-lg hover:opacity-80">
+            <IconButton className="!bg-[#592EA9] !rounded-lg hover:opacity-80 cursor-pointer">
               <SearchIcon className="text-white" />
             </IconButton>
             <StyledSearchInput
@@ -170,7 +170,7 @@ const AllCategories = () => {
                   <SearchResultItem>Loading...</SearchResultItem>
                 ) : searchResults.length > 0 ? (
                   searchResults.map((cat) => (
-                    <SearchResultItem key={cat._id} onClick={() => handleSearchResultClick(cat.name)}>
+                    <SearchResultItem key={cat._id} onClick={() => handleSearchResultClick(cat.name)} className="cursor-pointer">
                       <Typography variant="body2" fontWeight="bold">{cat.name}</Typography>
                     </SearchResultItem>
                   ))
@@ -189,7 +189,7 @@ const AllCategories = () => {
               <button
                 key={idx}
                 onClick={() => handleLetterClick(letter)}
-                className={`px-4 py-2 rounded-[10px] border ${
+                className={`px-4 py-2 rounded-[10px] border cursor-pointer ${
                   letter === selectedLetter
                     ? "bg-[#592EA9] text-white"
                     : "border-gray-400 text-gray-700"

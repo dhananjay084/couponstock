@@ -84,13 +84,13 @@ const DealsPage = () => {
         <div className="flex space-x-2 items-center h-full">
           <button
             onClick={() => handleDelete(params.value)}
-            className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-xs"
+            className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-xs cursor-pointer"
           >
             Delete
           </button>
           <button
             onClick={() => handleEdit(params.data)}
-            className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-xs"
+            className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-xs cursor-pointer"
           >
             Edit
           </button>
@@ -363,7 +363,7 @@ const DealsPage = () => {
                       {values.deals.length > 1 && !editDeal && (
                         <button
                           type="button"
-                          className="text-red-600 mt-2 underline text-sm absolute top-4 right-4"
+                          className="text-red-600 mt-2 underline text-sm absolute top-4 right-4 cursor-pointer"
                           onClick={() => remove(index)}
                         >
                           Remove
@@ -376,7 +376,7 @@ const DealsPage = () => {
                   <div className="mt-8">
                     <button
                       type="submit"
-                      className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700"
+                      className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 cursor-pointer"
                       disabled={loading}
                     >
                       {loading ? 'Submitting...' : editDeal ? 'Update Deal' : 'Submit Deals'}

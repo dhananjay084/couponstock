@@ -39,7 +39,7 @@ const FAQAccordion = ({ data }) => {
               key={index}
               expanded={expanded === index}
               onChange={handleChange(index)}
-              className={`rounded-lg shadow-lg ${
+              className={`rounded-lg shadow-lg  cursor-pointer ${
                 expanded === index ? "border border-gray-300" : ""
               }`}
               sx={{

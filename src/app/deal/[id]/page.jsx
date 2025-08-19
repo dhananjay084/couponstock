@@ -82,12 +82,12 @@ const DealDetailsContent = ({ params }) => {
         <div className="flex justify-between items-center p-4">
           <Typography color="#592ea9">{dealDetails.homePageTitle}</Typography>
           {dealDetails.dealCategory === "deal" ? (
-            <button className="bg-[#592EA9] rounded-[10px] p-2 text-white">
+            <button className="bg-[#592EA9] rounded-[10px] p-2 text-white cursor-pointer">
               Shop Now
             </button>
           ) : (
             <button
-              className="bg-[#592EA9] rounded-[10px] p-2 text-white"
+              className="bg-[#592EA9] rounded-[10px] p-2 text-white cursor-pointer"
               onClick={handleCardClick}
             >
               Show Code

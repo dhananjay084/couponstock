@@ -82,7 +82,7 @@ const ReviewsPage = () => {
 
         <button
           type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 cursor-pointer"
         >
           {editId ? "Update Review" : "Add Review"}
         </button>
@@ -110,13 +110,13 @@ const ReviewsPage = () => {
               <div className="flex gap-2">
                 <button
                   onClick={() => handleEdit(review)}
-                  className="bg-yellow-400 px-3 py-1 rounded hover:bg-yellow-500"
+                  className="bg-yellow-400 px-3 py-1 rounded hover:bg-yellow-500 cursor-pointer"
                 >
                   Edit
                 </button>
                 <button
                   onClick={() => handleDelete(review._id)}
-                  className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                  className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 cursor-pointer"
                 >
                   Delete
                 </button>

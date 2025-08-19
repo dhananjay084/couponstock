@@ -19,7 +19,7 @@ const CouponModal = ({ open, onClose, data }) => {
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-black text-lg font-bold"
+          className="absolute top-3 right-3 text-black text-lg font-bold cursor-pointer"
         >
           ×
         </button>
@@ -41,7 +41,7 @@ const CouponModal = ({ open, onClose, data }) => {
           </span>
           <button
             onClick={() => navigator.clipboard.writeText(data.couponCode)}
-            className="text-[#6c38d9] underline"
+            className="text-[#6c38d9] underline cursor-pointer"
           >
             Copy
           </button>

@@ -102,8 +102,8 @@ const StoresPage = () => {
       field: "_id",
       cellRenderer: (params) => (
         <div className="flex space-x-2">
-          <button onClick={() => handleDelete(params.value)} className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-xs">Delete</button>
-          <button onClick={() => handleEdit(params.data)} className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-xs">Edit</button>
+          <button onClick={() => handleDelete(params.value)} className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-xs cursor-pointer">Delete</button>
+          <button onClick={() => handleEdit(params.data)} className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-xs cursor-pointer">Edit</button>
         </div>
       ),
       width: 150,
@@ -242,7 +242,7 @@ const StoresPage = () => {
               <label className="font-medium">Show on Homepage</label>
             </div>
 
-            <button type="submit" disabled={loading} className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700">
+            <button type="submit" disabled={loading} className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 cursor-pointer">
               {loading ? "Submitting..." : editStore ? "Update Store" : "Add Store"}
             </button>
           </Form>

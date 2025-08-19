@@ -22,7 +22,7 @@ const ProductCard = ({ data }) => {
       <div className="absolute bottom-4 right-4">
         <button
           onClick={handleCardClick}
-          className="bg-[#E5DBF9] text-[#592EA9] font-semibold px-6 py-2 rounded-full text-sm shadow-md hover:bg-[#d6c6f5] transition"
+          className="bg-[#E5DBF9] text-[#592EA9] font-semibold px-6 py-2 rounded-full text-sm shadow-md hover:bg-[#d6c6f5] transition cursor-pointer"
         >
           Shop Now
         </button>

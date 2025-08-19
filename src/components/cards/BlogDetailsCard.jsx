@@ -42,7 +42,7 @@ const Coupons_Deals = ({ border = false, data }) => {
             backgroundColor: "#E9E4F4",
             color: "#592EA9",
           }}
-          className="rounded-lg px-4 py-2 shadow-lg mt-2"
+          className="rounded-lg px-4 py-2 shadow-lg mt-2 cursor-pointer"
           onClick={handleDealClick}
         >
           View

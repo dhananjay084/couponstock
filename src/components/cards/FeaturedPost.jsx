@@ -61,7 +61,7 @@ const FeaturedPost = ({ blog }) => {
         type="button"
         variant="contained"
         color="black"
-        sx={{ color: "#fff", borderRadius: "7px", mt: 2 ,background:'#282828'}}
+        sx={{ color: "#fff", borderRadius: "7px", mt: 2 ,background:'#282828' , cursor: "pointer"}}
         onClick={handleClick}
       >
         View

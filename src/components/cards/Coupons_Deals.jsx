@@ -58,7 +58,7 @@ const Coupons_Deals = ({ border, disabled, data }) => {
                 backgroundColor: disabled ? "#b9b9b9" : "#E9E4F4",
                 color: disabled ? "#AAA6B1" : "#592EA9",
               }}
-              className="rounded-lg px-4 py-2 shadow-lg mt-2"
+              className="rounded-lg px-4 py-2 shadow-lg mt-2 cursor-pointer"
               onClick={handleCardClick}
             >
               Coupon Code
@@ -69,7 +69,7 @@ const Coupons_Deals = ({ border, disabled, data }) => {
                 backgroundColor: disabled ? "#b9b9b9" : "#E9E4F4",
                 color: disabled ? "#AAA6B1" : "#592EA9",
               }}
-              className="rounded-lg px-4 py-2 shadow-lg mt-2"
+              className="rounded-lg px-4 py-2 shadow-lg mt-2 cursor-pointer"
               onClick={handleDealClick}
             >
               View

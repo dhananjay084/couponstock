@@ -2,7 +2,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-const BASE = 'https://mycouponstock-production.up.railway.app/api/admin';
+const BASE = 'http://localhost:5000/api/admin';
 
 // Fetch entries
 export const getHomeAdminData = createAsyncThunk('homeAdmin/get', async () => {

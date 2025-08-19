@@ -46,7 +46,7 @@ const NewsLetter = () => {
           Subscribe now!
         </Typography>
 
-        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
+        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }} >
           <TextField
             label="Enter your email"
             variant="outlined"
@@ -58,7 +58,7 @@ const NewsLetter = () => {
             type="submit"
             variant="contained"
             color="#282828"
-            sx={{ color: "#fff", borderRadius: "7px", mt: 2,background:'#282828' }}
+            sx={{ color: "#fff", borderRadius: "7px", mt: 2,background:'#282828' , cursor:"pointer"}}
           >
             {loading ? "Submitting..." : "Submit"}
           </Button>

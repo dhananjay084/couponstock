@@ -132,7 +132,7 @@ const AllStores = () => {
           </Typography>
 
           <Box className="flex items-center gap-2 relative">
-            <IconButton className="!bg-[#592EA9] !rounded-lg hover:opacity-80">
+            <IconButton className="!bg-[#592EA9] !rounded-lg hover:opacity-80 ">
               <SearchIcon className="text-white" />
             </IconButton>
             <StyledSearchInput
@@ -169,7 +169,7 @@ const AllStores = () => {
               <button
                 key={idx}
                 onClick={() => handleCategoryClick(category)}
-                className={`px-4 py-2 rounded-[10px] border ${
+                className={`px-4 py-2 rounded-[10px] border cursor-pointer ${
                   category === selectedCategory ? "bg-[#592EA9] text-white" : "border-gray-400 text-gray-700"
                 }`}
               >

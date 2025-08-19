@@ -183,7 +183,7 @@ const ProfilePage = () => {
             <div>
               <button
                 type="submit"
-                className="bg-indigo-600 text-white px-6 py-3 rounded-md font-medium hover:bg-indigo-700 transition"
+                className="bg-indigo-600 text-white px-6 py-3 rounded-md font-medium hover:bg-indigo-700 transition cursor-pointer"
               >
                 Submit Review
               </button>

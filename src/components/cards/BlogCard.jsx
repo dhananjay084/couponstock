@@ -15,7 +15,7 @@ const BlogCard = ({ blog }) => {
 
   return (
     <div
-      className="cursor-pointer lg:min-w-[500px] min-w-[300px] bg-white shadow-md rounded-xl overflow-hidden transition-all duration-300"
+      className="cursor-pointer lg:min-w-[500px] min-w-[300px] bg-white shadow-md rounded-xl overflow-hidden transition-all duration-300 cursor-pointer"
       onClick={handleClick}
     >
       <img
@@ -35,7 +35,7 @@ const BlogCard = ({ blog }) => {
             })}
           </p>
           <button
-            className="text-purple-600 transition-transform duration-300"
+            className="text-purple-600 transition-transform duration-300 cursor-pointer"
             aria-label="Toggle expand"
           >
             <FaChevronDown className="transform transition-transform duration-300" />

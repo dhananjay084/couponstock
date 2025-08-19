@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:5000/api/categories';
+const BASE_URL = 'https://mycouponstock-production.up.railway.app/api/categories';
 
 export const getCategoriesAPI = async () => {
   const response = await axios.get(BASE_URL);

@@ -44,7 +44,8 @@ const DealDetailsContent = () => {
     const fetchDealById = async () => {
       try {
         setLoading(true);
-        const res = await axios.get(`http://localhost:5000/api/deals/${id}`);
+        const res = await axios.get(`https://mycouponstock-production.up.railway.app
+/api/deals/${id}`);
         setDealDetails(res.data);
       } catch (err) {
         console.error("Error fetching deal:", err);

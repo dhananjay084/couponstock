@@ -3,7 +3,7 @@
 "use client";
 
 import React, { useEffect, useState, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useParams } from "next/navigation";
 import Banner from "@/components/Minor/Banner";
 import Image from "@/assets/banner-image.webp";
 import { Typography, CircularProgress, Box } from "@mui/material";
@@ -17,18 +17,17 @@ import TextLink from "@/components/Minor/TextLink";
 import CouponModal from "@/components/modals/couponModels.jsx";
 import axios from "axios";
 
-// This is the component that uses the dynamic hook `useSearchParams`
-const DealDetailsContent = ({ params }) => {
+// ================== Deal Details Component ==================
+const DealDetailsContent = () => {
   const dispatch = useDispatch();
   const searchParams = useSearchParams();
+  const params = useParams(); // ✅ Get dynamic params in client components
+  const id = params?.id;
 
   const [dealDetails, setDealDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
 
-  // params.id is already available from the URL path.
-  // We can safely use it without optional chaining.
-  const { id } = params; 
   const category = searchParams?.get("category") || "";
 
   const { deals = [] } = useSelector((state) => state.deal);
@@ -37,7 +36,6 @@ const DealDetailsContent = ({ params }) => {
   const handleCardClick = () => setModalOpen(true);
 
   useEffect(() => {
-    // Check if `id` is a valid string before fetching
     if (!id || typeof id !== "string") {
       setLoading(false);
       return;
@@ -46,10 +44,7 @@ const DealDetailsContent = ({ params }) => {
     const fetchDealById = async () => {
       try {
         setLoading(true);
-        const res = await axios.get(
-          `https://mycouponstock-production.up.railway.app
-/api/deals/${id}`
-        );
+        const res = await axios.get(`http://localhost:5000/api/deals/${id}`);
         setDealDetails(res.data);
       } catch (err) {
         console.error("Error fetching deal:", err);
@@ -66,7 +61,9 @@ const DealDetailsContent = ({ params }) => {
     dispatch(fetchReviews());
   }, [dispatch]);
 
-  if (loading) return <p className="text-center p-4">Loading deal details...</p>;
+  if (loading)
+    return <p className="text-center p-4">Loading deal details...</p>;
+
   if (!dealDetails)
     return <p className="text-center p-4 text-red-500">Deal not found.</p>;
 
@@ -128,7 +125,9 @@ const DealDetailsContent = ({ params }) => {
 
         <div className="pt-0 p-4 flex gap-4 overflow-x-scroll">
           {reviews.length > 0 ? (
-            reviews.map((review) => <ReviewCard key={review._id} data={review} />)
+            reviews.map((review) => (
+              <ReviewCard key={review._id} data={review} />
+            ))
           ) : (
             <p className="col-span-full text-center text-gray-500">
               No reviews found.
@@ -146,15 +145,24 @@ const DealDetailsContent = ({ params }) => {
   );
 };
 
-// The main page component that uses a Suspense boundary
-const DealDetailsPage = ({ params }) => {
+// ================== Main Page ==================
+const DealDetailsPage = () => {
   return (
-    <Suspense fallback={
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <CircularProgress />
-      </Box>
-    }>
-      <DealDetailsContent params={params} />
+    <Suspense
+      fallback={
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh",
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      }
+    >
+      <DealDetailsContent />
     </Suspense>
   );
 };

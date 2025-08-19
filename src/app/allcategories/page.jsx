@@ -12,6 +12,7 @@ import { getHomeAdminData } from "@/redux/admin/homeAdminSlice";
 import { IconButton, Typography, InputBase, Box } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { styled } from "@mui/material/styles";
+import { toast } from "react-toastify";
 
 // Styled InputBase for search
 const StyledSearchInput = styled(InputBase)(({ theme }) => ({
@@ -67,9 +68,31 @@ const AllCategories = () => {
     dispatch(getHomeAdminData());
   }, [dispatch]);
 
+
+//   useEffect(() => {
+//   const fetchData = async () => {
+//     try {
+//       await dispatch(getCategories()).unwrap();
+//       toast.success("Categories loaded successfully!");
+//     } catch (err) {
+//       toast.error("Failed to load categories");
+//     }
+
+//     try {
+//       await dispatch(getHomeAdminData()).unwrap();
+//       toast.success("Home data loaded successfully!");
+//     } catch (err) {
+//       toast.error("Failed to load home data");
+//     }
+//   };
+
+//   fetchData();
+// }, [dispatch]);
+
+
   useEffect(() => {
     const handler = setTimeout(() => {
-      setDebouncedSearchTerm(searchTerm);
+     dispatch(searchCategories(debouncedSearchTerm))
     }, 300);
     return () => clearTimeout(handler);
   }, [searchTerm]);
@@ -120,6 +143,7 @@ const AllCategories = () => {
 
   const handleSearchResultClick = (categoryId) => {
     router.push(`/category?name=${categoryId}`);
+    toast.success(`Redirected to ${categoryId} category`);
     setSearchTerm("");
     dispatch(clearSearchResults());
     setShowSearchDropdown(false);

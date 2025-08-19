@@ -12,6 +12,7 @@ import { getHomeAdminData } from "@/redux/admin/homeAdminSlice";
 import { IconButton, Typography, InputBase, Box } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { styled } from "@mui/material/styles";
+import { toast } from "react-toastify";
 
 // Styled InputBase for search
 const StyledSearchInput = styled(InputBase)(({ theme }) => ({
@@ -64,6 +65,28 @@ const AllStores = () => {
     dispatch(getStores());
     dispatch(getHomeAdminData());
   }, [dispatch]);
+
+
+  // useEffect(() => {
+  // const fetchData = async () => {
+  //   try {
+  //     await dispatch(getStores()).unwrap();
+  //     toast.success("Stores loaded successfully!");
+  //   } catch (err) {
+  //     toast.error("Failed to load stores");
+  //   }
+
+  //   try {
+  //     await dispatch(getHomeAdminData()).unwrap();
+  //     toast.success("Home admin data loaded successfully!");
+  //   } catch (err) {
+  //     toast.error("Failed to load home page data");
+  //   }
+  // };
+
+//   fetchData();
+// }, [dispatch]);
+
 
   // Debounce search term
   useEffect(() => {

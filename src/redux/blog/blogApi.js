@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://mycouponstock-production.up.railway.app/api/blogs'; // Update if needed
+const API_URL = 'http://localhost:5000/api/blogs'; // Update if needed
 
 export const getAllBlogs = () => axios.get(API_URL);
 export const addBlog = (data) => axios.post(API_URL, data);

@@ -107,7 +107,7 @@ const HomeAdminPage = () => {
                 <td className="p-2 border">{entry.faqs.length}</td>
                 <td className="p-2 border">
                   <button
-                    className="text-blue-600 hover:underline"
+                    className="text-blue-600 hover:underline cursor-pointer"
                     onClick={() => editEntry(entry)}
                   >
                     Edit
@@ -194,7 +194,7 @@ const HomeAdminPage = () => {
                       className="w-full border rounded p-1"
                       rows={2}
                     />
-                    <button type="button" onClick={() => remove(i)} className="text-red-600">
+                    <button type="button" onClick={() => remove(i)} className="text-red-600 cursor-pointer">
                       Remove
                     </button>
                   </div>
@@ -202,7 +202,7 @@ const HomeAdminPage = () => {
                 <button
                   type="button"
                   onClick={() => push({ question: "", answer: "" })}
-                  className="bg-blue-500 text-white px-3 py-1 rounded"
+                  className="bg-blue-500 text-white px-3 py-1 rounded cursor-pointer"
                 >
                   Add FAQ
                 </button>
@@ -213,7 +213,7 @@ const HomeAdminPage = () => {
 
         <button
           type="submit"
-          className="bg-green-600 text-white font-bold py-2 px-6 rounded hover:bg-green-700"
+          className="bg-green-600 text-white font-bold py-2 px-6 rounded hover:bg-green-700 cursor-pointer"
         >
           {editingEntry ? "Update Entry" : "Create Entry"}
         </button>

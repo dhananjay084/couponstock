@@ -172,7 +172,7 @@ export default function ContactSection() {
                   className="flex items-center gap-2 cursor-pointer select-none"
                 >
                   <div
-                    className={`w-5 h-5 flex items-center justify-center rounded-full border ${
+                    className={`w-5 h-5 flex items-center justify-center rounded-full border cursor-pointer ${
                       selectedSubject === i
                         ? "bg-black text-white border-black"
                         : "bg-gray-200 border-gray-300"
@@ -208,7 +208,7 @@ export default function ContactSection() {
               type="button"
               onClick={handleSubmit}
               disabled={status === "loading"}
-              className="bg-neutral-900 text-white px-8 py-4 rounded-md shadow-lg hover:shadow-xl transition font-medium disabled:opacity-50"
+              className="bg-neutral-900 text-white px-8 py-4 rounded-md shadow-lg hover:shadow-xl transition font-medium disabled:opacity-50 cursor-pointer"
             >
               {status === "loading" ? "Sending..." : "Send Message"}
             </button>

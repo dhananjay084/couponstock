@@ -12,6 +12,7 @@ import { getHomeAdminData } from "@/redux/admin/homeAdminSlice";
 import { IconButton, Typography, InputBase, Box } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { styled } from "@mui/material/styles";
+// import { toast } from "react-toastify";
 
 // Styled InputBase for search
 const StyledSearchInput = styled(InputBase)(({ theme }) => ({
@@ -64,6 +65,28 @@ const AllStores = () => {
     dispatch(getStores());
     dispatch(getHomeAdminData());
   }, [dispatch]);
+
+
+  // useEffect(() => {
+  // const fetchData = async () => {
+  //   try {
+  //     await dispatch(getStores()).unwrap();
+  //     toast.success("Stores loaded successfully!");
+  //   } catch (err) {
+  //     toast.error("Failed to load stores");
+  //   }
+
+  //   try {
+  //     await dispatch(getHomeAdminData()).unwrap();
+  //     toast.success("Home admin data loaded successfully!");
+  //   } catch (err) {
+  //     toast.error("Failed to load home page data");
+  //   }
+  // };
+
+//   fetchData();
+// }, [dispatch]);
+
 
   // Debounce search term
   useEffect(() => {
@@ -132,7 +155,7 @@ const AllStores = () => {
           </Typography>
 
           <Box className="flex items-center gap-2 relative">
-            <IconButton className="!bg-[#592EA9] !rounded-lg hover:opacity-80">
+            <IconButton className="!bg-[#592EA9] !rounded-lg hover:opacity-80 ">
               <SearchIcon className="text-white" />
             </IconButton>
             <StyledSearchInput
@@ -169,7 +192,7 @@ const AllStores = () => {
               <button
                 key={idx}
                 onClick={() => handleCategoryClick(category)}
-                className={`px-4 py-2 rounded-[10px] border ${
+                className={`px-4 py-2 rounded-[10px] border cursor-pointer ${
                   category === selectedCategory ? "bg-[#592EA9] text-white" : "border-gray-400 text-gray-700"
                 }`}
               >

@@ -26,7 +26,7 @@ const PopularStores = ({ data }) => {
           <p className="text-[10px] ml-1">Flat {discountPercentage}% Cashback</p>
         </div>
         <button
-          className="bg-[#E9E4F4] rounded-lg text-xs p-2 text-[#592EA9] shadow-lg float-right"
+          className="bg-[#E9E4F4] rounded-lg text-xs p-2 text-[#592EA9] shadow-lg float-right cursor-pointer"
           onClick={handleCardClick}
         >
           View

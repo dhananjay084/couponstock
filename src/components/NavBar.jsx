@@ -161,11 +161,11 @@ const NavBar = () => {
         <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
           {isAuthenticated ? (
             <>
-              <MenuItem onClick={handleProfile}>Profile</MenuItem>
-              <MenuItem onClick={handleLogout}>Logout</MenuItem>
+              <MenuItem onClick={handleProfile} style={{ cursor: 'pointer' }}>Profile</MenuItem>
+              <MenuItem onClick={handleLogout} style={{ cursor: 'pointer' }}>Logout</MenuItem>
             </>
           ) : (
-            <MenuItem onClick={handleLogin}>Login</MenuItem>
+            <MenuItem onClick={handleLogin} style={{ cursor: 'pointer' }}>Login</MenuItem>
           )}
         </Menu>
       </Toolbar>

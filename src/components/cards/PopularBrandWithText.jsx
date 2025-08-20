@@ -32,7 +32,7 @@ const PopularBrandCardWithText = ({ data = {} }) => {
         />
         <div className="absolute bottom-3 right-5 z-10">
           <button
-            className="bg-[#E9E4F4] rounded-lg px-4 py-2 text-[#592EA9] shadow-lg"
+            className="bg-[#E9E4F4] rounded-lg px-4 py-2 text-[#592EA9] shadow-lg cursor-pointer"
             onClick={handleCardClick}
           >
             View

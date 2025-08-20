@@ -1,5 +1,9 @@
 // contactApi.js
+<<<<<<< HEAD
 const BASE_URL =  "http://localhost:5000"; // e.g., "http://localhost:5000"
+=======
+const BASE_URL = process.env.NEXT_PUBLIC_SERVER_URL; 
+>>>>>>> 81aac881e51f56a2eff8a14129d6851d7821b1e4
 
 export async function createContactAPI(payload) {
     const res = await fetch(`${BASE_URL}/api/contacts`, {

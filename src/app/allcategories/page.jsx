@@ -12,6 +12,7 @@ import { getHomeAdminData } from "@/redux/admin/homeAdminSlice";
 import { IconButton, Typography, InputBase, Box } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { styled } from "@mui/material/styles";
+// import { toast } from "react-toastify";
 
 // Styled InputBase for search
 const StyledSearchInput = styled(InputBase)(({ theme }) => ({
@@ -67,9 +68,31 @@ const AllCategories = () => {
     dispatch(getHomeAdminData());
   }, [dispatch]);
 
+
+//   useEffect(() => {
+//   const fetchData = async () => {
+//     try {
+//       await dispatch(getCategories()).unwrap();
+//       toast.success("Categories loaded successfully!");
+//     } catch (err) {
+//       toast.error("Failed to load categories");
+//     }
+
+//     try {
+//       await dispatch(getHomeAdminData()).unwrap();
+//       toast.success("Home data loaded successfully!");
+//     } catch (err) {
+//       toast.error("Failed to load home data");
+//     }
+//   };
+
+//   fetchData();
+// }, [dispatch]);
+
+
   useEffect(() => {
     const handler = setTimeout(() => {
-      setDebouncedSearchTerm(searchTerm);
+     dispatch(searchCategories(debouncedSearchTerm))
     }, 300);
     return () => clearTimeout(handler);
   }, [searchTerm]);
@@ -120,6 +143,7 @@ const AllCategories = () => {
 
   const handleSearchResultClick = (categoryId) => {
     router.push(`/category?name=${categoryId}`);
+    toast.success(`Redirected to ${categoryId} category`);
     setSearchTerm("");
     dispatch(clearSearchResults());
     setShowSearchDropdown(false);
@@ -154,7 +178,7 @@ const AllCategories = () => {
           </Typography>
 
           <Box className="flex items-center gap-2 relative">
-            <IconButton className="!bg-[#592EA9] !rounded-lg hover:opacity-80">
+            <IconButton className="!bg-[#592EA9] !rounded-lg hover:opacity-80 cursor-pointer">
               <SearchIcon className="text-white" />
             </IconButton>
             <StyledSearchInput
@@ -170,7 +194,7 @@ const AllCategories = () => {
                   <SearchResultItem>Loading...</SearchResultItem>
                 ) : searchResults.length > 0 ? (
                   searchResults.map((cat) => (
-                    <SearchResultItem key={cat._id} onClick={() => handleSearchResultClick(cat.name)}>
+                    <SearchResultItem key={cat._id} onClick={() => handleSearchResultClick(cat.name)} className="cursor-pointer">
                       <Typography variant="body2" fontWeight="bold">{cat.name}</Typography>
                     </SearchResultItem>
                   ))
@@ -189,7 +213,7 @@ const AllCategories = () => {
               <button
                 key={idx}
                 onClick={() => handleLetterClick(letter)}
-                className={`px-4 py-2 rounded-[10px] border ${
+                className={`px-4 py-2 rounded-[10px] border cursor-pointer ${
                   letter === selectedLetter
                     ? "bg-[#592EA9] text-white"
                     : "border-gray-400 text-gray-700"

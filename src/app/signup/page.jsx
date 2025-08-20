@@ -139,7 +139,7 @@ const SignupPage = () => {
 
               <button
                 type="submit"
-                className="w-full bg-[#592EA9] text-white p-3 rounded-md mt-4 hover:bg-opacity-90 transition-colors duration-200"
+                className="w-full bg-[#592EA9] text-white p-3 rounded-md mt-4 hover:bg-opacity-90 transition-colors duration-200 cursor-pointer"
                 disabled={isSubmitting || loading}
               >
                 {loading ? "Signing up..." : "Sign up"}
@@ -162,7 +162,7 @@ const SignupPage = () => {
         <div className="space-y-3 w-full max-w-md">
           <button
             onClick={handleGoogleSignup}
-            className="w-full shadow-md p-3 rounded-md flex items-center justify-center gap-2 text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 transition-colors duration-200"
+            className="w-full shadow-md p-3 rounded-md flex items-center justify-center gap-2 text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
             disabled={loading}
           >
             <GoogleIcon className="text-[#4285F4]" /> Continue with Google
@@ -171,7 +171,7 @@ const SignupPage = () => {
 
         <div className="text-center text-sm mt-6">
           Already have an account?{" "}
-          <a className="text-[#592EA9] hover:underline" href="/login">
+          <a className="text-[#592EA9] hover:underline cursor-pointer" href="/login">
             Sign in
           </a>
         </div>

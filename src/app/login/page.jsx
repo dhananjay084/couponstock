@@ -137,7 +137,7 @@ const LoginComponent = () => {
                     <button
                       type="button"
                       onClick={() => setShowPassword((v) => !v)}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 cursor-pointer"
                       aria-label={showPassword ? "Hide password" : "Show password"}
                     >
                       {showPassword ? <VisibilityOff /> : <Visibility />}
@@ -150,7 +150,7 @@ const LoginComponent = () => {
                   <div>
                     <a
                       href="/forgot-password"
-                      className="text-sm text-[#592EA9] hover:underline"
+                      className="text-sm text-[#592EA9] hover:underline cursor-pointer"
                     >
                       Forgot Password?
                     </a>
@@ -159,7 +159,7 @@ const LoginComponent = () => {
 
                 <button
                   type="submit"
-                  className="w-full bg-[#592EA9] text-white py-3 rounded-md font-medium hover:bg-opacity-90 transition"
+                  className="w-full bg-[#592EA9] text-white py-3 rounded-md font-medium hover:bg-opacity-90 transition cursor-pointer"
                   disabled={isSubmitting || loading}
                 >
                   {loading ? "Logging in..." : "Login"}
@@ -177,7 +177,7 @@ const LoginComponent = () => {
           <div className="space-y-3">
             <button
               onClick={handleGoogleLogin}
-              className="w-full flex items-center justify-center gap-2 border border-gray-300 shadow-sm rounded-md py-3 hover:bg-gray-50 transition"
+              className="w-full flex items-center justify-center gap-2 border border-gray-300 shadow-sm rounded-md py-3 hover:bg-gray-50 transition cursor-pointer"
               disabled={loading}
             >
               <GoogleIcon className="text-[#4285F4]" />
@@ -187,7 +187,7 @@ const LoginComponent = () => {
 
           <div className="text-center text-sm mt-6">
             You don’t have an account?{" "}
-            <a className="text-[#592EA9] hover:underline" href="/signup">
+            <a className="text-[#592EA9] hover:underline cursor-pointer" href="/signup">
               Sign up
             </a>
           </div>

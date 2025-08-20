@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:5000/api/stores';
+// const BASE_URL = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/stores`;
+const BASE_URL = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/stores`;
+
 
 export const getStoresAPI = async () => {
   const response = await axios.get(BASE_URL);

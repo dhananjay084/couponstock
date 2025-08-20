@@ -32,7 +32,7 @@ const DealCard = ({ data }) => {
         </p>
 
         <button
-          className="bg-[#592EA921] rounded-lg px-4 py-2 text-[#592EA9] shadow-lg mt-2"
+          className="bg-[#592EA921] rounded-lg px-4 py-2 text-[#592EA9] shadow-lg mt-2 cursor-pointer"
           onClick={handleCardClick}
         >
           View

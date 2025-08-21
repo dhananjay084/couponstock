@@ -54,11 +54,6 @@ const AllCoupons = () => {
 }, [dispatch]);
 
 
-useEffect(() => {
-  if (activeDeals.length === 0) toast.info("No active deals available.");
-  if (expiredDeals.length === 0) toast.info("No expired deals found.");
-  if (reviews.length === 0) toast.info("No user reviews yet.");
-}, [activeDeals, expiredDeals, reviews]);
 
 
 
@@ -79,6 +74,13 @@ useEffect(() => {
     expiry.setHours(0, 0, 0, 0);
     return expiry >= today;
   });
+
+  
+useEffect(() => {
+  if (activeDeals.length === 0) toast.info("No active deals available.");
+  if (expiredDeals.length === 0) toast.info("No expired deals found.");
+  if (reviews.length === 0) toast.info("No user reviews yet.");
+}, [activeDeals, expiredDeals, reviews]);
 
   return (
     <>

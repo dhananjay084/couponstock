@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-// import withSkeleton from "@/components/skeletons/WithSkeleton";
 import Banner from "@/components/Minor/Banner";
 import BannerCard from "@/components/cards/BannerCards";
 import { getHomeAdminData } from "@/redux/admin/homeAdminSlice";

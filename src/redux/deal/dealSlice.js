@@ -100,7 +100,7 @@ const dealSlice = createSlice({
       // Handle addDeal
       .addCase(addDeal.fulfilled, (state, action) => {
         state.deals.push(action.payload); // Add new deal to the array
-        toast.success('Deal added!');
+        // toast.success('Deal added!');
       })
       .addCase(addDeal.rejected, (state, action) => {
         toast.error(`Add deal failed: ${action.payload}`);
@@ -109,7 +109,7 @@ const dealSlice = createSlice({
       // Handle deleteDeal
       .addCase(deleteDeal.fulfilled, (state, action) => {
         state.deals = state.deals.filter((d) => d._id !== action.payload); // Filter out deleted deal
-        toast.success('Deal deleted');
+        // toast.success('Deal deleted');
       })
       .addCase(deleteDeal.rejected, (state, action) => {
         toast.error(`Delete deal failed: ${action.payload}`);
@@ -119,7 +119,7 @@ const dealSlice = createSlice({
       .addCase(updateDeal.fulfilled, (state, action) => {
         const index = state.deals.findIndex((d) => d._id === action.payload._id);
         if (index !== -1) state.deals[index] = action.payload; // Update the specific deal
-        toast.success('Deal updated');
+        // toast.success('Deal updated');
       })
       .addCase(updateDeal.rejected, (state, action) => {
         toast.error(`Update deal failed: ${action.payload}`);

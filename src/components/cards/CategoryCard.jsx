@@ -2,6 +2,8 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
+
 
 const CategoryCard = ({ data }) => {
   if (!data) return null;
@@ -10,7 +12,12 @@ const CategoryCard = ({ data }) => {
   const { image, name } = data;
 
   const handleClick = () => {
+    if (!name) {
+    toast.error("Category not found!");
+    return;
+  }
     router.push(`/category?name=${encodeURIComponent(name)}`);
+    //  toast.success(`Opening ${name} category...`);
   };
 
   return (

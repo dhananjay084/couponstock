@@ -5,12 +5,18 @@ import React from "react";
 import { FaChevronDown } from "react-icons/fa";
 import { Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 const BlogCard = ({ blog }) => {
   const router = useRouter();
 
   const handleClick = () => {
+    if (!blog?._id) {
+    toast.error("Blog not found!");
+    return;
+  }
     router.push(`/blog/${blog._id}`); // Next.js client-side navigation
+    //  toast.success("Opening blog...");
   };
 
   return (

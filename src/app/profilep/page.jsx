@@ -11,6 +11,7 @@ import TextLink from "../../components/Minor/TextLink";
 import { fetchReviews, addReview } from "../../redux/review/reviewSlice.js";
 import { useSelector, useDispatch } from "react-redux";
 import BannerImage from "@/assets/banner-image.webp";
+import { toast } from "react-toastify";
 
 const DEFAULT_REVIEW_IMAGE =
   "https://cdn-icons-png.flaticon.com/512/219/219988.png";
@@ -83,12 +84,14 @@ const ProfilePage = () => {
     dispatch(addReview(payload))
       .unwrap()
       .then(() => {
+          toast.success("Review submitted successfully!");
         setSubmitted(true);
         setDesc("");
         dispatch(fetchReviews());
       })
       .catch((err) => {
         console.error("Failed to submit review:", err);
+         toast.error("Failed to submit review. Please try again.");
       });
   };
 

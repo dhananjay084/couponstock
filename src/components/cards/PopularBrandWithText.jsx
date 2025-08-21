@@ -2,6 +2,8 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
+
 
 const PopularBrandCardWithText = ({ data = {} }) => {
   const router = useRouter();
@@ -16,9 +18,14 @@ const PopularBrandCardWithText = ({ data = {} }) => {
     if (data._id) {
       if (data.storeName) {
         router.push(`/store/${data._id}`);
+        //  toast.success(`Opening ${storeName} store...`);
       } else {
+        //  toast.success("Opening deal...");
         router.push(`/deal/${data._id}?category=${data.categorySelect}`);
       }
+    }
+    else {
+      toast.error("Invalid data!");
     }
   };
 

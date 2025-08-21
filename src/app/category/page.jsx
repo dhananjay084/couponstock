@@ -15,6 +15,7 @@ import { fetchReviews } from "@/redux/review/reviewSlice";
 import { getDeals } from "@/redux/deal/dealSlice";
 import { useSelector, useDispatch } from "react-redux";
 import { useSearchParams } from "next/navigation";
+import { toast } from "react-toastify";
 
 // A dedicated loading component to show a better UI
 const LoadingFallback = () => (
@@ -39,10 +40,20 @@ const SingleCategoryContent = () => {
   const handleSortClick = (event) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
 
+  // useEffect(() => {
+  //   dispatch(getDeals());
+  //   dispatch(fetchReviews());
+  // }, [dispatch]);
+
   useEffect(() => {
-    dispatch(getDeals());
-    dispatch(fetchReviews());
-  }, [dispatch]);
+  dispatch(getDeals())
+    .unwrap()
+    .catch(() => toast.error("Failed to load deals"));
+
+  dispatch(fetchReviews())
+    .unwrap()
+    .catch(() => toast.error("Failed to load reviews"));
+}, [dispatch]);
 
   return (
     <div>

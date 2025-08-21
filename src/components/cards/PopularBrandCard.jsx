@@ -2,14 +2,26 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 const PopularBrandCard = ({ data }) => {
-  if (!data) return null;
+  // if (!data) return null;
+  if (!data) {
+    toast.error("Brand data not found!");
+    return null;
+  }
+
 
   const router = useRouter();
   const { storeImage, storeName, _id } = data;
 
   const handleCardClick = () => {
+    // router.push(`/store/${_id}`);
+    if (!_id) {
+      toast.error("Store ID is missing!");
+      return;
+    }
+    // toast.success(`Opening ${storeName}...`);
     router.push(`/store/${_id}`);
   };
 

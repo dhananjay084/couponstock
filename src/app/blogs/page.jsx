@@ -6,14 +6,21 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchBlogs } from "@/redux/blog/blogSlice";
 import BlogCard from "@/components/cards/BlogCard";
 import RecentBlogCrad from "@/components/cards/NewBlogCard";
+import { toast } from "react-toastify";
 
 const BlogsPage = () => {
   const dispatch = useDispatch();
   const { blogs = [], loading } = useSelector((state) => state.blogs || {});
 
+  // useEffect(() => {
+  //   dispatch(fetchBlogs());
+  // }, [dispatch]);
+
   useEffect(() => {
-    dispatch(fetchBlogs());
-  }, [dispatch]);
+      dispatch(fetchBlogs())
+        .unwrap()
+        .catch(() => toast.error("Failed to load blogs"));
+    }, [dispatch]);
 
   // Memoized sorting of blogs
   const sorted = useMemo(() => {

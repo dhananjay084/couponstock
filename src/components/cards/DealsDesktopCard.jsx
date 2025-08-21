@@ -3,19 +3,35 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import CouponModal from "../modals/couponModels";
+import { toast } from "react-toastify";
+
 
 const BannerCard = ({ data }) => {
-  if (!data) return null;
+  // if (!data) return null;
+  if (!data) {
+  toast.error("Banner data not available!");
+  return null;
+}
 
   const router = useRouter();
 
   const handleCardClick = () => {
+     if (!data?._id) {
+    toast.error("Deal ID is missing!");
+    return;
+  }
+    // toast.success("Redirecting to deal...");
     router.push(`/deal/${data._id}?category=${data.categorySelect}`);
   };
 
   const [modalOpen, setModalOpen] = useState(false);
 
   const handleModalClick = () => {
+     if (!data) {
+    toast.error("Coupon data missing!");
+    return;
+  }
+    toast.success("Showing coupon code...");
     setModalOpen(true);
   };
 

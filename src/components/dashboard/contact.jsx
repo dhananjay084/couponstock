@@ -3,6 +3,8 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchContacts } from "@/redux/contact/contactSlice";
+import { toast } from "react-toastify";
+
 
 export default function ContactsTablePage() {
   const dispatch = useDispatch();
@@ -13,6 +15,17 @@ export default function ContactsTablePage() {
       dispatch(fetchContacts());
     }
   }, [dispatch, fetchStatus]);
+
+  useEffect(() => {
+    if (fetchStatus === "failed" && fetchError) {
+      toast.error(fetchError || "Failed to fetch contacts.");
+    }
+
+    if (fetchStatus === "success") {
+      toast.success("Contacts loaded successfully!");
+    }
+  }, [fetchStatus, fetchError]);
+
 
   return (
     <div className="px-4 md:px-8 lg:px-16 py-8 max-w-7xl mx-auto">

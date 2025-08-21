@@ -3,6 +3,7 @@
 import React from "react";
 import { Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 const Coupons_Deals = ({ border = false, data }) => {
   const router = useRouter();
@@ -10,6 +11,10 @@ const Coupons_Deals = ({ border = false, data }) => {
   if (!data) return null;
 
   const handleDealClick = () => {
+     if (!data?._id) {
+        toast.error("Blog data not found!");
+        return;
+      }
     router.push(`/blog/${data._id}`);
   };
 

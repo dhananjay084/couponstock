@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchBlogById, fetchBlogs } from "@/redux/blog/blogSlice";
 import BlogCard from "@/components/cards/BlogDetailsCard";
 import { useParams } from "next/navigation"; // to get dynamic param
-// import { toast } from "react-toastify";
+import { toast } from "react-toastify";
 
 const BlogDetails = () => {
   const params = useParams();
@@ -21,13 +21,18 @@ const BlogDetails = () => {
 
   // Fetch all blogs for the "All Blogs" section
   useEffect(() => {
-    dispatch(fetchBlogs());
+    dispatch(fetchBlogs())
+      .unwrap()
+      // .catch(() => toast.error("Failed to load blogs"));
   }, [dispatch]);
 
   // Fetch the blog by ID when param changes
   useEffect(() => {
     if (id) {
-      dispatch(fetchBlogById(id));
+      dispatch(fetchBlogById(id))
+        .unwrap()
+        // .then(() => toast.success("Blog loaded successfully!"))
+        .catch(() => toast.error("Failed to load blog"));
     }
   }, [dispatch, id]);
 
@@ -47,9 +52,13 @@ const BlogDetails = () => {
         {loading && !currentBlog ? (
           <p className="text-sm text-gray-500">Loading blog...</p>
         ) : error ? (
-          <p className="text-sm text-red-600">Error: {error}</p>
+          <>
+    <p className="text-sm text-red-600">Error: {error}</p>
+    {/* {toast.error("Something went wrong while fetching blog!")} */}
+  </>
         ) : currentBlog ? (
           <>
+           {/* {toast.success("Blog loaded successfully!")} */}
             <p className="text-sm text-purple-600 font-semibold">
               {new Date(
                 currentBlog.createdAt || currentBlog.updatedAt || Date.now()

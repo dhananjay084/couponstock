@@ -4,11 +4,16 @@
 import React from "react";
 import { Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 const Card = ({ blog }) => {
   const router = useRouter();
 
   const handleClick = () => {
+     if (!blog?._id) {
+              toast.error("blog ID is missing!");
+              return;
+            }
     router.push(`/blog/${blog._id}`); // Next.js navigation
   };
 

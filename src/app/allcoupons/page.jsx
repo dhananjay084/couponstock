@@ -10,7 +10,7 @@ import HeadingText from "@/components/Minor/HeadingText";
 import { getDeals } from "@/redux/deal/dealSlice";
 import { fetchReviews } from "@/redux/review/reviewSlice";
 import { getHomeAdminData } from "@/redux/admin/homeAdminSlice";
-// import { toast } from "react-toastify";
+import { toast } from "react-toastify";
 
 const AllCoupons = () => {
   const dispatch = useDispatch();
@@ -20,45 +20,45 @@ const AllCoupons = () => {
   const homeAdmin = useSelector((state) => state.homeAdmin) || { data: [] };
   const data = homeAdmin.data?.[0] || {};
 
+  // useEffect(() => {
+  //   dispatch(getDeals());
+  //   dispatch(fetchReviews());
+  //   dispatch(getHomeAdminData());
+  // }, [dispatch]);
+
   useEffect(() => {
-    dispatch(getDeals());
-    dispatch(fetchReviews());
-    dispatch(getHomeAdminData());
-  }, [dispatch]);
+  const fetchData = async () => {
+    try {
+      await dispatch(getDeals()).unwrap();
+      // toast.success("Deals loaded successfully!");
+    } catch (err) {
+      // toast.error("Failed to load deals");
+    }
 
-//   useEffect(() => {
-//   const fetchData = async () => {
-//     try {
-//       await dispatch(getDeals()).unwrap();
-//       toast.success("Deals loaded successfully!");
-//     } catch (err) {
-//       toast.error("Failed to load deals");
-//     }
+    try {
+      await dispatch(fetchReviews()).unwrap();
+      // toast.success("Reviews loaded successfully!");
+    } catch (err) {
+      toast.error("Failed to load reviews");
+    }
 
-//     try {
-//       await dispatch(fetchReviews()).unwrap();
-//       toast.success("Reviews loaded successfully!");
-//     } catch (err) {
-//       toast.error("Failed to load reviews");
-//     }
+    try {
+      await dispatch(getHomeAdminData()).unwrap();
+      // toast.success("Home data loaded successfully!");
+    } catch (err) {
+      toast.error("Failed to load home page data");
+    }
+  };
 
-//     try {
-//       await dispatch(getHomeAdminData()).unwrap();
-//       toast.success("Home data loaded successfully!");
-//     } catch (err) {
-//       toast.error("Failed to load home page data");
-//     }
-//   };
-
-//   fetchData();
-// }, [dispatch]);
+  fetchData();
+}, [dispatch]);
 
 
-// useEffect(() => {
-//   if (activeDeals.length === 0) toast.info("No active deals available.");
-//   if (expiredDeals.length === 0) toast.info("No expired deals found.");
-//   if (reviews.length === 0) toast.info("No user reviews yet.");
-// }, [activeDeals, expiredDeals, reviews]);
+useEffect(() => {
+  if (activeDeals.length === 0) toast.info("No active deals available.");
+  if (expiredDeals.length === 0) toast.info("No expired deals found.");
+  if (reviews.length === 0) toast.info("No user reviews yet.");
+}, [activeDeals, expiredDeals, reviews]);
 
 
 

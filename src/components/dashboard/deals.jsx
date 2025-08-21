@@ -110,7 +110,7 @@ const DealsPage = () => {
   const handleDelete = async (id) => {
     try {
       await dispatch(deleteDeal(id)).unwrap();
-      toast.success("Deal deleted!");
+      // toast.success("Deal deleted!");
       dispatch(getDeals());
     } catch (error) {
       toast.error(`Failed to delete deal: ${error.message || "Unknown error"}`);
@@ -124,7 +124,7 @@ const DealsPage = () => {
   const handleUpdate = async (values, resetForm) => {
     try {
       await dispatch(updateDeal({ id: editDeal._id, data: values.deals[0] })).unwrap();
-      toast.success("Deal updated!");
+      // toast.success("Deal updated!");
       dispatch(getDeals());
       resetForm();
       setEditDeal(null);

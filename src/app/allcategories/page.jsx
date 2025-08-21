@@ -12,7 +12,7 @@ import { getHomeAdminData } from "@/redux/admin/homeAdminSlice";
 import { IconButton, Typography, InputBase, Box } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { styled } from "@mui/material/styles";
-// import { toast } from "react-toastify";
+import { toast } from "react-toastify";
 
 // Styled InputBase for search
 const StyledSearchInput = styled(InputBase)(({ theme }) => ({
@@ -63,31 +63,31 @@ const AllCategories = () => {
 
   const alphabet = ["All", ...Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i))];
 
+  // useEffect(() => {
+  //   dispatch(getCategories());
+  //   dispatch(getHomeAdminData());
+  // }, [dispatch]);
+
+
   useEffect(() => {
-    dispatch(getCategories());
-    dispatch(getHomeAdminData());
-  }, [dispatch]);
+  const fetchData = async () => {
+    try {
+      await dispatch(getCategories()).unwrap();
+      // toast.success("Categories loaded successfully!");
+    } catch (err) {
+      toast.error("Failed to load categories");
+    }
 
+    try {
+      await dispatch(getHomeAdminData()).unwrap();
+      // toast.success("Home data loaded successfully!");
+    } catch (err) {
+      toast.error("Failed to load home data");
+    }
+  };
 
-//   useEffect(() => {
-//   const fetchData = async () => {
-//     try {
-//       await dispatch(getCategories()).unwrap();
-//       toast.success("Categories loaded successfully!");
-//     } catch (err) {
-//       toast.error("Failed to load categories");
-//     }
-
-//     try {
-//       await dispatch(getHomeAdminData()).unwrap();
-//       toast.success("Home data loaded successfully!");
-//     } catch (err) {
-//       toast.error("Failed to load home data");
-//     }
-//   };
-
-//   fetchData();
-// }, [dispatch]);
+  fetchData();
+}, [dispatch]);
 
 
   useEffect(() => {
@@ -143,7 +143,7 @@ const AllCategories = () => {
 
   const handleSearchResultClick = (categoryId) => {
     router.push(`/category?name=${categoryId}`);
-    toast.success(`Redirected to ${categoryId} category`);
+    // toast.success(`Redirected to ${categoryId} category`);
     setSearchTerm("");
     dispatch(clearSearchResults());
     setShowSearchDropdown(false);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+// import withSkeleton from "@/components/skeletons/WithSkeleton";
 import Banner from "@/components/Minor/Banner";
 import BannerCard from "@/components/cards/BannerCards";
 import { getHomeAdminData } from "@/redux/admin/homeAdminSlice";
@@ -24,7 +25,10 @@ import { fetchReviews } from "../redux/review/reviewSlice.js";
 import { fetchBlogs } from "../redux/blog/blogSlice";
 import DealOfWeek from "@/components/cards/DealOfWeek";
 import FAQ from '@/components/Minor/Faq'
-export default function Home() {
+import { toast } from "react-toastify";
+
+
+ function Home() {
   const dispatch = useDispatch();
   const { deals = [] } = useSelector((state) => state.deal);
   const { stores = [] } = useSelector((state) => state.store);
@@ -33,6 +37,16 @@ export default function Home() {
   const { blogs = [],  } = useSelector((state) => state.blogs || {});
    const homeAdmin = useSelector((state) => state.homeAdmin) || { data: [] };
     const data = homeAdmin.data?.[0] || {};
+
+
+    const { error: dealError } = useSelector((state) => state.deal);
+const { error: storeError } = useSelector((state) => state.store);
+const { error: categoryError } = useSelector((state) => state.category);
+const { error: reviewError } = useSelector((state) => state.reviews);
+const { error: blogError } = useSelector((state) => state.blogs);
+const { error: homeError } = useSelector((state) => state.homeAdmin);
+
+
 
   // Safe filter function to avoid errors
   const safeFilter = (arr, callback) => Array.isArray(arr) ? arr.filter(callback) : [];
@@ -49,7 +63,17 @@ export default function Home() {
 
   }, [dispatch]);
 
+  
 
+
+  useEffect(() => {
+  if (dealError) toast.error("Failed to load deals!");
+  if (storeError) toast.error("Failed to load stores!");
+  if (categoryError) toast.error("Failed to load categories!");
+  if (reviewError) toast.error("Failed to load reviews!");
+  if (blogError) toast.error("Failed to load blogs!");
+  if (homeError) toast.error("Failed to load homepage data!");
+}, [dealError, storeError, categoryError, reviewError, blogError, homeError]);
 
   return (
     <>
@@ -223,3 +247,6 @@ export default function Home() {
     </>
   );
 }
+
+
+export default Home;

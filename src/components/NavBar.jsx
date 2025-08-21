@@ -19,6 +19,10 @@ import { useRouter } from "next/navigation"; // <-- Next.js router
 import { useDispatch, useSelector } from "react-redux";
 import { searchDeals, clearSearchResults } from "../redux/deal/dealSlice";
 import { logoutUser, checkCurrentUser } from "../redux/auth/authApi";
+import { toast } from "react-toastify";
+import LogoutIcon from "@mui/icons-material/Logout";
+import LoginIcon from "@mui/icons-material/Login";
+
 
 const SearchBar = styled(Box)(() => ({
   backgroundColor: "#fff",
@@ -114,6 +118,7 @@ const NavBar = () => {
     setShowResults(false);
     setSearchTerm("");
     dispatch(clearSearchResults());
+    //  toast.success(`Navigated to ${deal.dealTitle}`);
   };
 
   const handleMenuOpen = (e) => setAnchorEl(e.currentTarget);
@@ -124,19 +129,38 @@ const NavBar = () => {
     handleMenuClose();
   };
 
+
+  let logoutToastFired = false;
+
+  // const handleLogout = async () => {
+     
+  //   handleMenuClose();
+  //   try {
+  //     await dispatch(logoutUser()).unwrap();
+  //     router.push("/login");
+  
+  //   } catch (e) {
+  //     toast.error("Logout failed. Try again!");
+  //     console.error("Logout error:", e);
+  //   }
+  // };
   const handleLogout = async () => {
-    handleMenuClose();
-    try {
-      await dispatch(logoutUser()).unwrap();
+  handleMenuClose();
+
+  dispatch(logoutUser())
+    .unwrap()
+    .then(() => {
+      toast.success("Logged out successfully");
       router.push("/login");
-    } catch (e) {
-      console.error("Logout error:", e);
-    }
-  };
+    })
+    .catch(() => toast.error("Logout failed. Try again!"));
+};
+
 
   const handleLogin = () => {
     router.push("/login");
     handleMenuClose();
+    toast.info("Please login to continue");
   };
 
   return (
@@ -161,11 +185,33 @@ const NavBar = () => {
         <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
           {isAuthenticated ? (
             <>
-              <MenuItem onClick={handleProfile} style={{ cursor: 'pointer' }}>Profile</MenuItem>
-              <MenuItem onClick={handleLogout} style={{ cursor: 'pointer' }}>Logout</MenuItem>
+              <MenuItem onClick={handleProfile} style={{ cursor: 'pointer' }}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1.5,
+                  fontWeight: 500,
+                  "&:hover": { backgroundColor: "#f5f5f5" },
+                }}><Person3Icon fontSize="small" color="primary" />
+                Profile</MenuItem>
+              <MenuItem onClick={handleLogout} style={{ cursor: 'pointer' }} sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1.5,
+                fontWeight: 500,
+                "&:hover": { backgroundColor: "#f5f5f5" },
+              }}> <LogoutIcon fontSize="small" color="error" />
+                Logout</MenuItem>
             </>
           ) : (
-            <MenuItem onClick={handleLogin} style={{ cursor: 'pointer' }}>Login</MenuItem>
+            <MenuItem onClick={handleLogin} style={{ cursor: 'pointer' }} sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1.5,
+              fontWeight: 500,
+              "&:hover": { backgroundColor: "#f5f5f5" },
+            }}> <LoginIcon fontSize="small" color="primary" />
+              Login</MenuItem>
           )}
         </Menu>
       </Toolbar>

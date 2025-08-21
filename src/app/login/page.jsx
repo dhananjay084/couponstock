@@ -17,6 +17,7 @@ import GoogleIcon from "@mui/icons-material/Google";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import CircularProgress from "@mui/material/CircularProgress"; // Or any other loading component
+import { toast } from "react-toastify";
 
 // This is the component that uses useSearchParams and should be wrapped
 const LoginComponent = () => {
@@ -69,6 +70,17 @@ const LoginComponent = () => {
   }, [searchParams, dispatch]);
 
   useEffect(() => {
+  if (error) {
+    // toast.error(error);
+    // dispatch(clearAuthMessage());
+  }
+  if (message) {
+    // toast.success(message);
+    // dispatch(clearAuthMessage());
+  }
+}, [error, message, dispatch]);
+
+  useEffect(() => {
     if (isAuthenticated && !loading) {
       router.replace("/");
     }
@@ -81,6 +93,11 @@ const LoginComponent = () => {
 
   const handleGoogleLogin = () => {
     dispatch(googleLogin());
+  };
+
+  
+  const handleGoHome = () => {
+    router.push("/"); // navigate to homepage
   };
 
   return (
@@ -100,6 +117,15 @@ const LoginComponent = () => {
 
       {/* Form container */}
       <div className="flex-1 px-6 py-10 lg:px-16 lg:py-16 flex flex-col justify-center">
+
+         <div className="flex justify-between w-full max-w-md mb-6">
+          <h1 className="text-[#592EA9] font-bold text-lg  cursor-pointer px-30"  onClick={handleGoHome}>MY COUPON STOCK</h1>
+          {/* <a href="/help" className="text-[#592EA9] hover:underline text-sm">
+            HELP
+          </a> */}
+        </div>
+
+
         <div className="max-w-md mx-auto w-full">
           <h2 className="text-2xl font-bold text-center text-[#592EA9] mb-4">
             Welcome Back 👋

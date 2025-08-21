@@ -9,16 +9,26 @@ import TextLink from "@/components/Minor/TextLink";
 import ReviewCard from "@/components/cards/ReviewCard.jsx";
 import { fetchReviews } from "@/redux/review/reviewSlice";
 import { useSelector, useDispatch } from "react-redux";
+import { toast } from "react-toastify";
 
 const teamImages = [UserImage, UserImage, UserImage];
 
 const AboutUs = () => {
   const dispatch = useDispatch();
-  const { reviews = [] } = useSelector((state) => state.reviews);
+  const { reviews = [] ,  error: reviewError } = useSelector((state) => state.reviews);
 
   useEffect(() => {
     dispatch(fetchReviews());
   }, [dispatch]);
+
+  useEffect(() => {
+  if (reviewError) {
+    toast.error("Failed to load reviews!");
+  } else if (reviews.length > 0) {
+    // toast.success("Reviews loaded!");
+  }
+}, [reviewError, reviews]);
+
 
   return (
     <>

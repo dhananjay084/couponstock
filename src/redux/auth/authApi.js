@@ -3,6 +3,8 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import Cookies from "js-cookie";
+// import { toast } from "react-toastify";
+
 
 // Configure axios to send credentials (HTTP-only cookies)
 axios.defaults.withCredentials = true;
@@ -52,6 +54,7 @@ export const loginUser = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message || "Login failed.");
+        // toast.error(err || "Login failed. Please try again.");
     }
   }
 );

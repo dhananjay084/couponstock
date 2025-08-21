@@ -6,6 +6,7 @@ import * as Yup from "yup";
 import { useSelector, useDispatch } from "react-redux";
 import { getDeals } from "@/redux/deal/dealSlice";
 import { getHomeAdminData, createHomeAdmin, updateHomeAdmin } from "@/redux/admin/homeAdminSlice";
+import { toast } from "react-toastify";
 
 const HomeAdminPage = () => {
   const dispatch = useDispatch();
@@ -59,16 +60,24 @@ const HomeAdminPage = () => {
     enableReinitialize: true,
     onSubmit: (values) => {
       if (editingEntry) {
-        dispatch(updateHomeAdmin({ id: editingEntry._id, data: values })).then(() => {
-          alert("Updated successfully");
+        dispatch(updateHomeAdmin({ id: editingEntry._id, data: values }))
+          .unwrap()
+        .then(() => {
+           toast.success("Updated successfully");
+          // alert("Updated successfully");
           setEditingEntry(null);
           formik.resetForm();
-        });
+        }) .catch(() => toast.error(" Failed to update"));
+
       } else {
-        dispatch(createHomeAdmin(values)).then(() => {
-          alert("Created successfully");
+        dispatch(createHomeAdmin(values))
+          .unwrap()
+        .then(() => {
+           toast.success(" Created successfully");
+          // alert("Created successfully");
           formik.resetForm();
-        });
+          
+        }) .catch(() => toast.error(" Failed to create"));
       }
     },
   });

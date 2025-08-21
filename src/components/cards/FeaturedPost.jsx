@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Typography, Button } from "@mui/material";
 import { useRouter } from "next/navigation";
 import DOMPurify from "dompurify";
+import { toast } from "react-toastify";
 
 const FeaturedPost = ({ blog }) => {
   const router = useRouter();
@@ -23,6 +24,10 @@ const FeaturedPost = ({ blog }) => {
   };
 
   const handleClick = () => {
+     if (!blog?._id) {
+          toast.error("blog ID is missing!");
+          return;
+        }
     router.push(`/blog/${blog._id}`);
   };
 

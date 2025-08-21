@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { FiPhone, FiMail, FiMapPin } from "react-icons/fi";
 import { FaTwitter, FaInstagram, FaDiscord } from "react-icons/fa";
 import { submitContact, resetContactState } from "@/redux/contact/contactSlice"; // adjust path
+import { toast } from "react-toastify";
 
 const subjects = [
   "General Inquiry",
@@ -30,6 +31,7 @@ export default function ContactSection() {
   useEffect(() => {
     if (submission) {
       // Reset form on successful submission
+       toast.success("Message sent successfully!");
       setForm({
         firstName: "",
         lastName: "Doe",
@@ -50,7 +52,8 @@ export default function ContactSection() {
 
   const handleSubmit = () => {
     if (!form.firstName || !form.lastName || !form.email || !form.message) {
-      alert("Please fill required fields.");
+      // alert("Please fill required fields.");
+       toast.warning("Please fill all required fields.");
       return;
     }
 

@@ -2,15 +2,25 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
+
 
 const DealCard = ({ data }) => {
   if (!data) return null;
 
   const router = useRouter();
 
+  // const handleCardClick = () => {
+  //   router.push(`/store/${data._id}`);
+  // };
   const handleCardClick = () => {
-    router.push(`/store/${data._id}`);
-  };
+  if (!data?._id) {
+    toast.error("Store not found!");
+    return;
+  }
+  router.push(`/store/${data._id}`);
+  // toast.success("Redirecting to store...");
+};
 
   const { storeDescription, storeImage } = data;
 

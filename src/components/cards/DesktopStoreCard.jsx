@@ -2,13 +2,26 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
+
 
 const BannerCard = ({ data }) => {
-  if (!data) return null;
+  // if (!data) return null;
+   if (!data) {
+    toast.error("Store data not available!");
+    return null;
+  }
+
 
   const router = useRouter();
 
   const handleCardClick = () => {
+    // router.push(`/store/${data._id}`);
+     if (!data?._id) {
+      toast.error("Store ID is missing!");
+      return;
+    }
+    // toast.success(`Redirecting to ${data.storeName}...`);
     router.push(`/store/${data._id}`);
   };
 

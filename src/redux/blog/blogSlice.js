@@ -88,7 +88,7 @@ const blogSlice = createSlice({
       // Create Blog
       .addCase(createBlog.fulfilled, (state, action) => {
         state.blogs.push(action.payload);
-        toast.success('Blog created successfully!'); // Added toast for success
+        // toast.success('Blog created successfully!'); // Added toast for success
       })
       .addCase(createBlog.rejected, (state, action) => { // Added rejected case
         state.loading = false;
@@ -102,7 +102,7 @@ const blogSlice = createSlice({
         if (index !== -1) {
           state.blogs[index] = action.payload;
         }
-        toast.success('Blog updated successfully!'); // Added toast for success
+        // toast.success('Blog updated successfully!'); // Added toast for success
       })
       .addCase(updateBlog.rejected, (state, action) => { // Added rejected case
         state.loading = false;
@@ -113,7 +113,7 @@ const blogSlice = createSlice({
       // Delete Blog
       .addCase(deleteBlog.fulfilled, (state, action) => {
         state.blogs = state.blogs.filter(blog => blog._id !== action.payload);
-        toast.success('Blog deleted successfully!'); // Added toast for success
+        // toast.success('Blog deleted successfully!'); // Added toast for success
       })
       .addCase(deleteBlog.rejected, (state, action) => { // Added rejected case
         state.loading = false;

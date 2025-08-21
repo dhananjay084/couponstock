@@ -1,12 +1,18 @@
 "use client"; // Required because we use client-side navigation
 
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 const ProductCard = ({ data }) => {
   const router = useRouter();
 
   const handleCardClick = () => {
+    if (!data?._id) {
+    toast.error("Product not found!");
+    return;
+  }
     router.push(`/deal/${data._id}?category=${data.categorySelect}`);
+    // toast.success("Redirecting to product details...");
   };
 
   return (

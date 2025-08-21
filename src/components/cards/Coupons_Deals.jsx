@@ -4,21 +4,44 @@ import React, { useState } from "react";
 import { Typography } from "@mui/material";
 import CouponModal from "../modals/couponModels";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 const Coupons_Deals = ({ border, disabled, data }) => {
-  if (!data) return null;
+  // if (!data) return null;
+  if (!data) {
+  toast.error("Deal not found!");
+  return null;
+}
 
   const router = useRouter();
   const { dealDescription, dealImage, homePageTitle } = data;
   const [modalOpen, setModalOpen] = useState(false);
 
+  // const handleCardClick = () => {
+  //   if (!disabled) setModalOpen(true);
+  // };
+
   const handleCardClick = () => {
-    if (!disabled) setModalOpen(true);
-  };
+  if (disabled) {
+    toast.error("This deal is currently unavailable!");
+    return;
+  }
+  setModalOpen(true);
+};
+
+
+  // const handleDealClick = () => {
+  //   router.push(`/deal/${data._id}?category=${data.categorySelect}`);
+  // };
 
   const handleDealClick = () => {
-    router.push(`/deal/${data._id}?category=${data.categorySelect}`);
-  };
+  if (!data?._id) {
+    toast.error("Deal ID missing!");
+    return;
+  }
+  router.push(`/deal/${data._id}?category=${data.categorySelect}`);
+  // toast.success("Redirecting to deal...");
+};
 
   return (
     <>

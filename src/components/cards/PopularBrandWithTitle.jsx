@@ -2,6 +2,7 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 const PopularBrandCard = ({ data }) => {
   if (!data) return null;
@@ -10,7 +11,13 @@ const PopularBrandCard = ({ data }) => {
   const { storeImage, storeName } = data;
 
   const handleCardClick = () => {
-    router.push(`/store/${data._id}`);
+    // router.push(`/store/${data._id}`);
+     if (data._id) {
+      // toast.success(`Opening ${storeName}...`); 
+       router.push(`/store/${data._id}`);
+    } else {
+      toast.error("Invalid store data!");
+    }
   };
 
   return (

@@ -16,6 +16,7 @@ import { fetchReviews } from "@/redux/review/reviewSlice";
 import TextLink from "@/components/Minor/TextLink";
 import CouponModal from "@/components/modals/couponModels.jsx";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 // ================== Deal Details Component ==================
 const DealDetailsContent = () => {
@@ -46,8 +47,10 @@ const DealDetailsContent = () => {
         setLoading(true);
         const res = await axios.get(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/deals/${id}`);
         setDealDetails(res.data);
+        // toast.success("Deal details loaded!");
       } catch (err) {
         console.error("Error fetching deal:", err);
+        // toast.error("Failed to load deal details!");
       } finally {
         setLoading(false);
       }

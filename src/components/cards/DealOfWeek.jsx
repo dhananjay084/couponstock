@@ -4,9 +4,16 @@ import React from "react";
 import Image from "next/image";
 import { Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
+
 
 const DealOfWeek = ({ data }) => {
-  if (!data) return null;
+  // if (!data) return null;
+
+   if (!data) {
+      toast.error("Deal not found!");
+      return null;
+    }
 
   const router = useRouter();
   const { dealImage, homePageTitle } = data;

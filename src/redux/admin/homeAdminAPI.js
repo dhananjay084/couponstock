@@ -1,5 +1,6 @@
 // src/api/homeAdminAPI.js
 import { getHomeAdminData, createHomeAdmin, updateHomeAdmin } from './homeAdminSlice';
+import { toast } from "react-toastify";
 
 // ✅ Get HomeAdmin Data
 export const fetchHomeAdmin = () => async (dispatch) => {
@@ -7,6 +8,7 @@ export const fetchHomeAdmin = () => async (dispatch) => {
     await dispatch(getHomeAdminData());
   } catch (err) {
     console.error('Fetch error:', err);
+    toast.error("Failed to fetch data ");
   }
 };
 
@@ -16,6 +18,7 @@ export const submitHomeAdmin = (formData) => async (dispatch) => {
     await dispatch(createHomeAdmin(formData));
   } catch (err) {
     console.error('Create error:', err);
+     toast.error("Failed to create entry ");
     throw err;
   }
 };
@@ -26,6 +29,7 @@ export const modifyHomeAdmin = (id, formData) => async (dispatch) => {
     await dispatch(updateHomeAdmin({ id, data: formData }));
   } catch (err) {
     console.error('Update error:', err);
+     toast.error("Failed to update entry ");
     throw err;
   }
 };

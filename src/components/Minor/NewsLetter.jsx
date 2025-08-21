@@ -6,6 +6,8 @@ import NewsletterImg from "../../assets/NewsLetter.png";
 import { Typography, TextField, Button, Box } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { subscribeUser, resetSubscriberState } from "@/redux/newletter/newsletterSlice";
+import { toast } from "react-toastify";
+
 
 const NewsLetter = () => {
   const dispatch = useDispatch();
@@ -22,11 +24,13 @@ const NewsLetter = () => {
 
   useEffect(() => {
     if (success) {
-      alert("Thanks for subscribing!");
+      // alert("Thanks for subscribing!");
+      toast.success("Thanks for subscribing!")
       setInputValue("");
       dispatch(resetSubscriberState());
     } else if (error) {
-      alert(error);
+      // alert(error);
+      toast.error(error)
     }
   }, [success, error, dispatch]);
 

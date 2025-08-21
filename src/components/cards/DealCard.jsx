@@ -2,9 +2,16 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 const DealCard = ({ data }) => {
-  if (!data) return null;
+  // if (!data) return null;
+
+   if (!data) {
+    toast.error("Deal not found!");
+    return null;
+  }
+  
 
   const router = useRouter();
 

@@ -8,6 +8,7 @@ import { registerUser, googleLogin } from "../../redux/auth/authApi";
 import { clearAuthMessage, setAuthMessage } from "../../redux/auth/authSlice";
 import GoogleIcon from "@mui/icons-material/Google";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 const SignupPage = () => {
   const dispatch = useDispatch();
@@ -33,13 +34,24 @@ const SignupPage = () => {
     setSubmitting(false);
 
     if (registerUser.fulfilled.match(resultAction)) {
+       toast.success("Signup successful! Redirecting to login...");
       resetForm();
       router.push("/login"); // redirect to login after signup
     }
+    
   };
 
   const handleGoogleSignup = () => {
-    dispatch(googleLogin());
+    // dispatch(googleLogin());
+    dispatch(googleLogin())
+  .unwrap()
+  .then(() => toast.success("Signed up with Google!"))
+  .catch(() => toast.error("Google signup failed."));
+  };
+
+
+  const handleGoHome = () => {
+    router.push("/"); // navigate to homepage
   };
 
   return (
@@ -57,7 +69,7 @@ const SignupPage = () => {
       <div className="flex flex-col justify-center items-center md:w-1/2 w-full px-6 sm:px-10 py-10">
         {/* Top Header */}
         <div className="flex justify-between w-full max-w-md mb-6">
-          <h1 className="text-[#592EA9] font-bold text-lg">MY COUPON STOCK</h1>
+          <h1 className="text-[#592EA9] font-bold text-lg  cursor-pointer"  onClick={handleGoHome}>MY COUPON STOCK</h1>
           {/* <a href="/help" className="text-[#592EA9] hover:underline text-sm">
             HELP
           </a> */}

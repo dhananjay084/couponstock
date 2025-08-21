@@ -58,10 +58,10 @@ export default function AddBlogPage() {
       try {
         if (editBlogId) {
           await dispatch(updateBlog({ id: editBlogId, data: payload })).unwrap();
-          toast.success("Blog updated!");
+          // toast.success("Blog updated!");
         } else {
           await dispatch(createBlog(payload)).unwrap();
-          toast.success("Blog added!");
+          // toast.success("Blog added!");
         }
         dispatch(fetchBlogs());
         resetForm();
@@ -87,7 +87,7 @@ export default function AddBlogPage() {
   const handleDelete = async (id) => {
     try {
       await dispatch(deleteBlog(id)).unwrap();
-      toast.success("Blog deleted!");
+      // toast.success("Blog deleted!");
       dispatch(fetchBlogs());
     } catch (error) {
       toast.error(`Failed to delete blog: ${error.message || "Unknown error"}`);

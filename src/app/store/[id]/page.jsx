@@ -21,6 +21,8 @@ import FAQAccordion from "@/components/Minor/Faq";
 import { getDeals } from "@/redux/deal/dealSlice";
 import { getStores } from "@/redux/store/storeSlice.js";
 import { fetchReviews } from "@/redux/review/reviewSlice";
+// import { toast } from "react-toastify";
+
 
 const IndividualStore = () => {
   const params = useParams();

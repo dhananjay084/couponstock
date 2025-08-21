@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
 import {
   addReview,
   deleteReview,
@@ -17,7 +18,10 @@ const ReviewsPage = () => {
   const [editId, setEditId] = useState(null);
 
   useEffect(() => {
-    dispatch(fetchReviews());
+    // dispatch(fetchReviews());
+     dispatch(fetchReviews())
+      .unwrap()
+      .catch(() => toast.error(" Failed to load reviews"));
   }, [dispatch]);
 
   const formik = useFormik({
@@ -35,10 +39,22 @@ const ReviewsPage = () => {
     }),
     onSubmit: (values, { resetForm }) => {
       if (editId) {
-        dispatch(updateReview({ id: editId, data: values }));
-        setEditId(null);
+        dispatch(updateReview({ id: editId, data: values }))
+        .unwrap()
+          .then(() => {
+            toast.success(" Review updated successfully");
+            setEditId(null);
+            resetForm();
+          })
+          .catch(() => toast.error(" Failed to update review"));
       } else {
-        dispatch(addReview(values));
+        dispatch(addReview(values))
+        .unwrap()
+          .then(() => {
+            toast.success(" Review added successfully");
+            resetForm();
+          })
+          .catch(() => toast.error(" Failed to add review"));
       }
       resetForm();
     },
@@ -55,7 +71,10 @@ const ReviewsPage = () => {
   };
 
   const handleDelete = (id) => {
-    dispatch(deleteReview(id));
+    dispatch(deleteReview(id))
+    .unwrap()
+      .then(() => toast.success(" Review deleted"))
+      .catch(() => toast.error(" Failed to delete review"));
   };
 
   return (

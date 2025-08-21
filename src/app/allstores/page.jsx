@@ -61,31 +61,31 @@ const AllStores = () => {
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
 
   // Fetch stores and home admin data on mount
-  useEffect(() => {
-    dispatch(getStores());
-    dispatch(getHomeAdminData());
-  }, [dispatch]);
-
-
   // useEffect(() => {
-  // const fetchData = async () => {
-  //   try {
-  //     await dispatch(getStores()).unwrap();
-  //     toast.success("Stores loaded successfully!");
-  //   } catch (err) {
-  //     toast.error("Failed to load stores");
-  //   }
+  //   dispatch(getStores());
+  //   dispatch(getHomeAdminData());
+  // }, [dispatch]);
 
-  //   try {
-  //     await dispatch(getHomeAdminData()).unwrap();
-  //     toast.success("Home admin data loaded successfully!");
-  //   } catch (err) {
-  //     toast.error("Failed to load home page data");
-  //   }
-  // };
 
-//   fetchData();
-// }, [dispatch]);
+  useEffect(() => {
+  const fetchData = async () => {
+    try {
+      await dispatch(getStores()).unwrap();
+      // toast.success("Stores loaded successfully!");
+    } catch (err) {
+      toast.error("Failed to load stores");
+    }
+
+    try {
+      await dispatch(getHomeAdminData()).unwrap();
+      // toast.success("Home admin data loaded successfully!");
+    } catch (err) {
+      toast.error("Failed to load home page data");
+    }
+  };
+
+  fetchData();
+}, [dispatch]);
 
 
   // Debounce search term

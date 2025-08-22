@@ -3,7 +3,7 @@
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import { usePathname } from "next/navigation";
-import withSkeleton from "@/components/skeletons/WithSkeleton";
+// import withSkeleton from "@/components/skeletons/WithSkeleton";
 
 
 export default function ClientLayout({ children }) {
@@ -12,13 +12,13 @@ export default function ClientLayout({ children }) {
   const hideLayout = pathname === "/login" || pathname === "/signup";
 
 
-   const WrappedChildren = withSkeleton(() => <>{children}</>);
+  //  const WrappedChildren = withSkeleton(() => <>{children}</>);
 
 
   return (
     <>
       {!hideLayout && <NavBar />}
-       <WrappedChildren />
+       {children}
       {!hideLayout && <Footer />}
     </>
   );

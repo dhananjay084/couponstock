@@ -162,7 +162,7 @@ const ProfilePage = () => {
 
             <div className="flex items-start gap-6">
               <div className="flex-shrink-0">
-                <div className="w-16 h-16 rounded overflow-hidden ">
+                <div className="w-16 h-16 rounded overflow-hidden border">
                   <Image
                     src={DEFAULT_REVIEW_IMAGE}
                     alt="review avatar"

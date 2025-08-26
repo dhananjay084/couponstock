@@ -16,7 +16,8 @@ import { fetchReviews } from "@/redux/review/reviewSlice";
 import TextLink from "@/components/Minor/TextLink";
 import CouponModal from "@/components/modals/couponModels.jsx";
 import axios from "axios";
-import Modal from '../../../components/modals/loginModal'
+import { toast } from "react-toastify";
+
 // ================== Deal Details Component ==================
 const DealDetailsContent = () => {
   const dispatch = useDispatch();
@@ -32,7 +33,7 @@ const DealDetailsContent = () => {
 
   const { deals = [] } = useSelector((state) => state.deal);
   const { reviews = [] } = useSelector((state) => state.reviews);
-  const [loginmodalOpen, setloginModalOpen] = useState(false);
+
   const handleCardClick = () => setModalOpen(true);
 
   useEffect(() => {
@@ -81,7 +82,7 @@ const DealDetailsContent = () => {
         <div className="flex justify-between items-center p-4">
           <Typography color="#592ea9">{dealDetails.homePageTitle}</Typography>
           {dealDetails.dealCategory === "deal" ? (
-            <button className="bg-[#592EA9] rounded-[10px] p-2 text-white cursor-pointer" onClick={()=>setloginModalOpen(true)}>
+            <button className="bg-[#592EA9] rounded-[10px] p-2 text-white cursor-pointer">
               Shop Now
             </button>
           ) : (
@@ -143,7 +144,6 @@ const DealDetailsContent = () => {
         onClose={() => setModalOpen(false)}
         data={dealDetails}
       />
-       <Modal isOpen={loginmodalOpen} onClose={() => setloginModalOpen(false)} />
     </>
   );
 };

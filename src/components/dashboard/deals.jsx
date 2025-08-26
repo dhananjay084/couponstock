@@ -18,6 +18,7 @@ import "ag-grid-community/styles/ag-theme-alpine.css";
 import { ModuleRegistry, AllCommunityModule } from "ag-grid-community";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
+// Yup validation schema
 const DealSchema = Yup.object().shape({
   deals: Yup.array().of(
     Yup.object().shape({
@@ -32,13 +33,9 @@ const DealSchema = Yup.object().shape({
       categorySelect: Yup.string().required("Please select a category"),
       store: Yup.string().required("Store is required"),
       expiredDate: Yup.date().required("Expiration date is required"),
-      couponCode: Yup.string().required("Coupon code is required"),
-      discount: Yup.string().required("Discount is required"),
-      redirectionLink: Yup.string().url("Enter a valid URL").required("Redirection link is required"), // <-- NEW FIELD
     })
   ),
 });
-
 
 const DealsPage = () => {
   const dispatch = useDispatch();
@@ -190,7 +187,6 @@ const DealsPage = () => {
               couponCode: editDeal.couponCode || '',
               discount: editDeal.discount || '',
               expiredDate: editDeal.expiredDate ? new Date(editDeal.expiredDate).toISOString().split('T')[0] : '',
-              redirectionLink: editDeal.redirectionLink || '', // <-- NEW FIELD
             } : {
               dealTitle: '',
               dealDescription: '',
@@ -205,11 +201,9 @@ const DealsPage = () => {
               couponCode: '',
               discount: '',
               expiredDate: '',
-              redirectionLink: '', // <-- NEW FIELD
             },
           ],
         }}
-        
         validationSchema={DealSchema}
         onSubmit={async (values, { resetForm }) => {
           if (editDeal) {
@@ -359,19 +353,6 @@ const DealsPage = () => {
                         <Field type="date" name={`deals[${index}].expiredDate`} className="w-full px-3 py-2 border rounded-md" />
                         <ErrorMessage name={`deals[${index}].expiredDate`} component="div" className="text-red-500 text-sm mt-1" />
                       </div>
-                      <div className="mb-4">
-  <label className="block mb-1 font-medium">Redirection Link</label>
-  <Field
-    name={`deals[${index}].redirectionLink`}
-    placeholder="https://example.com"
-    className="w-full px-3 py-2 border rounded-md"
-  />
-  <ErrorMessage
-    name={`deals[${index}].redirectionLink`}
-    component="div"
-    className="text-red-500 text-sm mt-1"
-  />
-</div>
 
 
                       <div className="mb-4 flex items-center gap-2">

@@ -8,7 +8,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchBlogById, fetchBlogs } from "@/redux/blog/blogSlice";
 import BlogCard from "@/components/cards/BlogDetailsCard";
 import { useParams } from "next/navigation"; // to get dynamic param
-import { toast } from "react-toastify";
 
 const BlogDetails = () => {
   const params = useParams();

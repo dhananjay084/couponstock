@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/deals`; // adjust for production if needed
+const BASE_URL = 'http://localhost:5000/api/deals'; // adjust for production if needed
 
 export const getAllDeals = async () => {
   const response = await axios.get(BASE_URL);

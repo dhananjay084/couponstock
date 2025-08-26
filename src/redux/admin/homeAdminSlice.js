@@ -2,7 +2,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-const BASE = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/admin`;
+const BASE = `${process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:5000'}/api/admin`;
 // Fetch entries
 export const getHomeAdminData = createAsyncThunk('homeAdmin/get', async () => {
   const res = await axios.get(BASE);

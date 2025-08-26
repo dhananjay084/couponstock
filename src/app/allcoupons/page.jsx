@@ -10,7 +10,6 @@ import HeadingText from "@/components/Minor/HeadingText";
 import { getDeals } from "@/redux/deal/dealSlice";
 import { fetchReviews } from "@/redux/review/reviewSlice";
 import { getHomeAdminData } from "@/redux/admin/homeAdminSlice";
-import { toast } from "react-toastify";
 
 const AllCoupons = () => {
   const dispatch = useDispatch();
@@ -35,6 +34,7 @@ const AllCoupons = () => {
       // toast.error("Failed to load deals");
     }
 
+<<<<<<< HEAD
     try {
       await dispatch(fetchReviews()).unwrap();
       // toast.success("Reviews loaded successfully!");
@@ -65,6 +65,8 @@ useEffect(() => {
 
 
 
+=======
+>>>>>>> parent of 5c54912 (fix: use env variable for API URLs)
   // Current date (without time)
   const today = new Date();
   today.setHours(0, 0, 0, 0);

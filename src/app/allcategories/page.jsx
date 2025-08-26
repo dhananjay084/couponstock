@@ -69,13 +69,31 @@ const AllCategories = () => {
 
 
   useEffect(() => {
-  const fetchData = async () => {
-    try {
-      await dispatch(getCategories()).unwrap();
-      // toast.success("Categories loaded successfully!");
-    } catch (err) {
-      toast.error("Failed to load categories");
-    }
+    dispatch(getCategories());
+    dispatch(getHomeAdminData());
+  }, [dispatch]);
+
+
+//   useEffect(() => {
+//   const fetchData = async () => {
+//     try {
+//       await dispatch(getCategories()).unwrap();
+//       toast.success("Categories loaded successfully!");
+//     } catch (err) {
+//       toast.error("Failed to load categories");
+//     }
+
+//     try {
+//       await dispatch(getHomeAdminData()).unwrap();
+//       toast.success("Home data loaded successfully!");
+//     } catch (err) {
+//       toast.error("Failed to load home data");
+//     }
+//   };
+
+//   fetchData();
+// }, [dispatch]);
+
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -130,10 +148,7 @@ const AllCategories = () => {
 
   const handleSearchResultClick = (categoryId) => {
     router.push(`/category?name=${categoryId}`);
-<<<<<<< HEAD
-    // toast.success(`Redirected to ${categoryId} category`);
-=======
->>>>>>> parent of 5c54912 (fix: use env variable for API URLs)
+    toast.success(`Redirected to ${categoryId} category`);
     setSearchTerm("");
     dispatch(clearSearchResults());
     setShowSearchDropdown(false);

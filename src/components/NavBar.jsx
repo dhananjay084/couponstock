@@ -93,7 +93,7 @@ const NavBar = () => {
 
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
-
+console.log("isAuthenticated",isAuthenticated)
   useEffect(() => {
     dispatch(checkCurrentUser());
   }, [dispatch]);

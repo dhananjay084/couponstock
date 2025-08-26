@@ -54,6 +54,14 @@ const AllCoupons = () => {
 }, [dispatch]);
 
 
+<<<<<<< HEAD
+=======
+useEffect(() => {
+  if (activeDeals.length === 0) toast.info("No active deals available.");
+  if (expiredDeals.length === 0) toast.info("No expired deals found.");
+  if (reviews.length === 0) toast.info("No user reviews yet.");
+}, [activeDeals, expiredDeals, reviews]);
+>>>>>>> parent of 81aac88 (fix: use env variable for API URLs)
 
 
 

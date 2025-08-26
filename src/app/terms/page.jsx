@@ -17,7 +17,7 @@ const TermsPage = () => {
         title="Mycouponstck Terms & Conditions"
         content={`
 
-<p class="has-black-color has-text-color has-link-color wp-elements-77f7e837cf9f43bd9d82b9bbc484c45e">By using the <strong><a href="https://mycouponstock.com/">MyCouponstock</a></strong> application, you agree that you have read and understand this Agreement (‘Agreement‘) and that your membership in the Web shall confirm its terms and conditions. Failure to do so will result in your account being permanently locked, and you will no longer be eligible to claim any rewards or cashback collected in your <strong><a href="https://mycouponstock.com/contact/">MyCouponstock account.</a></strong></p>
+<p class="has-black-color has-text-color has-link-color wp-elements-77f7e837cf9f43bd9d82b9bbc484c45e">By using the ><a href="https://mycouponstock.com/">MyCouponstock</a></strong> application, you agree that you have read and understand this Agreement (‘Agreement‘) and that your membership in the Web shall confirm its terms and conditions. Failure to do so will result in your account being permanently locked, and you will no longer be eligible to claim any rewards or cashback collected in your <strong><a href="https://mycouponstock.com/contact/">MyCouponstock account.</a></strong></p>
 
 <p class="has-vivid-red-color has-text-color has-link-color wp-elements-3b4e0f157d07fd91f2b961d6825c4b7e"><strong>“You agree to not do any fraud activity by communicating false information to the customers, and if anything of the sort happens, strict legal action will be taken against you.”</strong></p>
 

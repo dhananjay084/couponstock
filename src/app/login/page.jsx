@@ -11,13 +11,12 @@ import {
   checkCurrentUser,
   setUserDataInCookies,
 } from "../../redux/auth/authApi";
-import { clearAuthMessage, setAuthMessage } from "../../redux/auth/authSlice";
+import {  setAuthMessage } from "../../redux/auth/authSlice";
 import { useRouter, useSearchParams } from "next/navigation";
 import GoogleIcon from "@mui/icons-material/Google";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import CircularProgress from "@mui/material/CircularProgress"; // Or any other loading component
-import { toast } from "react-toastify";
 
 // This is the component that uses useSearchParams and should be wrapped
 const LoginComponent = () => {

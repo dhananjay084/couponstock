@@ -24,7 +24,6 @@ import { fetchReviews } from "../redux/review/reviewSlice.js";
 import { fetchBlogs } from "../redux/blog/blogSlice";
 import DealOfWeek from "@/components/cards/DealOfWeek";
 import FAQ from '@/components/Minor/Faq'
-import { toast } from "react-toastify";
 
 
  function Home() {
@@ -65,14 +64,7 @@ const { error: homeError } = useSelector((state) => state.homeAdmin);
   
 
 
-  useEffect(() => {
-  if (dealError) toast.error("Failed to load deals!");
-  if (storeError) toast.error("Failed to load stores!");
-  if (categoryError) toast.error("Failed to load categories!");
-  if (reviewError) toast.error("Failed to load reviews!");
-  if (blogError) toast.error("Failed to load blogs!");
-  if (homeError) toast.error("Failed to load homepage data!");
-}, [dealError, storeError, categoryError, reviewError, blogError, homeError]);
+
 
   return (
     <>

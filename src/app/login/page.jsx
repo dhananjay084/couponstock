@@ -1,4 +1,3 @@
-// app/login/page.js
 
 "use client";
 
@@ -17,7 +16,6 @@ import GoogleIcon from "@mui/icons-material/Google";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import CircularProgress from "@mui/material/CircularProgress"; // Or any other loading component
-import { toast } from "react-toastify";
 
 // This is the component that uses useSearchParams and should be wrapped
 const LoginComponent = () => {
@@ -72,11 +70,11 @@ const LoginComponent = () => {
   useEffect(() => {
   if (error) {
     // toast.error(error);
-    // dispatch(clearAuthMessage());
+    dispatch(clearAuthMessage());
   }
   if (message) {
     // toast.success(message);
-    // dispatch(clearAuthMessage());
+    dispatch(clearAuthMessage());
   }
 }, [error, message, dispatch]);
 

@@ -34,7 +34,6 @@ const SearchBar = styled(Box)(() => ({
   position: "relative",
   display: "flex",
   alignItems: "center",
-  zIndex: 1000,
 }));
 
 const SearchIconWrapper = styled("div")(() => ({

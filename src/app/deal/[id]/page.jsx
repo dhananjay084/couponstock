@@ -16,15 +16,14 @@ import { fetchReviews } from "@/redux/review/reviewSlice";
 import TextLink from "@/components/Minor/TextLink";
 import CouponModal from "@/components/modals/couponModels.jsx";
 import axios from "axios";
-import { toast } from "react-toastify";
-
+import LoginModal from "@/components/modals/loginModal";
 // ================== Deal Details Component ==================
 const DealDetailsContent = () => {
   const dispatch = useDispatch();
   const searchParams = useSearchParams();
   const params = useParams(); // ✅ Get dynamic params in client components
   const id = params?.id;
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [dealDetails, setDealDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -82,7 +81,7 @@ const DealDetailsContent = () => {
         <div className="flex justify-between items-center p-4">
           <Typography color="#592ea9">{dealDetails.homePageTitle}</Typography>
           {dealDetails.dealCategory === "deal" ? (
-            <button className="bg-[#592EA9] rounded-[10px] p-2 text-white cursor-pointer">
+            <button className="bg-[#592EA9] rounded-[10px] p-2 text-white cursor-pointer"  onClick={() => setIsModalOpen(true)}>
               Shop Now
             </button>
           ) : (
@@ -144,6 +143,7 @@ const DealDetailsContent = () => {
         onClose={() => setModalOpen(false)}
         data={dealDetails}
       />
+      <LoginModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </>
   );
 };

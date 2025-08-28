@@ -131,7 +131,7 @@ const LoginComponent = () => {
 
         <div className="max-w-md mx-auto w-full">
           <h2 className="text-2xl font-bold text-center text-[#592EA9] mb-4">
-            Welcome Back 
+            Welcome Back 👋
           </h2>
 
           <Formik

@@ -85,9 +85,11 @@ const LoginComponent = () => {
   }, [isAuthenticated, loading, router]);
 
   const handleEmailLogin = async (values, { setSubmitting }) => {
-    await dispatch(loginUser(values));
+    dispatch(loginUser(values));
     setSubmitting(false);
+    dispatch(checkCurrentUser()); // <-- ADD THIS
   };
+  
 
   const handleGoogleLogin = () => {
     dispatch(googleLogin());

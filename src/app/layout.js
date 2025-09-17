@@ -1,6 +1,7 @@
 import "./globals.css";
 import Providers from "./Provider";
 import ClientLayout from "./ClientLayout"; // move client logic here
+import "react-quill/dist/quill.snow.css";
 
 export const metadata = {
   title: "My Couponstock",

@@ -6,7 +6,13 @@ import React, { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useParams } from "next/navigation";
 import Banner from "@/components/Minor/Banner";
 import Image from "@/assets/banner-image.webp";
-import { Typography, CircularProgress, Box } from "@mui/material";
+import {
+  Typography,
+  CircularProgress,
+  Box,
+  Button,
+  Divider,
+} from "@mui/material";
 import HeadingText from "@/components/Minor/HeadingText";
 import DealCard from "@/components/cards/DealCard";
 import { useSelector, useDispatch } from "react-redux";
@@ -17,7 +23,6 @@ import TextLink from "@/components/Minor/TextLink";
 import CouponModal from "@/components/modals/couponModels.jsx";
 import axios from "axios";
 import LoginModal from "@/components/modals/loginModal";
-// ================== Deal Details Component ==================
 const DealDetailsContent = () => {
   const dispatch = useDispatch();
   const searchParams = useSearchParams();
@@ -77,7 +82,7 @@ const DealDetailsContent = () => {
           ColorText="discuss"
           BgImage={Image.src}
         />
-
+{/* 
         <div className="flex justify-between items-center p-4">
           <Typography color="#592ea9">{dealDetails.homePageTitle}</Typography>
           {dealDetails.dealCategory === "deal" ? (
@@ -96,14 +101,76 @@ const DealDetailsContent = () => {
 
         <div className="px-4">
           <h2 className="font-semibold text-xl">{dealDetails.dealTitle}</h2>
-        </div>
+        </div> */}
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          mb={3}
+          flexWrap="wrap"
+          gap={2}
+          maxWidth='95%'
+          marginX='auto'
+          marginTop={2}
+        >
+          <Typography variant="h5" sx={{ fontSize:'20px' , color: "#592EA9", fontWeight: "600" }}>
+            {dealDetails.homePageTitle}
+          </Typography>
 
+          <Button
+            variant="contained"
+            sx={{
+              backgroundColor: "#592EA9",
+              borderRadius: "10px",
+              padding: "10px 24px",
+              textTransform: "none",
+              "&:hover": {
+                backgroundColor: "#4a2380",
+              },
+            }}
+            onClick={() =>
+              dealDetails.dealCategory === "deal"
+                ? setIsModalOpen(true)
+                : handleCardClick()
+            }
+          >
+            {dealDetails.dealCategory === "deal" ? "Shop Now" : "Show Code"}
+          </Button>
+        </Box>
+
+        {/* Deal Title */}
+        <Typography
+          variant="h4"
+          fontWeight="bold"
+          mb={2}
+          sx={{ color: "#333",fontSize:'18px' }}
+           maxWidth='95%'
+          marginX='auto'
+        >
+          {dealDetails.dealTitle}
+        </Typography>
+
+        {/* Deal Details */}
         <HeadingText
-          title={dealDetails.dealTitle}
+          title="Deal Details"
           isHtml={true}
           content={dealDetails.details}
         />
 
+        {/* <HeadingText
+          title={dealDetails.dealTitle}
+          isHtml={true}
+          content={dealDetails.details}
+        /> */}
+   <Typography
+          variant="h4"
+          fontWeight="bold"
+          sx={{ color: "#592EA9",fontSize:'18px' }}
+           maxWidth='95%'
+          marginX='auto'
+        >
+          Related Deals
+        </Typography>
         <div className="flex overflow-x-scroll gap-4 p-4">
           {deals
             .filter(
@@ -123,7 +190,7 @@ const DealDetailsContent = () => {
           content={dealDetails.dealDescription}
         />
 
-        <TextLink text="Loft User" colorText="Reviews" link="" linkText="" />
+        <TextLink text="User" colorText="Reviews" link="" linkText="" />
 
         <div className="pt-0 p-4 flex gap-4 overflow-x-scroll">
           {reviews.length > 0 ? (

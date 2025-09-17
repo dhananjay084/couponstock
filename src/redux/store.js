@@ -8,6 +8,8 @@ import reviewReducer from './review/reviewSlice.js';
 import blogReducer from './blog/blogSlice';
 import contactReducer from './contact/contactSlice.js'
 import adminReducer from './admin/homeAdminSlice.js'
+import { paymentApi } from './razorpay/paymentApi';
+import paymeReducer from './razorpay/paymeslice';
 
 
 export const store = configureStore({
@@ -21,6 +23,9 @@ export const store = configureStore({
     blogs: blogReducer,
     contact: contactReducer,
     homeAdmin: adminReducer,
-
+    [paymentApi.reducerPath]: paymentApi.reducer,
+    payme: paymeReducer,
   },
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(paymentApi.middleware),
+
 });

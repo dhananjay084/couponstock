@@ -104,7 +104,7 @@ const ProfilePage = () => {
             alt={user.name}
             width={112}
             height={112}
-            className="object-cover"
+            className="object-cover h-full"
           />
         </div>
         <h1 className="text-2xl font-semibold text-white">{`Hi, ${user.name}`}</h1>

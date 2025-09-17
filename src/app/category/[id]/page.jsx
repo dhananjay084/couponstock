@@ -1,9 +1,7 @@
-// src/app/single-category/page.js
-
 "use client";
 
 import React, { useState, useEffect, Suspense } from "react";
-import { Menu, MenuItem, Typography } from "@mui/material";
+import { Menu, MenuItem, Typography, Box } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import TextLink from "@/components/Minor/TextLink";
 import DealCard from "@/components/cards/DealCard";
@@ -14,60 +12,58 @@ import ReviewCard from "@/components/cards/ReviewCard";
 import { fetchReviews } from "@/redux/review/reviewSlice";
 import { getDeals } from "@/redux/deal/dealSlice";
 import { useSelector, useDispatch } from "react-redux";
-import { useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { toast } from "react-toastify";
 
-// A dedicated loading component to show a better UI
+// Loading fallback UI
 const LoadingFallback = () => (
-  <div className="flex justify-center items-center h-screen">
+  <Box className="flex justify-center items-center h-screen">
     <Typography variant="h5">Loading category deals...</Typography>
-  </div>
+  </Box>
 );
+
 const SingleCategoryContent = () => {
   const dispatch = useDispatch();
   const { reviews = [] } = useSelector((state) => state.reviews);
   const { deals = [] } = useSelector((state) => state.deal);
 
-  // This is the hook that causes the error on the server
-  const searchParams = useSearchParams();
-  const category = searchParams?.get("name") || "All";
+  // Read the category from the dynamic route param `[id]`
+  const params = useParams();
+  const category = params?.id ? decodeURIComponent(params.id).trim() : "All";
 
+  // Filter deals based on category
   const filteredDeals = deals.filter((deal) => deal.categorySelect === category);
 
+  // Sorting menu state
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
   const handleSortClick = (event) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
 
-  // useEffect(() => {
-  //   dispatch(getDeals());
-  //   dispatch(fetchReviews());
-  // }, [dispatch]);
-
   useEffect(() => {
-  dispatch(getDeals())
-    .unwrap()
-    .catch(() => toast.error("Failed to load deals"));
+    dispatch(getDeals())
+      .unwrap()
+      .catch(() => toast.error("Failed to load deals"));
 
-  dispatch(fetchReviews())
-    .unwrap()
-    .catch(() => toast.error("Failed to load reviews"));
-}, [dispatch]);
+    dispatch(fetchReviews())
+      .unwrap()
+      .catch(() => toast.error("Failed to load reviews"));
+  }, [dispatch]);
 
   return (
-    <div>
+    <Box>
       {/* Header */}
-      <div className="flex justify-between items-center px-4">
-        <div>
+      <Box className="flex justify-between items-center px-4" sx={{ mb: 3, flexWrap: "wrap", gap: 2 }}>
+        <Box>
           <Typography variant="body1" fontWeight="bold" className="text-lg">
             {category}
           </Typography>
           <Typography>{filteredDeals.length} Offers</Typography>
-        </div>
+        </Box>
 
         {/* Sort */}
-        <div className="flex gap-2">
+        <Box className="flex gap-2">
           <button
             onClick={handleSortClick}
             className="flex items-center bg-gray-100 px-4 py-2 rounded-lg shadow-md"
@@ -86,14 +82,14 @@ const SingleCategoryContent = () => {
             <MenuItem onClick={handleClose}>Sort by Name</MenuItem>
             <MenuItem onClick={handleClose}>Sort by Newest</MenuItem>
           </Menu>
-        </div>
-      </div>
+        </Box>
+      </Box>
 
       {/* Section Links */}
       <TextLink text={category} colorText="deals worth wearing" link="" linkText="" />
 
       {/* Deals */}
-      <div className="flex overflow-x-scroll gap-4 px-4">
+      <Box className="flex overflow-x-scroll gap-4 px-4 scrollbar-hide" sx={{ py: 2 }}>
         {[...Array(4)].map((_, index) => (
           <DealCard key={`placeholder-${index}`} />
         ))}
@@ -102,32 +98,34 @@ const SingleCategoryContent = () => {
           .map((deal) => (
             <DealCard key={deal._id} data={deal} />
           ))}
-      </div>
+      </Box>
 
       {/* Coupons Section */}
-      <div className="bg-[#592EA9] text-white my-4">
-        <p className="px-4 py-2">{category} Coupon</p>
-        <div className="flex overflow-x-auto space-x-4 p-4 scrollbar-hide">
+      <Box className="bg-[#592EA9] text-white my-4">
+        <Typography sx={{ px: 4, py: 2, fontWeight: "bold" }}>
+          {category} Coupon
+        </Typography>
+        <Box className="flex overflow-x-auto space-x-4 p-4 scrollbar-hide">
           {filteredDeals
             .filter((store) => store.dealCategory === "coupon")
             .map((store) => (
               <PopularBrandCard key={store._id} data={store} />
             ))}
-        </div>
-      </div>
+        </Box>
+      </Box>
 
       <TextLink text="Coupons" colorText="& Deals" link="" linkText="View All" />
 
-      {/* All Deals */}
-      <div className="space-y-4 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:justify-around">
+      {/* All Deals Grid */}
+      <Box className="space-y-4 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:justify-around" sx={{ px: 4 }}>
         {filteredDeals.map((deal) => (
           <Coupons_Deals key={deal._id} data={deal} border={true} />
         ))}
-      </div>
+      </Box>
 
       {/* Deal of the Week */}
       <TextLink text="Deal of the " colorText="Week" link="" linkText="View All" />
-      <div className="flex overflow-x-scroll gap-4 px-4">
+      <Box className="flex overflow-x-scroll gap-4 px-4 scrollbar-hide" sx={{ py: 2 }}>
         {[...Array(4)].map((_, index) => (
           <DealOfWeek key={`placeholder-week-${index}`} />
         ))}
@@ -136,25 +134,27 @@ const SingleCategoryContent = () => {
           .map((deal) => (
             <DealOfWeek key={deal._id} data={deal} />
           ))}
-      </div>
+      </Box>
 
       {/* Reviews */}
       <TextLink text="Public" colorText="Reviews" link="" linkText="" />
-      <div className="p-4 flex gap-4 overflow-x-scroll">
+      <Box className="p-4 flex gap-4 overflow-x-scroll scrollbar-hide" sx={{ py: 2 }}>
         {reviews.length > 0 ? (
           reviews.map((review) => <ReviewCard key={review._id} data={review} />)
         ) : (
-          <p>No reviews found.</p>
+          <Typography>No reviews found.</Typography>
         )}
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 };
+
 const SingleCategory = () => {
-    return (
-      <Suspense fallback={<LoadingFallback />}>
-        <SingleCategoryContent />
-      </Suspense>
-    );
-  };
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <SingleCategoryContent />
+    </Suspense>
+  );
+};
+
 export default SingleCategory;

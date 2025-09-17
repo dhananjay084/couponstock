@@ -9,7 +9,7 @@ import { usePathname } from "next/navigation";
 export default function ClientLayout({ children }) {
   
   const pathname = usePathname();
-  const hideLayout = pathname === "/login" || pathname === "/signup";
+  const hideLayout = pathname === "/login" || pathname === "/signup" || pathname==='/payment';
 
 
   //  const WrappedChildren = withSkeleton(() => <>{children}</>);

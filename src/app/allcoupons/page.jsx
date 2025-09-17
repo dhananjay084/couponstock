@@ -92,7 +92,7 @@ useEffect(() => {
         <Banner text="" colorText="" BgImage={data.allCouponsPageBanner} />
 
         <TextLink text="All" colorText="Offers" link="" linkText="" />
-        <div className="space-y-4 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:justify-around">
+        <div className="space-y-4 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:justify-around max-h-[500px] overflow-y-auto">
           {activeDeals.length > 0 ? (
             activeDeals.map((deal) => <Coupons_Deals key={deal._id} data={deal} border={true} />)
           ) : (
@@ -101,7 +101,7 @@ useEffect(() => {
         </div>
 
         <TextLink text="Expired" colorText="Coupons" link="" linkText="" />
-        <div className="space-y-4 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:justify-around">
+        <div className="space-y-4 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:justify-around max-h-[500px] overflow-y-auto">
           {expiredDeals.length > 0 ? (
             expiredDeals.map((deal) => (
               <Coupons_Deals key={deal._id} data={deal} border={true} disabled={true} />

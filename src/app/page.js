@@ -24,8 +24,8 @@ import { fetchReviews } from "../redux/review/reviewSlice.js";
 import { fetchBlogs } from "../redux/blog/blogSlice";
 import DealOfWeek from "@/components/cards/DealOfWeek";
 import FAQ from '@/components/Minor/Faq'
-
-
+import NumberStats from "@/components/numbers/number";
+import BrandDirectory from "@/components/Brands/Brands";
  function Home() {
   const dispatch = useDispatch();
   const { deals = [] } = useSelector((state) => state.deal);
@@ -35,18 +35,6 @@ import FAQ from '@/components/Minor/Faq'
   const { blogs = [],  } = useSelector((state) => state.blogs || {});
    const homeAdmin = useSelector((state) => state.homeAdmin) || { data: [] };
     const data = homeAdmin.data?.[0] || {};
-
-
-    const { error: dealError } = useSelector((state) => state.deal);
-const { error: storeError } = useSelector((state) => state.store);
-const { error: categoryError } = useSelector((state) => state.category);
-const { error: reviewError } = useSelector((state) => state.reviews);
-const { error: blogError } = useSelector((state) => state.blogs);
-const { error: homeError } = useSelector((state) => state.homeAdmin);
-
-
-
-  // Safe filter function to avoid errors
   const safeFilter = (arr, callback) => Array.isArray(arr) ? arr.filter(callback) : [];
 
   useEffect(() => {
@@ -61,10 +49,50 @@ const { error: homeError } = useSelector((state) => state.homeAdmin);
 
   }, [dispatch]);
 
-  
-
-
-
+  const stats = [
+    { number: "200+", label: "Happy Clients" },
+    { number: "500+", label: "Brands" },
+    { number: "1M+", label: "Users" },
+    { number: "60+", label: "Countries" },
+  ];
+  const demoData = [
+    {
+      category: "MOBILES",
+      links: [
+        { text: "iPhone 17", href: "#" },
+        { text: "Samsung Galaxy S25", href: "#" },
+        { text: "Redmi Note 14", href: "#" },
+        { text: "OnePlus Nord", href: "#" },
+      ],
+    },
+    {
+      category: "CAMERAS",
+      links: [
+        { text: "Canon DSLR", href: "#" },
+        { text: "Nikon DSLR", href: "#" },
+        { text: "Sony Camera", href: "#" },
+        { text: "GoPro", href: "#" },
+      ],
+    },
+    {
+      category: "LAPTOPS",
+      links: [
+        { text: "MacBook Pro", href: "#" },
+        { text: "Asus ROG", href: "#" },
+        { text: "HP Laptops", href: "#" },
+        { text: "Dell Laptops", href: "#" },
+      ],
+    },
+    {
+      category: "CLOTHING",
+      links: [
+        { text: "Men's Jeans", href: "#" },
+        { text: "Sarees", href: "#" },
+        { text: "Shirts", href: "#" },
+        { text: "Kurti", href: "#" },
+      ],
+    },
+  ];
 
   return (
     <>
@@ -90,7 +118,6 @@ const { error: homeError } = useSelector((state) => state.homeAdmin);
         )}
       </div>
 
-      {/* TextLink */}
       <TextLink
         text="Today's Top"
         colorText="Deals"
@@ -98,7 +125,6 @@ const { error: homeError } = useSelector((state) => state.homeAdmin);
         linkText="View All"
       />
 
-      {/* Desktop Top Deals */}
       <div className="md:flex overflow-x-scroll gap-4 px-4 hidden">
         {safeFilter(deals, (deal) =>
           deal?.showOnHomepage &&
@@ -119,7 +145,10 @@ const { error: homeError } = useSelector((state) => state.homeAdmin);
           <DealCard key={deal._id} data={deal} />
         ))}
       </div>
-
+      <main className=" flex flex-col justify-center items-center bg-white">
+  
+      <NumberStats stats={stats} />
+    </main>
       <TextLink text="Brands" colorText="" link="/allstores" linkText="View All" />
       <div className="flex overflow-x-scroll md:hidden">
         {safeFilter(stores, (store) => store?.showOnHomepage && store?.storeType === "Brands").map((store) => (
@@ -213,6 +242,7 @@ const { error: homeError } = useSelector((state) => state.homeAdmin);
           ))}
         </div>
       </div>
+      <BrandDirectory heading="Top Stories : Brand Directory" data={demoData} />
 
       {/* Reviews */}
       <TextLink text="Public" colorText="Reviews" link="" linkText="" />

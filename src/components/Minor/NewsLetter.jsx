@@ -6,8 +6,8 @@ import NewsletterImg from "../../assets/NewsLetter.png";
 import { Typography, TextField, Button, Box } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { subscribeUser, resetSubscriberState } from "@/redux/newletter/newsletterSlice";
-import { toast } from "react-toastify";
-
+import { toast, ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css'; // Import the styles
 
 const NewsLetter = () => {
   const dispatch = useDispatch();
@@ -24,18 +24,29 @@ const NewsLetter = () => {
 
   useEffect(() => {
     if (success) {
-      // alert("Thanks for subscribing!");
-      toast.success("Thanks for subscribing!")
+      toast.success("Thanks for subscribing!");
       setInputValue("");
       dispatch(resetSubscriberState());
     } else if (error) {
-      // alert(error);
-      toast.error(error)
+      toast.error(error);
     }
   }, [success, error, dispatch]);
 
   return (
     <div className="mt-8">
+      {/* Toast container (put it anywhere inside JSX tree) */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
+
       <div className="mx-auto relative w-[300px] h-[150px] sm:w-[400px] sm:h-[200px]">
         <Image src={NewsletterImg} alt="Newsletter" fill style={{ objectFit: "contain" }} />
       </div>
@@ -61,8 +72,7 @@ const NewsLetter = () => {
           <Button
             type="submit"
             variant="contained"
-            color="#282828"
-            sx={{ color: "#fff", borderRadius: "7px", mt: 2,background:'#282828' , cursor:"pointer"}}
+            sx={{ color: "#fff", borderRadius: "7px", mt: 2, background: '#282828', cursor: "pointer" }}
           >
             {loading ? "Submitting..." : "Submit"}
           </Button>

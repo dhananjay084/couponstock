@@ -39,25 +39,14 @@ const AboutUs = () => {
         </div>
         <div className="md:w-3/4 w-full space-y-4 text-gray-700 text-sm md:text-base">
           <p className="leading-relaxed">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-            aliquip ex ea commodo consequat. Duis aute irure dolor in
-            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-            culpa qui officia deserunt mollit anim id est laborum.
+          My Coupon Stock was founded in 2021 with the mission to provide coupon codes, discounts, and voucher codes to its users so they can shop with less burden on their pockets. Our coupon range is from electronics to cosmetics to VPNs and many more; whatever brand crosses your mind, we have it. We created this user-friendly website, which will make it very convenient to access (with every device) coupons in a very smooth way within minutes.
           </p>
           <p className="leading-relaxed">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-            aliquip ex ea commodo consequat. Duis aute irure dolor in
-            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-            culpa qui officia deserunt mollit anim id est laborum.{" "}
-            <span className="text-indigo-600 underline cursor-pointer">
-              see more
-            </span>
+          All the latest discount coupons, promo codes, voucher codes, and free coupons get updated here without any delay. Get ready for exciting offers and save more. Happy Shopping.
+For more details or further queries, you can visit our 
+
+            <a href="/contact" className="text-indigo-600 ml-2 cursor-pointer">
+            Contact Us  page            </a>
           </p>
         </div>
       </div>
@@ -68,8 +57,8 @@ const AboutUs = () => {
       {/* Quote + Image */}
       <div className="max-x-full lg:max-w-[75%] mx-auto lg:flex lg:justify-between lg:items-center my-16">
         <h1 className="font-normal text-2xl max-w-full lg:max-w-[30%] text-center">
-          “Our Work does make sense only if it is a faithful witness of his
-          time”
+        “Great deals aren’t luck – they’re a lifestyle.”
+
         </h1>
         <div className="relative w-[50%] hidden lg:block h-[300px]">
           <Image src={BannerImage} alt="Quote" fill style={{ objectFit: "cover" }} />
@@ -127,16 +116,12 @@ const AboutUs = () => {
         <div className="flex-1">
           <h2 className="font-bold text-3xl mb-6">The Team</h2>
           <p className="text-gray-600 mb-4 leading-relaxed">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-            aliquip ex ea commodo consequat.
+          Our Team consists of coupon, deals, and Tech individuals who hunt for the best coupon codes and voucher codes from big to small brands for a wide range of products. Our team members from every department work tirelessly because for us customer is the king, and we are ready to serve them without any hindrance 
+
           </p>
           <p className="text-gray-600 mb-2 leading-relaxed">
-            Duis aute irure dolor in reprehenderit in voluptate velit esse
-            cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
-            cupidatat non proident, sunt in culpa qui officia deserunt mollit
-            anim id est laborum.
+          We are not here temporarily; once we build a relationship with our client, we work to cement that relationship. Each team member will utilize their expertise to help you obtain the most desired discount code for your favorite cosmetic brand or your favorite place’s flight ticket. We are not limited to national brands; we have crossed the boundaries of continents. You can also subscribe to our newsletter, so our team can personally send you all updates to your inbox.
+
           </p>
         </div>
       </section>

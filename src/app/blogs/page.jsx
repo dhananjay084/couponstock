@@ -1,34 +1,28 @@
-// app/blogs/page.jsx
-"use client"; // Required because we use useEffect and Redux hooks
+"use client";
 
 import React, { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchBlogs } from "@/redux/blog/blogSlice";
 import BlogCard from "@/components/cards/BlogCard";
-import RecentBlogCrad from "@/components/cards/NewBlogCard";
+import RecentBlogCard from "@/components/cards/NewBlogCard"; // keep your component as is
 import { toast } from "react-toastify";
 
 const BlogsPage = () => {
   const dispatch = useDispatch();
   const { blogs = [], loading } = useSelector((state) => state.blogs || {});
 
-  // useEffect(() => {
-  //   dispatch(fetchBlogs());
-  // }, [dispatch]);
-
   useEffect(() => {
-      dispatch(fetchBlogs())
-        .unwrap()
-        .catch(() => toast.error("Failed to load blogs"));
-    }, [dispatch]);
+    dispatch(fetchBlogs())
+      .unwrap()
+      .catch(() => toast.error("Failed to load blogs"));
+  }, [dispatch]);
 
-  // Memoized sorting of blogs
   const sorted = useMemo(() => {
     if (!Array.isArray(blogs)) return [];
     return [...blogs].sort((a, b) => {
-      const dateA = new Date(b.createdAt || b.updatedAt).getTime();
-      const dateB = new Date(a.createdAt || a.updatedAt).getTime();
-      return dateA - dateB;
+      const dateA = new Date(a.createdAt || a.updatedAt).getTime();
+      const dateB = new Date(b.createdAt || b.updatedAt).getTime();
+      return dateB - dateA; // newest first
     });
   }, [blogs]);
 
@@ -36,47 +30,47 @@ const BlogsPage = () => {
   const rest = sorted.slice(3);
 
   return (
-    <div className="p-4">
-      <h1 className="text-xl font-bold mb-4">Recent Blog Posts</h1>
+    <div className=" p-4">
+      <h1 className="text-2xl font-bold mb-8 text-[#592EA9]">Recent Blog Posts</h1>
 
       {loading && blogs.length === 0 ? (
-        <p>Loading...</p>
+        <p className="text-center text-gray-500">Loading...</p>
       ) : (
         <>
-          {/* Top 3 blogs layout */}
-          <div className="gap-4 items-center mb-6 hidden lg:flex">
-            <div className="w-1/2">
+          {/* Top 3 Blogs: One big + two smaller stacked */}
+          <div className="hidden lg:grid grid-cols-12 gap-6 mb-12">
+            <div className="col-span-7">
               {top3[0] ? (
-                <BlogCard key={top3[0]._id} blog={top3[0]} />
+                <BlogCard key={top3[0]._id} blog={top3[0]} large />
               ) : (
-                <div className="h-40 bg-gray-100 rounded">No blog</div>
+                <div className="h-96 bg-gray-100 rounded-lg animate-pulse" />
               )}
             </div>
-            <div className="w-1/2 space-y-2">
+            <div className="col-span-5 flex flex-col gap-6">
               {top3[1] ? (
-                <RecentBlogCrad key={top3[1]._id} blog={top3[1]} />
+                <RecentBlogCard key={top3[1]._id} blog={top3[1]} />
               ) : (
-                <div className="h-20 bg-gray-100 rounded">No blog</div>
+                <div className="h-44 bg-gray-100 rounded-lg animate-pulse" />
               )}
               {top3[2] ? (
-                <RecentBlogCrad key={top3[2]._id} blog={top3[2]} />
+                <RecentBlogCard key={top3[2]._id} blog={top3[2]} />
               ) : (
-                <div className="h-20 bg-gray-100 rounded">No blog</div>
+                <div className="h-44 bg-gray-100 rounded-lg animate-pulse" />
               )}
             </div>
           </div>
 
-          {/* Rest blogs */}
+          {/* Rest of blogs - 2 per row */}
           {rest.length > 0 && (
-            <div className="space-y-4 mb-6 hidden lg:block">
+            <div className="hidden lg:grid grid-cols-2 gap-8 mb-16">
               {rest.map((blog) => (
-                <RecentBlogCrad key={blog._id} blog={blog} />
+                <RecentBlogCard key={blog._id} blog={blog} />
               ))}
             </div>
           )}
 
-          {/* Fallback view for small screens */}
-          <div className="gap-4 overflow-x-auto lg:hidden">
+          {/* Mobile / tablet fallback: stacked cards */}
+          <div className="lg:hidden space-y-6">
             {sorted.map((blog) => (
               <BlogCard key={blog._id} blog={blog} />
             ))}

@@ -110,11 +110,16 @@ const StoresPage = () => {
     },
   ];
 
-  const defaultColDef = useCallback(() => ({ flex: 1, minWidth: 100, resizable: true }), []);
+  // const defaultColDef = useCallback(() => ({ flex: 1, minWidth: 100, resizable: true }), []);
+  const defaultColDef = { flex: 1, minWidth: 100, resizable: true };
   const onGridReady = useCallback((params) => params.api.sizeColumnsToFit(), []);
 
-  const dataToDisplay = searchText.length > 0 ? searchResults : stores;
-
+  // const dataToDisplay = searchText.length > 0 ? searchResults : stores;
+  const dataToDisplay = Array.isArray(searchText.length > 0 ? searchResults : stores)
+  ? (searchText.length > 0 ? searchResults : stores)
+  : [];
+console.log("stores",stores)
+console.log("dataToDisplay",dataToDisplay)
   return (
     <div className="p-8 max-w-7xl mx-auto flex flex-col min-h-screen">
       <ToastContainer />

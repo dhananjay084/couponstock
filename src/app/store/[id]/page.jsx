@@ -150,22 +150,22 @@ const IndividualStore = () => {
         content={storeFromList.storeHtmlContent}
       />
 
-      <BarChartCard
+      {/* <BarChartCard
         data={chartData}
         title={`${chartData.reduce((sum, d) => sum + d.value, 0)} Codes`}
         subtitle={`Deal activity for ${storeFromList.storeName}`}
         total={`${chartData.reduce((sum, d) => sum + d.value, 0)} Codes`}
-      />
+      /> */}
 
-      <div className="bg-[#F6F6F6] border border-[#E1E1E1] rounded-lg p-4 mx-2 flex justify-between items-center sm:max-w-[80%] sm:mx-auto">
+      {/* <div className="bg-[#F6F6F6] border border-[#E1E1E1] rounded-lg p-4 mx-2 flex justify-between items-center sm:max-w-[80%] sm:mx-auto">
         <div>
           <p>Coupons Updated Today</p>
           <p className="text-xl font-semibold text-[#592EA9]">{todayCount}</p>
         </div>
         <LiaPercentageSolid className="text-[#592EA9] text-4xl" />
-      </div>
+      </div> */}
 
-      <div className="pt-3 flex justify-between mx-2 gap-4 sm:max-w-[80%] sm:mx-auto">
+      {/* <div className="pt-3 flex justify-between mx-2 gap-4 sm:max-w-[80%] sm:mx-auto">
         <div className="bg-[#F6F6F6] border border-[#E1E1E1] rounded-lg p-4 w-full">
           <p>Total Offers</p>
           <p className="text-xl font-semibold text-[#592EA9]">{`${chartData.reduce(
@@ -203,7 +203,7 @@ const IndividualStore = () => {
           <p>International ship</p>
           <FaCheckCircle className="text-[#592EA9] text-3xl" />
         </div>
-      </div>
+      </div> */}
 
       <TextLink text="User" colorText="Reviews" link="" linkText="" />
       <div className="px-4 flex gap-4 overflow-x-scroll">

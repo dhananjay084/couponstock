@@ -4,7 +4,6 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
-
 const CategoryCard = ({ data }) => {
   if (!data) return null;
 
@@ -13,11 +12,12 @@ const CategoryCard = ({ data }) => {
 
   const handleClick = () => {
     if (!name) {
-    toast.error("Category not found!");
-    return;
-  }
-    router.push(`/category?name=${encodeURIComponent(name)}`);
-    //  toast.success(`Opening ${name} category...`);
+      toast.error("Category not found!");
+      return;
+    }
+    // Navigate to dynamic route with category name
+    router.push(`/category/${encodeURIComponent(name)}`);
+    // toast.success(`Opening ${name} category...`);
   };
 
   return (

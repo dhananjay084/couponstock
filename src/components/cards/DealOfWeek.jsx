@@ -6,14 +6,11 @@ import { Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
-
 const DealOfWeek = ({ data }) => {
-  // if (!data) return null;
-
-   if (!data) {
-      toast.error("Deal not found!");
-      return null;
-    }
+  if (!data) {
+    // toast.error("Deal not found!");
+    return null;
+  }
 
   const router = useRouter();
   const { dealImage, homePageTitle } = data;
@@ -27,13 +24,12 @@ const DealOfWeek = ({ data }) => {
       className="text-xs space-y-1 w-[15%] min-w-[125px] cursor-pointer"
       onClick={handleCardClick}
     >
-      <div className="rounded-lg bg-white shadow-[0px_2px_10.3px_0px_rgba(0,0,0,0.25)] relative w-full h-[100px]">
+      <div className="relative w-full aspect-square bg-white rounded-lg shadow-[0px_2px_10.3px_0px_rgba(0,0,0,0.25)] overflow-hidden">
         <Image
           src={dealImage || "/default-deal.jpg"}
           alt={homePageTitle || "Deal Image"}
           fill
-          style={{ objectFit: "fill" }}
-          className="rounded-lg"
+          className="object-cover"
         />
       </div>
       <Typography color="#592ea9" className="truncate">

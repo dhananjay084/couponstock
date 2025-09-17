@@ -21,7 +21,7 @@ const BlogCard = ({ blog }) => {
 
   return (
     <div
-      className="cursor-pointer lg:min-w-[500px] min-w-[300px] bg-white shadow-md rounded-xl overflow-hidden transition-all duration-300 cursor-pointer"
+      className=" lg:min-w-[500px] min-w-[300px] bg-white shadow-md rounded-xl overflow-hidden transition-all duration-300 cursor-pointer"
       onClick={handleClick}
     >
       <img
@@ -41,7 +41,7 @@ const BlogCard = ({ blog }) => {
             })}
           </p>
           <button
-            className="text-purple-600 transition-transform duration-300 cursor-pointer"
+            className="text-[#592EA9] transition-transform duration-300 cursor-pointer"
             aria-label="Toggle expand"
           >
             <FaChevronDown className="transform transition-transform duration-300" />
@@ -59,7 +59,7 @@ const BlogCard = ({ blog }) => {
           {blog.tags.map((tag, i) => (
             <span
               key={i}
-              className="text-xs bg-purple-100 text-purple-600 rounded-full px-2 py-1"
+              className="text-xs bg-purple-100 text-[#592EA9] rounded-full px-2 py-1"
             >
               {tag}
             </span>

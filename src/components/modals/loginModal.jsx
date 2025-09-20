@@ -15,8 +15,8 @@ import GoogleIcon from "@mui/icons-material/Google";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
-const LoginModal = ({ isOpen, onClose }) => {
-  const dispatch = useDispatch();
+const LoginModal = ({ isOpen, onClose, redirectUrl = "" }) => {
+    const dispatch = useDispatch();
   const router = useRouter();
   const searchParams = useSearchParams();
   const { loading, error, message, isAuthenticated } = useSelector(
@@ -83,7 +83,7 @@ const LoginModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-white z-50 flex flex-col items-center justify-between py-6 px-4">
+    <div className="fixed inset-0 bg-white z-[10000] flex flex-col items-center justify-between py-6 px-4">
       {/* ❌ Close icon in top-right corner */}
       <button
         className="absolute top-4 right-4 text-gray-600 hover:text-black transition"
@@ -206,12 +206,18 @@ const LoginModal = ({ isOpen, onClose }) => {
 
       {/* ✅ "Continue & Lose Cashback" at the very bottom */}
       <div className="text-center mt-6 mb-4">
-        <button
-          onClick={onClose}
-          className="text-[#0047FF] text-sm underline hover:text-[#0036cc]"
-        >
-          Continue & Lose Cashback
-        </button>
+      <button
+  onClick={() => {
+    if (redirectUrl) {
+      window.open(redirectUrl, "_blank");
+    }
+    onClose?.(); // Close modal either way
+  }}
+  className="text-[#0047FF] text-sm underline hover:text-[#0036cc]"
+>
+  Continue & Lose Cashback
+</button>
+
       </div>
     </div>
   );

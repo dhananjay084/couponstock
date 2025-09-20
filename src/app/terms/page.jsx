@@ -8,49 +8,160 @@ const TermsPage = () => {
   return (
     <div>
       <Banner
-        Text="Every day we the most interesting things"
-        ColorText="discuss"
-        BgImage={bannerImage.src}
-      />
+             Text="Great deals aren’t luck they’re a"
+             ColorText="lifestyle"
+             BgImage='https://assets.indiadesire.com/images/Flipkart%20BBD%202025.jpg'
+           />
 
       <HeadingText
-        title="Mycouponstck Terms & Conditions"
+        title="MyCouponStock Terms & Conditions"
         content={`
+          <h2>Welcome to MyCouponStock</h2>
+          <p>
+            MyCouponStock ("we", "us", or "our") provides users with access to a digital coupon marketplace in India through <a href="https://mycouponstock.com">www.mycouponstock.com</a> and related services ("Services").
+          </p>
+          <p>
+            By using our Services, you agree to these Terms and Conditions. If you do not agree, please discontinue use of the Services.
+          </p>
+          <p>
+            For privacy-related concerns, please see our <a href="/privacy">Privacy Policy</a>. If you have any questions, feel free to <a href="/contact">contact us</a>.
+          </p>
 
-<p class="has-black-color has-text-color has-link-color wp-elements-77f7e837cf9f43bd9d82b9bbc484c45e">By using the ><a href="https://mycouponstock.com/">MyCouponstock</a></strong> application, you agree that you have read and understand this Agreement (‘Agreement‘) and that your membership in the Web shall confirm its terms and conditions. Failure to do so will result in your account being permanently locked, and you will no longer be eligible to claim any rewards or cashback collected in your <strong><a href="https://mycouponstock.com/contact/">MyCouponstock account.</a></strong></p>
+          <h2>Unauthorized Use</h2>
+          <p>
+            You may not reproduce, distribute, sell, publish, or exploit any part of our website or Services without explicit permission.
+          </p>
 
-<p class="has-vivid-red-color has-text-color has-link-color wp-elements-3b4e0f157d07fd91f2b961d6825c4b7e"><strong>“You agree to not do any fraud activity by communicating false information to the customers, and if anything of the sort happens, strict legal action will be taken against you.”</strong></p>
+          <h2>Introduction</h2>
+          <p>
+            We offer coupons and discounts created by third-party merchants. These offers are subject to availability and expiration. Users are encouraged to check back frequently.
+          </p>
 
-<ol class="wp-block-list">
-<li>You agree to receive an OTP for verifying your mobile at the time of registration. The MyCouponstock web will verify your mobile number by sending an OTP (one-time password) to the mobile number provided, which will be automatically read by the app upon receiving the OTP message to complete the registration process.</li>
+          <h2>Definitions</h2>
+          <ul>
+            <li><strong>"Login":</strong> Enables users to register and access special features.</li>
+            <li><strong>"User":</strong> Any individual visiting or using the site.</li>
+          </ul>
 
-<li>You cannot register with multiple mobile numbers from a single mobile device with a single email id. Registering from multi-SIM devices using multiple numbers is strictly prohibited.</li>
+          <h2>Participation & Registration</h2>
+          <p>Certain features require registration. You must:</p>
+          <ul>
+            <li>Provide accurate and current information</li>
+            <li>Maintain your credentials securely</li>
+            <li>Report any unauthorized use</li>
+          </ul>
 
-<li>Mycouponstock cannot be used with Android emulators. All devices are being verified at multiple levels while availing of the offers. If found to be used with emulators or some other automated system, your account for your mobile number and device will be permanently locked.</li>
+          <h2>Password & Account Security</h2>
+          <p>
+            You are solely responsible for your account and password. We are not liable for any misuse or unauthorized access resulting from your failure to protect your credentials.
+          </p>
 
-<li>Members agree to comply with the terms of all MyCouponstock and its advertiser and partner offers, promotions, and programs at all times.</li>
+          <h2>User-Generated Content</h2>
+          <p>By submitting content, you confirm you have the rights to do so and that it complies with applicable laws. Prohibited content includes:</p>
+          <ul>
+            <li>Pornography, explicit or offensive material</li>
+            <li>Hate speech, abusive or violent content</li>
+            <li>Illegal, defamatory, or malicious content</li>
+            <li>Political, religious, or spam-based content</li>
+          </ul>
 
-<li>No member is allowed to use or create a fake ID or provide any fake profile information for earning money.</li>
+          <h2>Membership Terms</h2>
+          <ul>
+            <li>Membership is granted through registration and acceptance of these Terms.</li>
+            <li>Running paid ads (e.g. Google, Facebook) redirecting to MyCouponStock is strictly prohibited.</li>
+            <li>Violators may be suspended or permanently banned without notice.</li>
+          </ul>
 
-<li>The member agrees to promptly notify support@mycouponstock.com of any change in the member’s mobile number or address (mail or email) or personal profile by updating his or her personal information in the Profile section of mycouponstock.</li>
+          <h2>Declaration</h2>
+          <p>
+            Purchases made must be for personal use only. Any suspected misuse (e.g. reselling, fraudulent activities) will result in account suspension or termination without prior notice.
+          </p>
 
-<li>Mycouponstock reserves the right to change this agreement and/or any part thereof at any time as required by the local laws of the land, the internet usage policy, the telecom regulatory policy, the Android user’s usage policy, and the Pocket Money Privacy Policy. Members understand the most recent version of this agreement will be located on the MyCouponstock website and/or mobile application in the Member Services area under Terms of Service.</li>
+          <h2>License to MyCouponStock</h2>
+          <p>
+            You grant us a non-exclusive, royalty-free license to use your submitted content for the operation of our Services.
+          </p>
 
-<li>Any return or shipping terms of third-party websites are not the responsibility of MyCouponstock. The consumer will not receive any cashback on their purchases if they return the order from the specific cashback store.</li>
-</ol>
+          <h2>Acceptable Use</h2>
+          <p>Prohibited activities include:</p>
+          <ul>
+            <li>Sharing credentials or creating multiple accounts</li>
+            <li>Using bots or automation tools</li>
+            <li>Introducing malware or hacking attempts</li>
+            <li>Misleading or illegal content uploads</li>
+            <li>Commercial use or redistribution of our content</li>
+          </ul>
 
-<h4 class="wp-block-heading has-luminous-vivid-orange-color has-text-color has-link-color wp-elements-a83d956dd29045d36dfa5d7c6e92da5e"><strong>Contact Us</strong></h4>
+          <h2>Accuracy of Offers</h2>
+          <p>
+            MyCouponStock does not guarantee the availability or accuracy of offers. Merchants may change or discontinue them at their discretion.
+          </p>
 
-<h5 class="wp-block-heading has-text-color has-link-color wp-elements-41dcc433f703257b3e714b0566d0f5ce" style="color:#003655">Let’s get in touch</h5>
+          <h2>Trademarks</h2>
+          <p>
+            All trademarks and brand features of MyCouponStock are the property of Octaads Media and may not be used without permission.
+          </p>
 
-<p class="has-black-color has-text-color has-link-color wp-elements-b717c442c8a9b3b825dcb35dd7ec9d4a"><strong>Represented by:</strong> Shahnawaz Khan</p>
+          <h2>Intellectual Property</h2>
+          <p>
+            All content, including user-submitted material, is either owned by or licensed to MyCouponStock. Unauthorized copying or redistribution is strictly prohibited and may invite legal action.
+          </p>
 
-<p class="has-black-color has-text-color has-link-color wp-elements-6406c73c8203755e102915d088b37600"><strong><a href="https://octaadsmedia.com/contact-us/" target="_blank" rel="noopener" data-processed="1">Registration Number:</a></strong> 20AAHFO6442PIZO</p>
+          <h2>Cashback Services</h2>
+          <p>
+            Registered users can earn cashback from Retailers for qualifying purchases. Cashback is payable only after the Retailer confirms the transaction and the return window has expired.
+          </p>
+          <p>
+            If the Retailer does not confirm the purchase, no cashback will be paid.
+          </p>
 
-<p class="has-black-color has-text-color has-link-color wp-elements-5c7df5980f29922619647c671b046e8e"><strong>Email: Shahnawazkhan@mycouponstock.com</strong></p>
+          <h2>Reward Program</h2>
+          <p>
+            Some partners offer Rewards instead of cashback. These can be redeemed only as gift cards or wallet credits—not as cash transfers.
+          </p>
 
-<p class="has-black-color has-text-color has-link-color wp-elements-7cf540a2b3a805bf93787da5de44df1c"><strong>Address:</strong>&nbsp;C/O Mahesh Sureka, Near Kali Mandir, Madigodam, Manaitand, Dhanbad, Jharkhand, 82601.</p>
-`}
+          <h2>Disclaimer & Limitations</h2>
+          <h3>Disclaimer</h3>
+          <p>
+            Services are provided "as is." We make no guarantees or warranties.
+          </p>
+          <h3>Release</h3>
+          <p>
+            We are not responsible for your interactions with merchants.
+          </p>
+          <h3>Limitation of Liability</h3>
+          <p>
+            We are not liable for any damages (direct, indirect, incidental, etc.) related to your use of the Services.
+          </p>
+
+          <h2>Restricted Access</h2>
+          <p>
+            We reserve the right to restrict or revoke access at any time. If misuse or a breach is detected, we may immediately suspend your account.
+          </p>
+
+          <h2>Changes to the Agreement</h2>
+          <p>
+            We may modify this agreement periodically. Material changes will be effective 3 days after posting. Non-material changes may take effect immediately.
+          </p>
+          <p>
+            Continued use of the Service constitutes acceptance of any changes. If you do not agree, you may stop using our Services and <a href="/contact">contact us</a>.
+          </p>
+
+          <h2>Governing Law</h2>
+          <p>
+            These Terms are governed by Indian law. You agree to the non-exclusive jurisdiction of Indian courts for resolving disputes.
+          </p>
+
+          <h2>Contact Us</h2>
+          <p>If you have questions or need help, <a href="/contact">contact us</a>.</p>
+
+          <address>
+            <strong>Represented by:</strong> Shahnawaz Khan<br />
+            <strong>Registration Number:</strong> 20AAHFO6442PIZO<br />
+            <strong>Email:</strong> Shahnawazkhan@mycouponstock.com<br />
+            <strong>Address:</strong> C/O Mahesh Sureka, Near Kali Mandir, Madigodam, Manaitand, Dhanbad, Jharkhand, 82601
+          </address>
+        `}
         isHtml={true}
       />
     </div>

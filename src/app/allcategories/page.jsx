@@ -158,8 +158,8 @@ const AllCategories = () => {
     <div className="overflow-x-hidden">
       {/* Banner */}
       <Banner
-        Text="Every day we the most interesting things"
-        ColorText="discuss"
+        Text="Great deals aren’t luck – they’re a"
+        ColorText="lifestyle"
         BgImage={data.allCategoriesPageBanner}
       />
 
@@ -245,7 +245,8 @@ const AllCategories = () => {
       {/* About Section */}
       <HeadingText
         title={data.allCategoriesAboutHeading}
-        content={data.allCategoriesAboutDescription}
+        content='This page contains all the brands that you can think of, from popular Indian names to leading international labels. This page is designed to make your shopping journey seamless and stress-free. Here, we’ve listed a wide range of stores covering almost every category you could want. Whether you’re on the hunt for a stylish dress from your favorite fashion brand, planning to book luxury airline tickets at a discount, or looking for the best deals on furniture, electronics, beauty products, or groceries, you’ll find it all right here.
+To make things even easier, we’ve added a filter option so you can quickly search and discover the exact brand you’re looking for in just seconds. No endless scrolling, no wasted time just straight to the savings. This page is truly your one-stop destination for brands A to Z.  So dive in, filter your favorite brands, and enjoy a shopping experience where every store feels just a click away. Don’t forget to subscribe to our newsletter for upcoming exciting offers. Happy shopping.'
         isHtml={true}
       />
     </div>

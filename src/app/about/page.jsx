@@ -52,7 +52,7 @@ For more details or further queries, you can visit our
       </div>
 
       {/* Banner */}
-      <Banner Text="" ColorText="" BgImage={BannerImage.src} />
+      <Banner Text="" ColorText="" BgImage='https://assets.indiadesire.com/images/Flipkart%20BBD%202025.jpg'/>
 
       {/* Quote + Image */}
       <div className="max-x-full lg:max-w-[75%] mx-auto lg:flex lg:justify-between lg:items-center my-16">

@@ -127,9 +127,9 @@ const ProfilePage = () => {
       />
 
       <Banner
-        Text="Every day we the most interesting things"
-        ColorText="discuss"
-        BgImage={BannerImage.src}
+        Text="Great deals aren’t luck"
+        ColorText="lifestyle"
+        BgImage="https://assets.indiadesire.com/images/Flipkart%20BBD%202025.jpg"
       />
 
       <div className="mx-auto px-4 my-8">

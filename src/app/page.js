@@ -25,7 +25,6 @@ import { fetchBlogs } from "../redux/blog/blogSlice";
 import DealOfWeek from "@/components/cards/DealOfWeek";
 import FAQ from '@/components/Minor/Faq'
 import NumberStats from "@/components/numbers/number";
-import BrandDirectory from "@/components/Brands/Brands";
  function Home() {
   const dispatch = useDispatch();
   const { deals = [] } = useSelector((state) => state.deal);
@@ -99,8 +98,8 @@ import BrandDirectory from "@/components/Brands/Brands";
       {/* Mobile Banner */}
       <div className="lg:hidden">
         <Banner
-          Text="Every day we the most interesting things"
-          ColorText="discuss"
+          Text="Great deals aren’t luck they’re a "
+          ColorText="lifestyle"
           BgImage={data.homepageBanner || ""}
         />
       </div>
@@ -160,16 +159,26 @@ import BrandDirectory from "@/components/Brands/Brands";
           <DesktopStoreCard key={store._id} data={store} />
         ))}
       </div>
-      <TextLink text="Popular Categories" colorText="" link="/allcategories" linkText="View All" />
-      <div className="px-4 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-4 mb-10">
-        {Array.isArray(categories) && categories.length > 0 ? (
-          safeFilter(categories, (cat) => cat?.showOnHomepage).map((cat) => (
-            <CategoryCard key={cat._id} data={cat} />
-          ))
-        ) : (
-          <p className="text-center w-full">No categories found.</p>
-        )}
-      </div>
+      <TextLink
+  text="Popular Categories"
+  colorText=""
+  link="/allcategories"
+  linkText="View All"
+/>
+
+<div className="px-4 mb-10 overflow-x-auto">
+  <div className="flex gap-4 w-max py-2">
+    {Array.isArray(categories) && categories.length > 0 ? (
+      safeFilter(categories, (cat) => cat?.showOnHomepage).map((cat) => (
+        <div key={cat._id} className="w-28 flex-shrink-0"> {/* 👈 fixed card width */}
+          <CategoryCard data={cat} />
+        </div>
+      ))
+    ) : (
+      <p className="text-center w-full">No categories found.</p>
+    )}
+  </div>
+</div>
 
       {/* Popular Brands */}
       <TextLink text="Popular" colorText="Brands" link="/allstores" linkText="View All" />
@@ -185,9 +194,9 @@ import BrandDirectory from "@/components/Brands/Brands";
       </div>
       <div className="hidden md:block">
         <Banner
-          Text="Every day we the most interesting things"
-          ColorText="discuss"
-          BgImage={data.midHomepageBanner}
+          Text="Great deals aren’t luck they’re a"
+          ColorText="lifestyle"
+          BgImage='https://assets.indiadesire.com/images/Flipkart%20BBD%202025.jpg'
         />
       </div>
 
@@ -242,7 +251,7 @@ import BrandDirectory from "@/components/Brands/Brands";
           ))}
         </div>
       </div>
-      <BrandDirectory heading="Top Stories : Brand Directory" data={demoData} />
+      {/* <BrandDirectory heading="Top Stories : Brand Directory" data={demoData} /> */}
 
       {/* Reviews */}
       <TextLink text="Public" colorText="Reviews" link="" linkText="" />

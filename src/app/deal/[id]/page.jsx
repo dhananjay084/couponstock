@@ -23,6 +23,8 @@ import TextLink from "@/components/Minor/TextLink";
 import CouponModal from "@/components/modals/couponModels.jsx";
 import axios from "axios";
 import LoginModal from "@/components/modals/loginModal";
+import { useRouter } from "next/navigation";
+
 const DealDetailsContent = () => {
   const dispatch = useDispatch();
   const searchParams = useSearchParams();
@@ -32,6 +34,7 @@ const DealDetailsContent = () => {
   const [dealDetails, setDealDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const [loginRedirectUrl, setLoginRedirectUrl] = useState(""); // new
 
   const category = searchParams?.get("category") || "";
 
@@ -62,12 +65,30 @@ const DealDetailsContent = () => {
 
     fetchDealById();
   }, [id]);
+    const router = useRouter();
+  
+  const [userId, setUserId] = useState("");
 
+  // safe cookie reading
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const getCookie = (name) => {
+        const match = document.cookie.match(
+          new RegExp("(^| )" + name + "=([^;]+)")
+        );
+        return match ? decodeURIComponent(match[2]) : "";
+      };
+
+   
+      setUserId(getCookie("userId"));
+
+   
+    }
+  }, [router]);
   useEffect(() => {
     dispatch(getDeals());
     dispatch(fetchReviews());
   }, [dispatch]);
-
   if (loading)
     return <p className="text-center p-4">Loading deal details...</p>;
 
@@ -78,9 +99,9 @@ const DealDetailsContent = () => {
     <>
       <div>
         <Banner
-          Text="Every day we the most interesting things"
-          ColorText="discuss"
-          BgImage={Image.src}
+          Text="Great deals aren’t luck – they’re a"
+          ColorText="lifestyle"
+          BgImage='https://assets.indiadesire.com/images/Flipkart%20BBD%202025.jpg'
         />
 {/* 
         <div className="flex justify-between items-center p-4">
@@ -118,24 +139,47 @@ const DealDetailsContent = () => {
           </Typography>
 
           <Button
-            variant="contained"
-            sx={{
-              backgroundColor: "#592EA9",
-              borderRadius: "10px",
-              padding: "10px 24px",
-              textTransform: "none",
-              "&:hover": {
-                backgroundColor: "#4a2380",
-              },
-            }}
-            onClick={() =>
-              dealDetails.dealCategory === "deal"
-                ? setIsModalOpen(true)
-                : handleCardClick()
-            }
-          >
-            {dealDetails.dealCategory === "deal" ? "Shop Now" : "Show Code"}
-          </Button>
+  variant="contained"
+  sx={{
+    backgroundColor: "#592EA9",
+    borderRadius: "10px",
+    padding: "10px 24px",
+    textTransform: "none",
+    "&:hover": {
+      backgroundColor: "#4a2380",
+    },
+  }}
+  onClick={() => {
+    if (dealDetails.dealCategory === "deal") {
+      if (userId) {
+        // logged in, proceed as usual
+        let trackedUserId = userId;
+  
+        const now = new Date();
+        const timeString =
+          String(now.getHours()).padStart(2, "0") +
+          String(now.getMinutes()).padStart(2, "0") +
+          String(now.getSeconds()).padStart(2, "0") +
+          String(now.getMilliseconds()).padStart(3, "0");
+  
+        trackedUserId = `${userId}TIME${timeString}`;
+  
+        const redirectUrl = `${dealDetails.redirectionLink}&user_id=${encodeURIComponent(trackedUserId)}`;
+        window.open(redirectUrl, "_blank");
+      } else {
+        // not logged in: open login modal with redirection URL
+        setLoginRedirectUrl(dealDetails.redirectionLink);
+        setIsModalOpen(true);
+      }
+    } else {
+      handleCardClick(); // For "Show Code" flow
+    }
+  }}
+  
+  
+>
+  {dealDetails.dealCategory === "deal" ? "Shop Now" : "Show Code"}
+</Button>
         </Box>
 
         {/* Deal Title */}
@@ -210,7 +254,12 @@ const DealDetailsContent = () => {
         onClose={() => setModalOpen(false)}
         data={dealDetails}
       />
-      <LoginModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+   <LoginModal
+  isOpen={isModalOpen}
+  onClose={() => setIsModalOpen(false)}
+  redirectUrl={loginRedirectUrl}
+/>
+
     </>
   );
 };

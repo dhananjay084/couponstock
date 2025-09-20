@@ -35,10 +35,10 @@ import { logoutUser, checkCurrentUser } from "../redux/auth/authApi";
 import { toast } from "react-toastify";
 
 const baseNavLinks = [
-  { name: "All Blogs", href: "/blogs" },
   { name: "All Offers", href: "/allcoupons" },
   { name: "Stores", href: "/allstores" },
   { name: "All Categories", href: "/allcategories" },
+  { name: "All Blogs", href: "/blogs" }
 ];
 
 const adminLinks =  [
@@ -157,21 +157,16 @@ const NavBar = () => {
 
   // Scroll handler for background + scrolled state
   useEffect(() => {
-    let ticking = false;
-  
     const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          setScrolled(window.scrollY > 50);
-          ticking = false;
-        });
-        ticking = true;
-      }
+      const isScrolled = window.scrollY > 5;
+      // Only update state if it actually changed
+      setScrolled((prev) => (prev !== isScrolled ? isScrolled : prev));
     };
   
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+  
   
 
   useEffect(() => {
@@ -251,19 +246,20 @@ const NavBar = () => {
 
   return (
     <>
-      <AppBar
-        position="sticky"
-        sx={{
-          background: scrolled ? "#592EA9" : "rgba(255, 255, 255, 0.85)",
-          color: scrolled ? "#fff" : "#000",
-          backdropFilter: "blur(8px)",
-          boxShadow: scrolled
-            ? "0 4px 20px rgba(0, 0, 0, 0.3)"
-            : "0 4px 20px rgba(0, 0, 0, 0.05)",
-          zIndex: 1300,
-          transition: "all 0.5s ease",
-        }}
-      >
+ <AppBar
+  position="sticky"
+  sx={{
+    background: scrolled ? "#592EA9" : "rgba(255, 255, 255, 0.85)",
+    color: scrolled ? "#fff" : "#000",
+    backdropFilter: "blur(8px)",
+    boxShadow: scrolled
+      ? "0 4px 20px rgba(0, 0, 0, 0.3)"
+      : "0 4px 20px rgba(0, 0, 0, 0.05)",
+    zIndex: 1300,
+    transition: "background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease",
+  }}
+>
+
         <Toolbar
           sx={{
             display: "flex",

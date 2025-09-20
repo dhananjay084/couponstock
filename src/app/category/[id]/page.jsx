@@ -64,12 +64,12 @@ const SingleCategoryContent = () => {
 
         {/* Sort */}
         <Box className="flex gap-2">
-          <button
+          {/* <button
             onClick={handleSortClick}
             className="flex items-center bg-gray-100 px-4 py-2 rounded-lg shadow-md"
           >
             Sort <ArrowDropDownIcon className="ml-1" />
-          </button>
+          </button> */}
 
           <Menu
             anchorEl={anchorEl}

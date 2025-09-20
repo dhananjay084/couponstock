@@ -37,61 +37,67 @@ const BlogDetails = () => {
 
   const blogDetails = currentBlog?.details || "";
   const isHTML = /<\/?[a-z][\s\S]*>/i.test(blogDetails); // simple HTML check
-
-  return (
-    <div className="p-4">
-      {/* Banner */}
+ return (
+  <div className="p-4">
+    {/* Banner */}
+    {currentBlog?.image ? (
       <Banner
         Text="Every day we discuss the most interesting things"
         ColorText="discuss"
-        BgImage={currentBlog?.image || DefaultBanner}
+        BgImage={currentBlog.image}
       />
+    ) : (
+      <Banner
+        Text="Every day we discuss the most interesting things"
+        ColorText="discuss"
+        BgImage={DefaultBanner.src} // fallback until image is loaded
+      />
+    )}
 
-      <div className="my-4">
-        {loading && !currentBlog ? (
-          <p className="text-sm text-gray-500">Loading blog...</p>
-        ) : error ? (
-          <>
-    <p className="text-sm text-red-600">Error: {error}</p>
-    {/* {toast.error("Something went wrong while fetching blog!")} */}
-  </>
-        ) : currentBlog ? (
-          <>
-           {/* {toast.success("Blog loaded successfully!")} */}
-            <p className="text-sm text-purple-600 font-semibold">
-              {new Date(
-                currentBlog.createdAt || currentBlog.updatedAt || Date.now()
-              ).toLocaleDateString(undefined, {
-                weekday: "long",
-                day: "numeric",
-                month: "short",
-                year: "numeric",
-              })}
-            </p>
-            <h2 className="text-xl font-bold text-gray-900 mt-2">
-              {currentBlog.heading || "Untitled"}
-            </h2>
-            <Typography
-              sx={{ fontSize: "13px" }}
-              {...(isHTML
-                ? { dangerouslySetInnerHTML: { __html: blogDetails } }
-                : { children: blogDetails })}
-            />
-          </>
-        ) : (
-          <p className="text-sm text-gray-500">No blog found.</p>
-        )}
-      </div>
-
-      {/* All Blogs Section */}
-      <h2 className="font-semibold text-2xl my-8">All Blogs</h2>
-      <div className="gap-4 overflow-x-auto flex">
-        {blogs.map((blog) => (
-          <BlogCard key={blog._id} data={blog} border={true} />
-        ))}
-      </div>
+    <div className="my-4">
+      {loading && !currentBlog ? (
+        <p className="text-sm text-gray-500">Loading blog...</p>
+      ) : error ? (
+        <>
+          <p className="text-sm text-red-600">Error: {error}</p>
+        </>
+      ) : currentBlog ? (
+        <>
+          <p className="text-sm text-purple-600 font-semibold">
+            {new Date(
+              currentBlog.createdAt || currentBlog.updatedAt || Date.now()
+            ).toLocaleDateString(undefined, {
+              weekday: "long",
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            })}
+          </p>
+          <h2 className="text-xl font-bold text-gray-900 mt-2">
+            {currentBlog.heading || "Untitled"}
+          </h2>
+          <Typography
+            sx={{ fontSize: "13px" }}
+            {...(isHTML
+              ? { dangerouslySetInnerHTML: { __html: blogDetails } }
+              : { children: blogDetails })}
+          />
+        </>
+      ) : (
+        <p className="text-sm text-gray-500">No blog found.</p>
+      )}
     </div>
-  );
+
+    {/* All Blogs Section */}
+    <h2 className="font-semibold text-2xl my-8">All Blogs</h2>
+    <div className="gap-4 overflow-x-auto flex">
+      {blogs.map((blog) => (
+        <BlogCard key={blog._id} data={blog} border={true} />
+      ))}
+    </div>
+  </div>
+);
+
 };
 
 export default BlogDetails;

@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 
 const FeaturedPost = ({ blog }) => {
   const router = useRouter();
-
+  console.log(blog)
   const getFirst200Words = (htmlString) => {
     // Strip HTML and get plain text
     const tempDiv = document.createElement("div");
@@ -56,7 +56,7 @@ const FeaturedPost = ({ blog }) => {
           year: "numeric",
         })}
       </p>
-
+<p className="font-blod text-xl">{blog.heading}</p>
       <Typography
         sx={{ fontSize: "13px", mt: 1 }}
         dangerouslySetInnerHTML={{ __html: getFirst200Words(blog.details) }}

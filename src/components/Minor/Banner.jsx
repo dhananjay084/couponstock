@@ -5,7 +5,7 @@ import React from "react";
 const Banner = ({ Text, ColorText, BgImage }) => {
   return (
     <a
-      href="https://www.myntra.com"
+      href="https://www.flipkart.com/"
       target="_blank"
       rel="noopener noreferrer"
       className="block w-full"

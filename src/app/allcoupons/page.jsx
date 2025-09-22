@@ -11,7 +11,7 @@ import { getDeals } from "@/redux/deal/dealSlice";
 import { fetchReviews } from "@/redux/review/reviewSlice";
 import { getHomeAdminData } from "@/redux/admin/homeAdminSlice";
 import { toast } from "react-toastify";
-
+import AjioBanner from '../../assets/AjioBanner.png'
 const AllCoupons = () => {
   const dispatch = useDispatch();
 
@@ -89,7 +89,7 @@ useEffect(() => {
           ALL DEALS & COUPONS CODES
         </h1>
 
-        <Banner text="" colorText="" BgImage={data.allCouponsPageBanner} />
+        <Banner text="" colorText="" BgImage={AjioBanner} link= 'https://www.ajio.com/' />
 
         <TextLink text="All" colorText="Offers" link="" linkText="" />
         <div className="space-y-4 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:justify-around max-h-[500px] overflow-y-auto">

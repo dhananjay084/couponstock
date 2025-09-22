@@ -2,10 +2,13 @@
 
 import React from "react";
 
-const Banner = ({ Text, ColorText, BgImage }) => {
+const Banner = ({ Text, ColorText, BgImage,link }) => {
+  console.log("BgImage",BgImage)
+  console.log("link",link)
+
   return (
     <a
-      href="https://www.flipkart.com/"
+      href={link}
       target="_blank"
       rel="noopener noreferrer"
       className="block w-full"
@@ -13,7 +16,7 @@ const Banner = ({ Text, ColorText, BgImage }) => {
       <div
         className="relative flex items-center justify-center w-[95%] mx-auto bg-cover bg-center p-4 sm:p-6 md:p-8 mt-4 rounded-lg min-h-[205px] cursor-pointer"
         style={{
-          backgroundImage: `url(${BgImage})`,
+          backgroundImage: `url(${BgImage?.src || BgImage})`,
           backgroundRepeat: "no-repeat",
           backgroundSize: "cover",
         }}

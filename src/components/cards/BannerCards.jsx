@@ -64,7 +64,7 @@ const ProductCard = ({ data }) => {
       />
 
       {/* Button at bottom-right */}
-      {/* <div className="absolute bottom-4 right-4">
+      <div className="absolute bottom-4 right-4">
         <button
           onClick={(e) => {
             e.stopPropagation(); // stop bubbling so only button redirects
@@ -74,7 +74,7 @@ const ProductCard = ({ data }) => {
         >
           Shop Now
         </button>
-      </div> */}
+      </div>
     </div>
   );
 };

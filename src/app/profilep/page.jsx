@@ -130,6 +130,7 @@ const ProfilePage = () => {
         Text="Great deals aren’t luck"
         ColorText="lifestyle"
         BgImage="https://assets.indiadesire.com/images/Flipkart%20BBD%202025.jpg"
+        link="https://www.flipkart.com/"
       />
 
       <div className="mx-auto px-4 my-8">

@@ -12,7 +12,7 @@ import { getHomeAdminData } from "@/redux/admin/homeAdminSlice";
 import { IconButton, Typography, InputBase, Box } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { styled } from "@mui/material/styles";
-
+import StoreBanner from '../../assets/FlipcartBanner.png'
 // Styled InputBase for search
 const StyledSearchInput = styled(InputBase)(({ theme }) => ({
   flexGrow: 1,
@@ -111,7 +111,7 @@ const AllStores = () => {
 
   return (
     <div>
-      <Banner Text="Great deals aren’t luck – they’re a" ColorText="lifestyle" BgImage={data.allStoresPageBanner} />
+      <Banner Text="" ColorText="" BgImage={StoreBanner} link="https://www.flipkart.com/" />
       <TextLink text="Popular" colorText="Stores" link="" linkText="" />
 
       {loading && <p className="text-center text-lg font-medium">Loading stores...</p>}

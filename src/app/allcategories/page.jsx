@@ -12,7 +12,7 @@ import { getHomeAdminData } from "@/redux/admin/homeAdminSlice";
 import { IconButton, Typography, InputBase, Box } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { styled } from "@mui/material/styles";
-
+import AmazonBanner from '../../assets/AmazoBanner.png'
 // Styled InputBase for search
 const StyledSearchInput = styled(InputBase)(({ theme }) => ({
   flexGrow: 1,
@@ -158,9 +158,10 @@ const AllCategories = () => {
     <div className="overflow-x-hidden">
       {/* Banner */}
       <Banner
-        Text="Great deals aren’t luck – they’re a"
-        ColorText="lifestyle"
-        BgImage={data.allCategoriesPageBanner}
+        Text=""
+        ColorText=""
+        BgImage={AmazonBanner}
+        link="https://www.amazon.in/"
       />
 
       {/* Popular Categories */}

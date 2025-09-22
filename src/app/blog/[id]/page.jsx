@@ -45,12 +45,14 @@ const BlogDetails = () => {
         Text="Every day we discuss the most interesting things"
         ColorText="discuss"
         BgImage={currentBlog.image}
+        link=''
       />
     ) : (
       <Banner
         Text="Every day we discuss the most interesting things"
         ColorText="discuss"
         BgImage={DefaultBanner.src} // fallback until image is loaded
+        link=''
       />
     )}
 

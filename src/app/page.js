@@ -25,6 +25,8 @@ import { fetchBlogs } from "../redux/blog/blogSlice";
 import DealOfWeek from "@/components/cards/DealOfWeek";
 import FAQ from '@/components/Minor/Faq'
 import NumberStats from "@/components/numbers/number";
+import BannerImage from '../assets/HomepageBanner.png';
+import AmazonBanner from '../assets/AmazoBanner.png'
  function Home() {
   const dispatch = useDispatch();
   const { deals = [] } = useSelector((state) => state.deal);
@@ -98,9 +100,10 @@ import NumberStats from "@/components/numbers/number";
       {/* Mobile Banner */}
       <div className="lg:hidden">
         <Banner
-          Text="Great deals aren’t luck they’re a "
-          ColorText="lifestyle"
-          BgImage={data.homepageBanner || ""}
+          Text=""
+          ColorText=""
+          BgImage={AmazonBanner || ""}
+          link="https://www.amazon.in/"
         />
       </div>
 
@@ -194,9 +197,10 @@ import NumberStats from "@/components/numbers/number";
       </div>
       <div className="hidden md:block">
         <Banner
-          Text="Great deals aren’t luck they’re a"
-          ColorText="lifestyle"
-          BgImage='https://assets.indiadesire.com/images/Flipkart%20BBD%202025.jpg'
+          Text=""
+          ColorText=""
+          BgImage={BannerImage}
+          link="https://www.myntra.com/"
         />
       </div>
 
@@ -274,6 +278,7 @@ import NumberStats from "@/components/numbers/number";
       </div>
 
       <FAQ data={data.faqs} />
+    
     </>
   );
 }

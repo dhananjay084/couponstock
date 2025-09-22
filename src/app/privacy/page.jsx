@@ -8,11 +8,11 @@ import bannerImage from "../../assets/banner-image.webp";
 const PrivacyPage = () => {
   return (
     <div>
-      <Banner
+      {/* <Banner
         Text="Great deals aren’t luck they’re a"
         ColorText="lifestyle"
         BgImage='https://assets.indiadesire.com/images/Flipkart%20BBD%202025.jpg'
-      />
+      /> */}
 
       <HeadingText
         title="MYCOUPONSTOCK IS OWNED AND OPERATED BY OCTAADS MEDIA. BY USING THE WEBSITE, YOU AGREE TO THE TERMS AND CONDITIONS OF THIS POLICY. IF YOU DO NOT AGREE WITH THE TERMS AND CONDITIONS OF THIS POLICY, PLEASE DO NOT PROCEED FURTHER TO USE THIS WEBSITE."

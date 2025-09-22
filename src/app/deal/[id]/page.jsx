@@ -98,11 +98,11 @@ const DealDetailsContent = () => {
   return (
     <>
       <div>
-        <Banner
+        {/* <Banner
           Text="Great deals aren’t luck – they’re a"
           ColorText="lifestyle"
           BgImage='https://assets.indiadesire.com/images/Flipkart%20BBD%202025.jpg'
-        />
+        /> */}
 {/* 
         <div className="flex justify-between items-center p-4">
           <Typography color="#592ea9">{dealDetails.homePageTitle}</Typography>
@@ -150,9 +150,8 @@ const DealDetailsContent = () => {
     },
   }}
   onClick={() => {
-    if (dealDetails.dealCategory === "deal") {
+    // if (dealDetails.dealCategory === "deal") {
       if (userId) {
-        // logged in, proceed as usual
         let trackedUserId = userId;
   
         const now = new Date();
@@ -163,22 +162,36 @@ const DealDetailsContent = () => {
           String(now.getMilliseconds()).padStart(3, "0");
   
         trackedUserId = `${userId}TIME${timeString}`;
+        const encodedUserId = encodeURIComponent(trackedUserId);
   
-        const redirectUrl = `${dealDetails.redirectionLink}&user_id=${encodeURIComponent(trackedUserId)}`;
+        let redirectUrl = dealDetails.redirectionLink;
+  
+        // 🔁 Replace {click_id} if it exists
+        if (redirectUrl.includes("{click_id}")) {
+          redirectUrl = redirectUrl.replace("{click_id}", encodedUserId);
+        } else {
+          // Add user_id as query param if not already present
+          const separator = redirectUrl.includes("?") ? "&" : "?";
+          redirectUrl = `${redirectUrl}${separator}user_id=${encodedUserId}`;
+        }
+  
+        console.log("Final redirect URL:", redirectUrl);
         window.open(redirectUrl, "_blank");
       } else {
-        // not logged in: open login modal with redirection URL
+        // Not logged in
         setLoginRedirectUrl(dealDetails.redirectionLink);
         setIsModalOpen(true);
       }
-    } else {
-      handleCardClick(); // For "Show Code" flow
-    }
+    // } else {
+    //   handleCardClick(); // For "Show Code" flow
+    // }
   }}
   
   
+  
 >
-  {dealDetails.dealCategory === "deal" ? "Shop Now" : "Show Code"}
+  {/* {dealDetails.dealCategory === "deal" ? "Shop Now" : "Show Code"} */}
+  Shop Now
 </Button>
         </Box>
 

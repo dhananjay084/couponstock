@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { FiPhone, FiMail, FiMapPin } from "react-icons/fi";
-import { FaTwitter, FaInstagram, FaDiscord } from "react-icons/fa";
+import { FaFacebook, FaInstagram, FaTwitter, FaLinkedin } from "react-icons/fa";
 import { submitContact, resetContactState } from "@/redux/contact/contactSlice"; // adjust path
 import { toast } from "react-toastify";
 
@@ -18,13 +18,18 @@ const subjects = [
 export default function ContactSection() {
   const dispatch = useDispatch();
   const { status, error, submission } = useSelector((state) => state.contact);
-
+  const socialLinks = [
+    { icon: FaFacebook, link: "https://www.facebook.com/mycouponstock/?_rdr" },
+    { icon: FaInstagram, link: "https://www.instagram.com/mycouponstock/" },
+    { icon: FaTwitter, link: "https://x.com/mycouponstock" },
+    { icon: FaLinkedin, link: "https://www.linkedin.com/company/mycouponstock/" },
+  ];
   const [selectedSubject, setSelectedSubject] = useState(0);
   const [form, setForm] = useState({
     firstName: "",
     lastName: "Doe",
     email: "",
-    phone: "+1 012 3456 789",
+    phone: "7608892920",
     message: "",
   });
 
@@ -80,14 +85,14 @@ export default function ContactSection() {
                   <div className="p-2 bg-white/10 rounded-full">
                     <FiPhone size={18} />
                   </div>
-                  <span className="text-lg font-medium">+1012 3456 789</span>
+                  <span className="text-lg font-medium">+91-7608892920</span>
                 </div>
 
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-white/10 rounded-full">
                     <FiMail size={18} />
                   </div>
-                  <span className="text-lg font-medium">demo@gmail.com</span>
+                  <span className="text-lg font-medium">Support @mycouponstock.com</span>
                 </div>
 
                 <div className="flex items-start gap-3">
@@ -95,25 +100,28 @@ export default function ContactSection() {
                     <FiMapPin size={18} />
                   </div>
                   <div className="text-sm">
-                    132 Dartmouth Street Boston,<br />
-                    Massachusetts 02156 United States
+                  1, Plot, Coworkkeys, 2nd Floor, 38, Golf Crse Rd, near VATIKA TOWER,<br />
+                  Saraswati Kunj, Suncity, Sector 54, Gurugram, Haryana 122011
                   </div>
                 </div>
               </div>
 
               {/* Social icons */}
               <div className="mt-8 flex gap-4">
-                {[FaTwitter, FaInstagram, FaDiscord].map((Icon, i) => (
-                  <div
-                    key={i}
-                    className={`p-3 rounded-full cursor-pointer transition ${
-                      i === 1 ? "bg-white text-[#4E2C9E]" : "bg-black/20"
-                    }`}
-                  >
-                    <Icon size={20} />
-                  </div>
-                ))}
-              </div>
+      {socialLinks.map(({ icon: Icon, link }, i) => (
+        <a
+          key={i}
+          href={link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`p-3 rounded-full cursor-pointer transition ${
+            i === 1 ? "bg-white text-[#4E2C9E]" : "bg-black/20 text-white"
+          }`}
+        >
+          <Icon size={20} />
+        </a>
+      ))}
+    </div>
             </div>
 
             {/* Decorative circles */}

@@ -7,11 +7,11 @@ import bannerImage from '@/assets/banner-image.webp';
 const TermsPage = () => {
   return (
     <div>
-      <Banner
+      {/* <Banner
              Text="Great deals aren’t luck they’re a"
              ColorText="lifestyle"
              BgImage='https://assets.indiadesire.com/images/Flipkart%20BBD%202025.jpg'
-           />
+           /> */}
 
       <HeadingText
         title="MyCouponStock Terms & Conditions"

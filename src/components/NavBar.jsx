@@ -271,16 +271,17 @@ const NavBar = () => {
           {/* Left: Logo */}
           <Box display="flex" alignItems="center" sx={{ flex: "0 0 auto" }}>
             <Link href="/" passHref>
-              <Typography
-                variant="h6"
-                fontWeight="bold"
-                sx={{
-                  cursor: "pointer",
-                  color: scrolled ? "#fff" : "#592EA9",
-                  transition: "color 0.4s ease",
-                  "&:hover": { opacity: 0.8 },
-                }}
-              >
+            <Typography
+  variant={isMobile ? "subtitle1" : "h6"}
+  fontWeight="bold"
+  sx={{
+    cursor: "pointer",
+    color: scrolled ? "#fff" : "#592EA9",
+    transition: "color 0.4s ease",
+    "&:hover": { opacity: 0.8 },
+    fontSize: isMobile ? "1rem" : "1.25rem", // slightly smaller on mobile
+  }}
+>
                 MY COUPON STOCK
               </Typography>
             </Link>
@@ -392,12 +393,42 @@ const NavBar = () => {
                 <Person3Icon />
               </IconButton>
               <IconButton
-  onClick={() => setDrawerOpen(prev => !prev)} // toggle drawer
-  sx={{ color: scrolled ? "#fff" : "inherit" }}
+  onClick={() => setDrawerOpen(prev => !prev)}
+  sx={{
+    color: scrolled ? "#fff" : "inherit",
+    transition: "transform 0.3s ease, opacity 0.3s ease",
+    transform: drawerOpen ? "rotate(180deg)" : "rotate(0deg)",
+  }}
   aria-label="toggle drawer"
 >
-  <MenuIcon />
+  <Box
+    sx={{
+      position: "relative",
+      width: 24,
+      height: 24,
+    }}
+  >
+    <MenuIcon
+      sx={{
+        position: "absolute",
+        inset: 0,
+        opacity: drawerOpen ? 0 : 1,
+        transform: drawerOpen ? "scale(0.8)" : "scale(1)",
+        transition: "opacity 0.3s ease, transform 0.3s ease",
+      }}
+    />
+    <CloseIcon
+      sx={{
+        position: "absolute",
+        inset: 0,
+        opacity: drawerOpen ? 1 : 0,
+        transform: drawerOpen ? "scale(1)" : "scale(0.8)",
+        transition: "opacity 0.3s ease, transform 0.3s ease",
+      }}
+    />
+  </Box>
 </IconButton>
+
 
 
             </Box>
@@ -405,54 +436,57 @@ const NavBar = () => {
         </Toolbar>
 
         {/* Search bar below Nav (only when NOT scrolled and NOT mobile) */}
-        {!scrolled && !isMobile && (
-          <Box
-            ref={searchBarRef}
-            px={2}
-            sx={{ position: "relative", pb: 1, transition: "all 0.5s ease" }}
-          >
-            <SearchBar scrolled={scrolled}>
-              <SearchIconWrapper scrolled={scrolled}>
-                <SearchIcon />
-              </SearchIconWrapper>
-              <StyledInputBase
-                scrolled={scrolled}
-                placeholder="Search for deals"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onFocus={() => setShowResults(true)}
-                fullWidth
-              />
-              {showResults && searchTerm && (
-                <SearchResultsContainer>
-                  {loading ? (
-                    <SearchResultItem>Loading...</SearchResultItem>
-                  ) : searchResults.length > 0 ? (
-                    searchResults.map((deal) => (
-                      <SearchResultItem
-                        key={deal._id}
-                        onClick={() => handleResultClick(deal)}
-                      >
-                        <Typography
-                          variant="body2"
-                          fontWeight="bold"
-                          color="textSecondary"
-                        >
-                          {deal.dealTitle}
-                        </Typography>
-                        <Typography variant="caption" color="textSecondary">
-                          {deal.store}
-                        </Typography>
-                      </SearchResultItem>
-                    ))
-                  ) : (
-                    <SearchResultItem>No deals found.</SearchResultItem>
-                  )}
-                </SearchResultsContainer>
-              )}
-            </SearchBar>
-          </Box>
-        )}
+       {/* Search bar below Nav (visible on all screens when not scrolled) */}
+       {!scrolled && !isMobile && (
+  <Box
+    ref={searchBarRef}
+    px={isMobile ? 1 : 2}
+    sx={{
+      position: "relative",
+      pb: 1,
+      transition: "all 0.5s ease",
+      width: "100%",
+    }}
+  >
+    <SearchBar scrolled={scrolled}>
+      <SearchIconWrapper scrolled={scrolled}>
+        <SearchIcon />
+      </SearchIconWrapper>
+      <StyledInputBase
+        scrolled={scrolled}
+        placeholder="Search for deals"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        onFocus={() => setShowResults(true)}
+        fullWidth
+      />
+      {showResults && searchTerm && (
+        <SearchResultsContainer>
+          {loading ? (
+            <SearchResultItem>Loading...</SearchResultItem>
+          ) : searchResults.length > 0 ? (
+            searchResults.map((deal) => (
+              <SearchResultItem
+                key={deal._id}
+                onClick={() => handleResultClick(deal)}
+              >
+                <Typography variant="body2" fontWeight="bold" color="textSecondary">
+                  {deal.dealTitle}
+                </Typography>
+                <Typography variant="caption" color="textSecondary">
+                  {deal.store}
+                </Typography>
+              </SearchResultItem>
+            ))
+          ) : (
+            <SearchResultItem>No deals found.</SearchResultItem>
+          )}
+        </SearchResultsContainer>
+      )}
+    </SearchBar>
+  </Box>
+)}
+
 
         {/* Profile Menu */}
         
@@ -479,28 +513,84 @@ const NavBar = () => {
 
       {/* Mobile Drawer */}
       <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)}>
-        <Box width={260} p={2}>
-          <Box display="flex" justifyContent="space-between" alignItems="center">
-            <Typography variant="h6" fontWeight="bold" color="#592EA9">
-              Menu
-            </Typography>
-            <IconButton onClick={toggleDrawer(false)}>
-  <CloseIcon />
-</IconButton>
+  <Box width={260} p={2}>
+    <Box display="flex" justifyContent="space-between" alignItems="center">
+      <Typography variant="h6" fontWeight="bold" color="#592EA9">
+        Menu
+      </Typography>
+      <IconButton onClick={toggleDrawer(false)}>
+        <CloseIcon />
+      </IconButton>
+    </Box>
 
-          </Box>
-          <Divider sx={{ my: 2 }} />
-          <List>
-            {navLinks.map((item) => (
-              <ListItem key={item.name} disablePadding>
-                <ListItemButton component={Link} href={item.href}>
-                  <ListItemText primary={item.name} />
-                </ListItemButton>
-              </ListItem>
-            ))}
-          </List>
-        </Box>
-      </Drawer>
+    <Divider sx={{ my: 2 }} />
+
+    {/* 🔍 Search bar inside Drawer (mobile only) */}
+    <Box
+      ref={searchBarRef}
+      sx={{
+        position: "relative",
+        mb: 2,
+      }}
+    >
+      <SearchBar scrolled={false}>
+        <SearchIconWrapper scrolled={false}>
+          <SearchIcon />
+        </SearchIconWrapper>
+        <StyledInputBase
+          scrolled={false}
+          placeholder="Search for deals"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          onFocus={() => setShowResults(true)}
+          fullWidth
+        />
+        {showResults && searchTerm && (
+          <SearchResultsContainer>
+            {loading ? (
+              <SearchResultItem>Loading...</SearchResultItem>
+            ) : searchResults.length > 0 ? (
+              searchResults.map((deal) => (
+                <SearchResultItem
+                  key={deal._id}
+                  onClick={() => {
+                    handleResultClick(deal);
+                    setDrawerOpen(false); // close drawer on click
+                  }}
+                >
+                  <Typography
+                    variant="body2"
+                    fontWeight="bold"
+                    color="textSecondary"
+                  >
+                    {deal.dealTitle}
+                  </Typography>
+                  <Typography variant="caption" color="textSecondary">
+                    {deal.store}
+                  </Typography>
+                </SearchResultItem>
+              ))
+            ) : (
+              <SearchResultItem>No deals found.</SearchResultItem>
+            )}
+          </SearchResultsContainer>
+        )}
+      </SearchBar>
+    </Box>
+
+    <List>
+      {navLinks.map((item) => (
+        <ListItem key={item.name} disablePadding>
+          <ListItemButton component={Link} href={item.href}>
+            <ListItemText primary={item.name} />
+          </ListItemButton>
+        </ListItem>
+      ))}
+    </List>
+  </Box>
+</Drawer>
+
+
     </>
   );
 };

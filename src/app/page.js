@@ -26,7 +26,12 @@ import DealOfWeek from "@/components/cards/DealOfWeek";
 import FAQ from '@/components/Minor/Faq'
 import NumberStats from "@/components/numbers/number";
 import BannerImage from '../assets/HomepageBanner.png';
-import AmazonBanner from '../assets/AmazoBanner.png'
+import AmazonBanner from '../assets/AmazoBanner.png';
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+import "swiper/css/pagination";
+import { Pagination, Autoplay } from "swiper/modules";
+
  function Home() {
   const dispatch = useDispatch();
   const { deals = [] } = useSelector((state) => state.deal);
@@ -98,14 +103,34 @@ import AmazonBanner from '../assets/AmazoBanner.png'
   return (
     <>
       {/* Mobile Banner */}
-      <div className="lg:hidden">
-        <Banner
-          Text=""
-          ColorText=""
-          BgImage={AmazonBanner || ""}
-          link="https://www.amazon.in/"
-        />
-      </div>
+    {/* ✅ Mobile Banner Slider */}
+{/* ✅ Mobile Banner Slider */}
+<div className="lg:hidden px-2 pb-4">
+  {Array.isArray(data.bannerDeals) && data.bannerDeals.length > 0 ? (
+    <Swiper
+      modules={[Pagination, Autoplay]}
+      pagination={{ clickable: true }}
+      autoplay={{ delay: 2500, disableOnInteraction: false }}
+      spaceBetween={10}
+      loop
+      breakpoints={{
+        0: { slidesPerView: 1 },      // 0–499px → 1 card
+        500: { slidesPerView: 2 },    // 500–1023px → 2 cards
+        1024: { slidesPerView: 1 },   // 1024+ → grid handles layout
+      }}
+    >
+      {data.bannerDeals.map((deal) => (
+        <SwiperSlide key={deal._id} className="flex justify-center items-center">
+          <BannerCard data={deal} />
+        </SwiperSlide>
+      ))}
+    </Swiper>
+  ) : (
+    <div className="text-center w-full">No deals available</div>
+  )}
+</div>
+
+
 
       {/* Desktop Banner Cards */}
       <div className="lg:flex flex-wrap gap-4 p-4 justify-center lg:justify-between hidden">

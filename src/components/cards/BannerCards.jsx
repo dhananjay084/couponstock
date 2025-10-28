@@ -53,29 +53,30 @@ const ProductCard = ({ data }) => {
 
   return (
     <div
-      className="relative bg-white rounded-2xl shadow-lg overflow-hidden w-full min-h-[428px] min-w-[300px] h-full mx-auto cursor-pointer"
-      onClick={handleRedirect}
-    >
-      {/* Background Image */}
-      <img
-        src={data.dealImage}
-        alt="Product Image"
-        className="absolute top-0 left-0 w-full h-full object-cover"
-      />
-
-      {/* Button at bottom-right */}
-      <div className="absolute bottom-4 right-4">
-        <button
-          onClick={(e) => {
-            e.stopPropagation(); // stop bubbling so only button redirects
-            handleRedirect();
-          }}
-          className="bg-[#E5DBF9] text-[#592EA9] font-semibold px-6 py-2 rounded-full text-sm shadow-md hover:bg-[#d6c6f5] transition cursor-pointer"
-        >
-          Shop Now
-        </button>
-      </div>
+    className="relative bg-white rounded-2xl shadow-lg overflow-hidden w-full max-w-[400px] mx-auto cursor-pointer"
+    onClick={handleRedirect}
+  >
+    {/* Image */}
+    <img
+      src={data.dealImage}
+      alt="Product Image"
+      className="w-full h-auto object-contain block"
+    />
+  
+    {/* Button (on top of image, bottom-right) */}
+    <div className="absolute bottom-4 right-4">
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          handleRedirect();
+        }}
+        className="bg-[#E5DBF9] text-[#592EA9] font-semibold px-6 py-2 rounded-full text-sm shadow-md hover:bg-[#d6c6f5] transition cursor-pointer"
+      >
+        Shop Now
+      </button>
     </div>
+  </div>
+  
   );
 };
 

@@ -12,6 +12,7 @@ import { fetchReviews } from "@/redux/review/reviewSlice";
 import { getHomeAdminData } from "@/redux/admin/homeAdminSlice";
 import { toast } from "react-toastify";
 import AjioBanner from '../../assets/AjioBanner.png'
+import {fetchCountries} from "../../redux/country/countrySlice"
 const AllCoupons = () => {
   const dispatch = useDispatch();
 
@@ -19,7 +20,11 @@ const AllCoupons = () => {
   const { reviews = [] } = useSelector((state) => state.reviews || { reviews: [] });
   const homeAdmin = useSelector((state) => state.homeAdmin) || { data: [] };
   const data = homeAdmin.data?.[0] || {};
-
+  const { countries = [] } = useSelector((state) => state.country || { countries: [] });
+  const [selectedCountries, setSelectedCountries] = React.useState([]);
+  const [searchTerm, setSearchTerm] = React.useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
+  const dropdownRef = React.useRef();
   // useEffect(() => {
   //   dispatch(getDeals());
   //   dispatch(fetchReviews());
@@ -28,6 +33,8 @@ const AllCoupons = () => {
 
   useEffect(() => {
   const fetchData = async () => {
+    dispatch(fetchCountries());
+
     try {
       await dispatch(getDeals()).unwrap();
       // toast.success("Deals loaded successfully!");
@@ -75,12 +82,39 @@ const AllCoupons = () => {
     return expiry >= today;
   });
 
-  
+  // Filter deals by selected countries
+// ✅ Works even if deal.country is an array
+const filteredActiveDeals = selectedCountries.length
+  ? activeDeals.filter((deal) =>
+      Array.isArray(deal.country)
+        ? deal.country.some((c) => selectedCountries.includes(c))
+        : selectedCountries.includes(deal.country)
+    )
+  : activeDeals;
+
+const filteredExpiredDeals = selectedCountries.length
+  ? expiredDeals.filter((deal) =>
+      Array.isArray(deal.country)
+        ? deal.country.some((c) => selectedCountries.includes(c))
+        : selectedCountries.includes(deal.country)
+    )
+  : expiredDeals;
+
+
 useEffect(() => {
   if (activeDeals.length === 0) toast.info("No active deals available.");
   if (expiredDeals.length === 0) toast.info("No expired deals found.");
   if (reviews.length === 0) toast.info("No user reviews yet.");
 }, [activeDeals, expiredDeals, reviews]);
+useEffect(() => {
+  const handleClickOutside = (event) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      setIsDropdownOpen(false);
+    }
+  };
+  document.addEventListener("mousedown", handleClickOutside);
+  return () => document.removeEventListener("mousedown", handleClickOutside);
+}, []);
 
   return (
     <>
@@ -90,20 +124,96 @@ useEffect(() => {
         </h1>
 
         <Banner text="" colorText="" BgImage={AjioBanner} link= 'https://www.ajio.com/' />
+        <div className="flex justify-between items-center flex-wrap gap-3">
+  <TextLink text="All" colorText="Offers" link="" linkText="" />
 
-        <TextLink text="All" colorText="Offers" link="" linkText="" />
-        <div className="space-y-4 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:justify-around max-h-[500px] overflow-y-auto">
-          {activeDeals.length > 0 ? (
-            activeDeals.map((deal) => <Coupons_Deals key={deal._id} data={deal} border={true} />)
-          ) : (
-            <p className="text-sm text-gray-500 px-4">No active coupons found.</p>
-          )}
-        </div>
+  {/* Country Select Search Dropdown */}
+  <div className="relative w-full sm:w-80" ref={dropdownRef}>
+    {/* Input with pills */}
+    <div
+      className="flex items-center gap-2 border border-gray-300 rounded-md px-3 py-2 bg-white cursor-text overflow-x-auto scrollbar-hide whitespace-nowrap"
+      onClick={() => setIsDropdownOpen(true)}
+      style={{ maxHeight: "44px" }} // Fixed height
+    >
+      {selectedCountries.map((country) => (
+        <span
+          key={country}
+          className="inline-flex items-center bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm shrink-0"
+        >
+          {country}
+          <button
+            type="button"
+            className="ml-2 text-blue-600 hover:text-blue-800"
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedCountries((prev) => prev.filter((c) => c !== country));
+            }}
+          >
+            ✕
+          </button>
+        </span>
+      ))}
 
-        <TextLink text="Expired" colorText="Coupons" link="" linkText="" />
-        <div className="space-y-4 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:justify-around max-h-[500px] overflow-y-auto">
-  {expiredDeals.length > 0 ? (
-    expiredDeals.slice(0, 3).map((deal) => (
+      <input
+        type="text"
+        placeholder={selectedCountries.length ? "" : "Search countries..."}
+        className="flex-1 outline-none text-sm bg-transparent min-w-[80px]"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        onFocus={() => setIsDropdownOpen(true)}
+      />
+    </div>
+
+    {/* Dropdown */}
+    {isDropdownOpen && (
+      <div className="absolute top-full left-0 w-full bg-white border border-gray-200 rounded-md shadow-lg mt-1 max-h-60 overflow-y-auto z-20">
+        {countries
+          .filter((c) =>
+            c.country_name.toLowerCase().includes(searchTerm.toLowerCase())
+          )
+          .map((country) => (
+            <div
+              key={country._id}
+              onClick={() => {
+                if (!selectedCountries.includes(country.country_name)) {
+                  setSelectedCountries((prev) => [...prev, country.country_name]);
+                }
+                setSearchTerm("");
+                setIsDropdownOpen(false);
+              }}
+              className="px-4 py-2 text-sm cursor-pointer hover:bg-blue-50"
+            >
+              {country.country_name}
+            </div>
+          ))}
+
+        {countries.filter((c) =>
+          c.country_name.toLowerCase().includes(searchTerm.toLowerCase())
+        ).length === 0 && (
+          <div className="px-4 py-2 text-sm text-gray-500">
+            No countries found.
+          </div>
+        )}
+      </div>
+    )}
+  </div>
+</div>
+{/* Active Deals */}
+<div className="space-y-4 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:justify-around max-h-[500px] overflow-y-auto">
+  {filteredActiveDeals.length > 0 ? (
+    filteredActiveDeals.map((deal) => (
+      <Coupons_Deals key={deal._id} data={deal} border={true} />
+    ))
+  ) : (
+    <p className="text-sm text-gray-500 px-4">No active coupons found.</p>
+  )}
+</div>
+
+{/* Expired Deals */}
+<TextLink text="Expired" colorText="Coupons" link="" linkText="" />
+<div className="space-y-4 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:justify-around max-h-[500px] overflow-y-auto">
+  {filteredExpiredDeals.length > 0 ? (
+    filteredExpiredDeals.slice(0, 3).map((deal) => (
       <Coupons_Deals
         key={deal._id}
         data={deal}
@@ -115,6 +225,7 @@ useEffect(() => {
     <p className="text-sm text-gray-500 px-4">No expired coupons found.</p>
   )}
 </div>
+
 
 
         <TextLink text="User" colorText="Review" link="" linkText="" />

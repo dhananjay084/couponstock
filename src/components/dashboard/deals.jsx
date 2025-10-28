@@ -8,11 +8,12 @@ import { addDeal, getDeals, deleteDeal, updateDeal } from "@/redux/deal/dealSlic
 import { toast, ToastContainer } from "react-toastify";
 import { getCategories } from "@/redux/category/categorySlice";
 import { getStores } from "@/redux/store/storeSlice";
-
+import { fetchCountries, addCountry } from "@/redux/country/countrySlice";
 import "react-toastify/dist/ReactToastify.css";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
+import clsx from "clsx";
 
 // AG Grid modules
 import { ModuleRegistry, AllCommunityModule } from "ag-grid-community";
@@ -34,10 +35,15 @@ const DealSchema = Yup.object().shape({
       expiredDate: Yup.date().required("Expiration date is required"),
       couponCode: Yup.string().required("Coupon code is required"),
       discount: Yup.string().required("Discount is required"),
-      redirectionLink: Yup.string().required("Redirection link is required"), // <-- NEW FIELD
+      redirectionLink: Yup.string().required("Redirection link is required"),
+      country: Yup.array()
+        .of(Yup.string())
+        .min(1, "Please select at least one country")
+        .required("Country is required"),
     })
   ),
 });
+
 
 
 const DealsPage = () => {
@@ -46,6 +52,8 @@ const DealsPage = () => {
   const { categories } = useSelector((state) => state.category);
   const { stores } = useSelector((state) => state.store);
   const [editDeal, setEditDeal] = useState(null);
+  const [newCountry, setNewCountry] = useState("");
+  const { countries } = useSelector((state) => state.country); // ✅ ADD THIS LINE
 
   // AG Grid state
   const gridRef = useRef();
@@ -55,10 +63,24 @@ const DealsPage = () => {
     dispatch(getDeals());
     dispatch(getCategories());
     dispatch(getStores());
+    dispatch(fetchCountries()); 
+
   }, [dispatch]);
 
   const columnDefs = [
     { headerName: "Title", field: "dealTitle", sortable: true, filter: true, flex: 1 },
+    {
+      headerName: "Countries",
+      field: "country",
+      sortable: true,
+      filter: true,
+      flex: 1,
+      cellRenderer: (params) =>
+        Array.isArray(params.value)
+          ? params.value.join(", ")
+          : params.value || "—",
+    },
+    
     { headerName: "Description", field: "dealDescription", sortable: true, filter: true, flex: 1 },
     {
       headerName: "Image",
@@ -135,7 +157,22 @@ const DealsPage = () => {
       toast.error(`Failed to update deal: ${error.message || "Unknown error"}`);
     }
   };
-
+  const handleAddCountry = async () => {
+    if (!newCountry.trim()) {
+      toast.error("Country name cannot be empty");
+      return;
+    }
+  
+    try {
+      await dispatch(addCountry(newCountry)).unwrap();
+      toast.success(`Country "${newCountry}" added successfully!`);
+      setNewCountry("");
+      dispatch(fetchCountries());
+    } catch (error) {
+      toast.error(`Failed to add country: ${error.message || "Unknown error"}`);
+    }
+  };
+  
   return (
     <div className="p-8 max-w-7xl mx-auto">
       <ToastContainer />
@@ -171,6 +208,32 @@ const DealsPage = () => {
       ) : (
         <div className="text-center py-8 text-gray-500">No deals available.</div>
       )}
+{/* ✅ Add Country Section */}
+<div className="mb-8 border p-4 rounded-md bg-gray-50">
+  <h2 className="text-lg font-semibold mb-3">Add a Country</h2>
+  <div className="flex gap-3">
+    <input
+      type="text"
+      placeholder="Enter country name"
+      value={newCountry}
+      onChange={(e) => setNewCountry(e.target.value)}
+      className="flex-1 px-3 py-2 border rounded-md"
+    />
+    <button
+      onClick={handleAddCountry}
+      type="button"
+      className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+    >
+      Add Country
+    </button>
+  </div>
+
+  {countries.length === 0 && (
+    <p className="text-sm text-gray-500 mt-2">
+      ⚠️ No countries found. Add one above to get started.
+    </p>
+  )}
+</div>
 
 <Formik
         enableReinitialize
@@ -191,6 +254,8 @@ const DealsPage = () => {
               discount: editDeal.discount || '',
               expiredDate: editDeal.expiredDate ? new Date(editDeal.expiredDate).toISOString().split('T')[0] : '',
               redirectionLink: editDeal.redirectionLink || '', // <-- NEW FIELD
+              country: editDeal.country || [], // ✅ Add this
+
             } : {
               dealTitle: '',
               dealDescription: '',
@@ -206,6 +271,8 @@ const DealsPage = () => {
               discount: '',
               expiredDate: '',
               redirectionLink: '', // <-- NEW FIELD
+              country: [], // ✅ Add this
+
             },
           ],
         }}
@@ -388,8 +455,63 @@ const DealsPage = () => {
                           Remove
                         </button>
                       )}
+                      <div className="mb-4">
+  <label className="block mb-1 font-medium">Select Country</label>
+
+  <Field name={`deals[${index}].country`}>
+    {({ field, form }) => {
+      // field.value will hold selected countries (as array)
+      const selectedCountries = field.value || [];
+
+      const toggleCountry = (countryName) => {
+        const newSelection = selectedCountries.includes(countryName)
+          ? selectedCountries.filter((c) => c !== countryName)
+          : [...selectedCountries, countryName];
+
+        form.setFieldValue(field.name, newSelection);
+      };
+
+      return (
+        <div className="flex flex-wrap gap-2 mt-2">
+          {countries.length > 0 ? (
+            countries.map((country) => {
+              const isSelected = selectedCountries.includes(country.country_name);
+              return (
+                <button
+                  type="button"
+                  key={country._id}
+                  onClick={() => toggleCountry(country.country_name)}
+                  className={clsx(
+                    "px-4 py-2 rounded-full border text-sm transition",
+                    isSelected
+                      ? "bg-blue-600 text-white border-blue-600"
+                      : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
+                  )}
+                >
+                  {country.country_name}
+                </button>
+              );
+            })
+          ) : (
+            <p className="text-gray-500 text-sm">No countries available.</p>
+          )}
+        </div>
+      );
+    }}
+  </Field>
+
+  <ErrorMessage
+    name={`deals[${index}].country`}
+    component="div"
+    className="text-red-500 text-sm mt-1"
+  />
+</div>
                     </div>
+                    
                   ))}
+{/* ✅ Multi-select country pills */}
+
+
 
 
                   <div className="mt-8">

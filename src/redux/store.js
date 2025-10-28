@@ -10,6 +10,7 @@ import contactReducer from './contact/contactSlice.js'
 import adminReducer from './admin/homeAdminSlice.js'
 import { paymentApi } from './razorpay/paymentApi';
 import paymeReducer from './razorpay/paymeslice';
+import countryReducer from "./country/countrySlice";
 
 
 export const store = configureStore({
@@ -19,6 +20,7 @@ export const store = configureStore({
     store: storeReducer,
     category: categoryReducer,
     newsletter: newsletterReducer,
+    country: countryReducer,
     reviews: reviewReducer,
     blogs: blogReducer,
     contact: contactReducer,

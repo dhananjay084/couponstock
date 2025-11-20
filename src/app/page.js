@@ -25,12 +25,12 @@ import { fetchBlogs } from "../redux/blog/blogSlice";
 import DealOfWeek from "@/components/cards/DealOfWeek";
 import FAQ from '@/components/Minor/Faq'
 import NumberStats from "@/components/numbers/number";
-import BannerImage from '../assets/HomepageBanner.png';
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
 import { Pagination, Autoplay } from "swiper/modules";
-import PriceLineBanner from "@/assets/PriceLine.png"
+import PriceLineBanner from "@/assets/PriceLine.png";
+import PriceLineMobile from "@/assets/PricelineMobile.png"
 
  function Home() {
   const dispatch = useDispatch();
@@ -221,11 +221,20 @@ import PriceLineBanner from "@/assets/PriceLine.png"
           <DesktopStoreCard key={store._id} data={store} />
         ))}
       </div>
-      <div className="hidden md:block">
+
+      <div className="hidden lg:block">
         <Banner
           Text=""
           ColorText=""
           BgImage={PriceLineBanner}
+          link="https://www.priceline.com/"
+        />
+      </div>
+      <div className="block lg:hidden">
+        <Banner
+          Text=""
+          ColorText=""
+          BgImage={PriceLineMobile}
           link="https://www.priceline.com/"
         />
       </div>

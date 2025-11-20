@@ -1,2 +1,22 @@
 @import "tailwindcss";
 
+.marquee {
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    position: relative;
+  }
+  
+  .marquee-content {
+    display: inline-flex;
+    gap: 2rem;
+    animation: marquee 22s linear infinite;
+  }
+  
+  /* No empty space at start */
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  
+  

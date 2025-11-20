@@ -9,10 +9,10 @@ import { submitContact, resetContactState } from "@/redux/contact/contactSlice";
 import { toast } from "react-toastify";
 
 const subjects = [
+  "Business Enquiry",
   "General Inquiry",
-  "General Inquiry",
-  "General Inquiry",
-  "General Inquiry",
+  "Cashback Inquiry",
+  "Account Inquiry",
 ];
 
 export default function ContactSection() {
@@ -27,9 +27,9 @@ export default function ContactSection() {
   const [selectedSubject, setSelectedSubject] = useState(0);
   const [form, setForm] = useState({
     firstName: "",
-    lastName: "Doe",
+    lastName: "",
     email: "",
-    phone: "7608892920",
+    phone: "",
     message: "",
   });
 

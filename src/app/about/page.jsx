@@ -2,8 +2,11 @@
 
 import React, { useEffect } from "react";
 import Image from "next/image";
-import Banner from "@/components/Minor/Banner";
-import UserImage from "@/assets/ProfileImage.jpg";
+import QuoteImage from "@/assets/aboutUspage.jpg"
+import UserImage from "@/assets/TeamMember1.webp";
+import UserImage2 from "@/assets/TeamMember2.webp";
+import UserImage3 from "@/assets/TeamMember3.webp";
+
 import BannerImage from "@/assets/banner-image.webp";
 import TextLink from "@/components/Minor/TextLink";
 import ReviewCard from "@/components/cards/ReviewCard.jsx";
@@ -11,7 +14,7 @@ import { fetchReviews } from "@/redux/review/reviewSlice";
 import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 
-const teamImages = [UserImage, UserImage, UserImage];
+const teamImages = [UserImage, UserImage2, UserImage3];
 
 const AboutUs = () => {
   const dispatch = useDispatch();
@@ -52,7 +55,7 @@ For more details or further queries, you can visit our
       </div>
 
       {/* Banner */}
-      <Banner Text="" ColorText="" BgImage='https://assets.indiadesire.com/images/Flipkart%20BBD%202025.jpg'/>
+      {/* <Banner Text="" ColorText="" BgImage='https://assets.indiadesire.com/images/Flipkart%20BBD%202025.jpg'/> */}
 
       {/* Quote + Image */}
       <div className="max-x-full lg:max-w-[75%] mx-auto lg:flex lg:justify-between lg:items-center my-16">
@@ -61,7 +64,7 @@ For more details or further queries, you can visit our
 
         </h1>
         <div className="relative w-[50%] hidden lg:block h-[300px]">
-          <Image src={BannerImage} alt="Quote" fill style={{ objectFit: "cover" }} />
+          <Image src={QuoteImage} alt="Quote" fill style={{ objectFit: "contain" }} />
         </div>
       </div>
 
@@ -80,7 +83,7 @@ For more details or further queries, you can visit our
               </div>
             </div>
             <div className="self-center rounded-xl overflow-hidden shadow-md w-72 h-72 relative">
-              <Image src={teamImages[2]} alt="Team member 3" fill style={{ objectFit: "cover" }} />
+              <Image src={teamImages[2]} alt="Team member 3" fill style={{ objectFit: "cover",objectPosition:'top' }} />
             </div>
           </div>
 

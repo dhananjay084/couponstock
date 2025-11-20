@@ -1,73 +1,57 @@
-// components/cards/Card.jsx
 "use client";
 
 import React from "react";
-import { Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
 
-const Card = ({ blog }) => {
+// Remove HTML + trim description (dynamic length)
+const stripHTML = (html = "", limit = 90) => {
+  if (!html) return "";
+  const clean = html.replace(/<[^>]+>/g, "");
+  return clean.length > limit ? clean.slice(0, limit) + "..." : clean;
+};
+
+const RecentBlogCard = ({ blog, large = false }) => {
   const router = useRouter();
 
-  const handleClick = () => {
-     if (!blog?._id) {
-              toast.error("blog ID is missing!");
-              return;
-            }
-    router.push(`/blog/${blog._id}`); // Next.js navigation
-  };
-
   return (
-    <div onClick={handleClick} className="cursor-pointer">
-      <div className="flex flex-col md:flex-row bg-white rounded-2xl shadow hover:shadow-lg transition duration-300 overflow-hidden max-h-64">
-        {/* Left Image */}
-        <div className="md:w-1/2 w-full">
-          <img
-            src={blog.image}
-            alt={blog.heading}
-            className="w-full h-full object-fill"
-          />
-        </div>
+    <div
+      onClick={() => router.push(`/blog/${blog?._id}`)}
+      className="cursor-pointer bg-white rounded-2xl shadow-md overflow-hidden
+      transition hover:shadow-lg flex flex-col"
+    >
+      <img
+        src={blog.image}
+        alt={blog.heading}
+        className={`w-full object-cover ${large ? "h-60" : "h-44"}`}
+      />
 
-        {/* Right Content */}
-        <div className="p-6 md:w-1/2 w-full flex flex-col justify-between overflow-y-auto">
-          <div>
-            <p className="text-sm text-purple-600 font-semibold">
-              {new Date(blog.updatedAt).toLocaleDateString("en-US", {
-                weekday: "long",
-                day: "numeric",
-                month: "short",
-                year: "numeric",
-              })}
-            </p>
+      <div className="p-5">
+        <h3
+          className={`font-semibold text-gray-800 leading-snug mb-2 ${
+            large ? "text-2xl" : "text-xl"
+          }`}
+        >
+          {blog.heading}
+        </h3>
 
-            <h2 className="text-xl font-bold text-gray-900 mt-2">
-              {`${blog.heading.substring(0, 20)}...`}
-            </h2>
+        {/* DESCRIPTION */}
+        <p className="text-gray-500 text-[15px] leading-relaxed">
+          {stripHTML(blog.details, large ? 180 : 90)}
+        </p>
 
-            <p className="text-gray-600 mt-3 text-sm leading-relaxed">
-              <Typography
-                sx={{ fontSize: "13px" }}
-                dangerouslySetInnerHTML={{ __html: blog.details.substring(0, 100) }}
-              />
-            </p>
-          </div>
-
-          {/* Tags */}
-          <div className="mt-4 flex gap-2 flex-wrap">
-            {blog.tags.map((tag, i) => (
-              <span
-                key={i}
-                className="text-xs bg-purple-100 text-purple-600 rounded-full px-2 py-1"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
+        <div className="flex justify-between items-center mt-6 text-sm text-gray-400">
+          <span>By {blog.author || "Admin"}</span>
+          <span>
+            {new Date(blog.updatedAt).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })}
+          </span>
         </div>
       </div>
     </div>
   );
 };
 
-export default Card;
+export default RecentBlogCard;

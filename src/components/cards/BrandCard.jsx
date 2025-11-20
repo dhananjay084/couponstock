@@ -9,7 +9,7 @@ const DealCard = ({ data }) => {
 
   if (!data) return null;
 
-  const { storeDescription, storeImage } = data;
+  const { storeDescription, storeImage, storeName } = data;
 
   const handleCardClick = () => {
     if (!data?._id) {
@@ -20,13 +20,24 @@ const DealCard = ({ data }) => {
   };
 
   return (
-    <div className="flex items-center mx-4 border border-[#cacaca] rounded-lg shadow-md min-w-[277px] max-w-[450px] bg-white overflow-hidden">
+    <div className="relative flex items-center mx-4 border border-[#cacaca] rounded-lg shadow-md min-w-[277px] max-w-[450px] bg-white overflow-hidden">
+
+      {/* ⭐ STORE NAME BADGE */}
+      {storeName && (
+        <div
+          className="absolute bottom-0 right-0 bg-[#592EA9] text-white text-xs font-semibold px-3 py-1 
+          rounded-br-lg shadow-sm z-10"
+        >
+          {storeName}
+        </div>
+      )}
+
       {/* Image Section */}
       <div className="w-[110px] h-[110px] flex-shrink-0 bg-white flex items-center justify-center p-2">
         <img
           src={storeImage || "/default-store.jpg"}
           alt="Store"
-          className="w-full h-full  rounded-md"
+          className="w-full h-full rounded-md"
         />
       </div>
 

@@ -64,7 +64,7 @@ const ProductCard = ({ data }) => {
     />
   
     {/* Button (on top of image, bottom-right) */}
-    <div className="absolute bottom-4 right-4">
+    {/* <div className="absolute bottom-4 right-4">
       <button
         onClick={(e) => {
           e.stopPropagation();
@@ -74,7 +74,7 @@ const ProductCard = ({ data }) => {
       >
         Shop Now
       </button>
-    </div>
+    </div> */}
   </div>
   
   );

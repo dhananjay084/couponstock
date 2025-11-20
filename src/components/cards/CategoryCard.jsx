@@ -15,14 +15,16 @@ const CategoryCard = ({ data }) => {
       toast.error("Category not found!");
       return;
     }
-    // Navigate to dynamic route with category name
     router.push(`/category/${encodeURIComponent(name)}`);
-    // toast.success(`Opening ${name} category...`);
   };
 
   return (
     <div
-      className="text-xs text-center space-y-1 w-full cursor-pointer"
+      className="
+        text-xs text-center space-y-1 w-full cursor-pointer
+        transform transition-all duration-300
+        hover:-translate-y-2 
+      "
       onClick={handleClick}
     >
       <div className="p-1 rounded-2xl bg-white shadow-[0px_2px_10.3px_0px_rgba(0,0,0,0.25)] w-full aspect-square flex items-center justify-center overflow-hidden">

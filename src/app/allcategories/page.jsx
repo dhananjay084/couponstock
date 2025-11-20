@@ -12,7 +12,11 @@ import { getHomeAdminData } from "@/redux/admin/homeAdminSlice";
 import { IconButton, Typography, InputBase, Box } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { styled } from "@mui/material/styles";
-import AmazonBanner from '../../assets/AmazoBanner.png'
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+import "swiper/css/pagination";
+import { Pagination, Autoplay } from "swiper/modules";
+import BannerCard from "@/components/cards/BannerCards";
 // Styled InputBase for search
 const StyledSearchInput = styled(InputBase)(({ theme }) => ({
   flexGrow: 1,
@@ -157,12 +161,51 @@ const AllCategories = () => {
   return (
     <div className="overflow-x-hidden">
       {/* Banner */}
-      <Banner
+      {/* <Banner
         Text=""
         ColorText=""
         BgImage={AmazonBanner}
         link="https://www.amazon.in/"
-      />
+      /> */}
+              <div className="lg:hidden px-2 pb-4 mt-6">
+  {Array.isArray(data.bannerDeals) && data.bannerDeals.length > 0 ? (
+    <Swiper
+      modules={[Pagination, Autoplay]}
+      pagination={{ clickable: true }}
+      autoplay={{ delay: 2500, disableOnInteraction: false }}
+      spaceBetween={10}
+      loop
+      breakpoints={{
+        0: { slidesPerView: 1 },      // 0–499px → 1 card
+        500: { slidesPerView: 2 },    // 500–1023px → 2 cards
+        1024: { slidesPerView: 1 },   // 1024+ → grid handles layout
+      }}
+    >
+      {data.bannerDeals.map((deal) => (
+        <SwiperSlide key={deal._id} className="flex justify-center items-center">
+          <BannerCard data={deal} />
+        </SwiperSlide>
+      ))}
+    </Swiper>
+  ) : (
+    <div className="text-center w-full">No deals available</div>
+  )}
+</div>
+
+
+
+      {/* Desktop Banner Cards */}
+      <div className="lg:flex flex-wrap gap-4 p-4 justify-center lg:justify-between hidden">
+        {Array.isArray(data.bannerDeals) && data.bannerDeals.length > 0 ? (
+          data.bannerDeals.map((deal) => (
+            <div className="w-full sm:w-[48%] lg:w-[32%]" key={deal._id}>
+              <BannerCard data={deal} />
+            </div>
+          ))
+        ) : (
+          <div className="text-center w-full">No deals available</div>
+        )}
+      </div>
 
       {/* Popular Categories */}
       <TextLink text="Popular Categories" colorText="" link="" linkText="" />

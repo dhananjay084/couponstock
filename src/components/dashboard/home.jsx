@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useFormik, FieldArray, FormikProvider } from "formik";
 import * as Yup from "yup";
 import { useSelector, useDispatch } from "react-redux";
@@ -10,14 +10,22 @@ import { toast } from "react-toastify";
 
 const HomeAdminPage = () => {
   const dispatch = useDispatch();
-  const { deals = [] } = useSelector((state) => state.deal);
-  const { data: entries = [] } = useSelector((state) => state.homeAdmin);
+  const { deals = [] } = useSelector((state) => state.deal || {});
+  const { data: entries = [] } = useSelector((state) => state.homeAdmin || {});
   const [editingEntry, setEditingEntry] = useState(null);
+
+  // ref to avoid stale closure issues inside formik's onSubmit
+  const editingEntryRef = useRef(null);
 
   useEffect(() => {
     dispatch(getDeals());
     dispatch(getHomeAdminData());
   }, [dispatch]);
+
+  // keep ref in sync whenever editingEntry state changes
+  useEffect(() => {
+    editingEntryRef.current = editingEntry;
+  }, [editingEntry]);
 
   const formik = useFormik({
     initialValues: {
@@ -36,59 +44,96 @@ const HomeAdminPage = () => {
       bannerDeals: [],
       faqs: [{ question: "", answer: "" }],
     },
+
     validationSchema: Yup.object({
-      bannerDeals: Yup.array().min(3).max(3).required(),
-      homepageBanner: Yup.string().url().required(),
-      midHomepageBanner: Yup.string().url().required(),
-      allCouponsPageBanner: Yup.string().url().required(),
-      allCouponsAboutHeading: Yup.string().required(),
-      allCouponsAboutDescription: Yup.string().required(),
-      allStoresPageBanner: Yup.string().url().required(),
-      allStoresAboutHeading: Yup.string().required(),
-      allStoresAboutDescription: Yup.string().required(),
-      allCategoriesPageBanner: Yup.string().url().required(),
-      allCategoriesAboutHeading: Yup.string().required(),
-      allCategoriesAboutDescription: Yup.string().required(),
-      individualStoreBanner: Yup.string().url().required(),
+      bannerDeals: Yup.array().min(3, "Select exactly 3 deals").max(3, "Select exactly 3 deals").required("Required"),
+      homepageBanner: Yup.string().url("Must be a valid URL").required("Required"),
+      midHomepageBanner: Yup.string().url("Must be a valid URL").required("Required"),
+      allCouponsPageBanner: Yup.string().url("Must be a valid URL").required("Required"),
+      allCouponsAboutHeading: Yup.string().required("Required"),
+      allCouponsAboutDescription: Yup.string().required("Required"),
+      allStoresPageBanner: Yup.string().url("Must be a valid URL").required("Required"),
+      allStoresAboutHeading: Yup.string().required("Required"),
+      allStoresAboutDescription: Yup.string().required("Required"),
+      allCategoriesPageBanner: Yup.string().url("Must be a valid URL").required("Required"),
+      allCategoriesAboutHeading: Yup.string().required("Required"),
+      allCategoriesAboutDescription: Yup.string().required("Required"),
+      individualStoreBanner: Yup.string().url("Must be a valid URL").required("Required"),
       faqs: Yup.array().of(
         Yup.object({
-          question: Yup.string().required(),
-          answer: Yup.string().required(),
+          question: Yup.string().required("Required"),
+          answer: Yup.string().required("Required"),
         })
       ),
     }),
-    enableReinitialize: true,
-    onSubmit: (values) => {
-      if (editingEntry) {
-        dispatch(updateHomeAdmin({ id: editingEntry._id, data: values }))
-          .unwrap()
-        .then(() => {
-           toast.success("Updated successfully");
-          // alert("Updated successfully");
+
+    // IMPORTANT: do not use enableReinitialize (it caused values to be reset unexpectedly)
+    enableReinitialize: false,
+
+    onSubmit: async (values, { setSubmitting }) => {
+      // read current editing entry from ref to avoid stale closures
+      const currentEdit = editingEntryRef.current;
+console.log("values",values)
+      try {
+        if (currentEdit && currentEdit._id) {
+          // update
+          await dispatch(updateHomeAdmin({ id: currentEdit._id, data: values })).unwrap();
+          toast.success("Updated successfully");
           setEditingEntry(null);
           formik.resetForm();
-        }) .catch(() => toast.error(" Failed to update"));
-
-      } else {
-        dispatch(createHomeAdmin(values))
-          .unwrap()
-        .then(() => {
-           toast.success(" Created successfully");
-          // alert("Created successfully");
+          // refresh entries
+          dispatch(getHomeAdminData());
+        } else {
+          // create
+          await dispatch(createHomeAdmin(values)).unwrap();
+          toast.success("Created successfully");
           formik.resetForm();
-          
-        }) .catch(() => toast.error(" Failed to create"));
+          // refresh entries
+          dispatch(getHomeAdminData());
+        }
+      } catch (err) {
+        console.error("HomeAdmin submit error:", err);
+        toast.error("Failed to save. Please try again.");
+      } finally {
+        setSubmitting(false);
       }
     },
   });
 
+  // Populate form values for editing — keeps editingEntry state AND ref consistent
   const editEntry = (entry) => {
+    if (!entry) return;
     setEditingEntry(entry);
+    editingEntryRef.current = entry;
+
+    // map bannerDeals to IDs if they are objects
+    const bannerDealsIds = Array.isArray(entry.bannerDeals)
+      ? entry.bannerDeals.map((d) => (typeof d === "string" ? d : d._id))
+      : [];
+
     formik.setValues({
-      ...entry,
-      bannerDeals: entry.bannerDeals.map((d) => d._id),
-      faqs: entry.faqs.length ? entry.faqs : [{ question: "", answer: "" }],
+      homepageBanner: entry.homepageBanner || "",
+      midHomepageBanner: entry.midHomepageBanner || "",
+      allCouponsPageBanner: entry.allCouponsPageBanner || "",
+      allCouponsAboutHeading: entry.allCouponsAboutHeading || "",
+      allCouponsAboutDescription: entry.allCouponsAboutDescription || "",
+      allStoresPageBanner: entry.allStoresPageBanner || "",
+      allStoresAboutHeading: entry.allStoresAboutHeading || "",
+      allStoresAboutDescription: entry.allStoresAboutDescription || "",
+      allCategoriesPageBanner: entry.allCategoriesPageBanner || "",
+      allCategoriesAboutHeading: entry.allCategoriesAboutHeading || "",
+      allCategoriesAboutDescription: entry.allCategoriesAboutDescription || "",
+      individualStoreBanner: entry.individualStoreBanner || "",
+      bannerDeals: bannerDealsIds,
+      faqs: Array.isArray(entry.faqs) && entry.faqs.length ? entry.faqs : [{ question: "", answer: "" }],
     });
+  };
+
+  // Cancel editing helper (optional)
+  const cancelEditing = () => {
+    setEditingEntry(null);
+    editingEntryRef.current = null;
+    formik.resetForm();
   };
 
   return (
@@ -110,17 +155,30 @@ const HomeAdminPage = () => {
             {entries.map((entry, idx) => (
               <tr key={entry._id} className="text-center">
                 <td className="p-2 border">{idx + 1}</td>
-                <td className="p-2 border">{entry.homepageBanner}</td>
-                <td className="p-2 border">{entry.allCouponsAboutHeading}</td>
-                <td className="p-2 border">{entry.bannerDeals.length}</td>
-                <td className="p-2 border">{entry.faqs.length}</td>
+                <td className="p-2 border break-words max-w-xs">{entry.homepageBanner}</td>
+                <td className="p-2 border break-words max-w-xs">{entry.allCouponsAboutHeading}</td>
+                <td className="p-2 border">{Array.isArray(entry.bannerDeals) ? entry.bannerDeals.length : 0}</td>
+                <td className="p-2 border">{Array.isArray(entry.faqs) ? entry.faqs.length : 0}</td>
                 <td className="p-2 border">
-                  <button
-                    className="text-blue-600 hover:underline cursor-pointer"
-                    onClick={() => editEntry(entry)}
-                  >
-                    Edit
-                  </button>
+                  <div className="flex items-center justify-center gap-3">
+                    <button
+                      className="text-blue-600 hover:underline cursor-pointer"
+                      onClick={() => editEntry(entry)}
+                      type="button"
+                    >
+                      Edit
+                    </button>
+                    {/* optional cancel button when editing this specific row */}
+                    {editingEntry && editingEntry._id === entry._id && (
+                      <button
+                        className="text-red-600 hover:underline cursor-pointer"
+                        onClick={cancelEditing}
+                        type="button"
+                      >
+                        Cancel
+                      </button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}
@@ -151,6 +209,9 @@ const HomeAdminPage = () => {
               </option>
             ))}
           </select>
+          {formik.touched.bannerDeals && formik.errors.bannerDeals && (
+            <p className="text-red-600 text-sm mt-1">{formik.errors.bannerDeals}</p>
+          )}
         </div>
 
         {/* Generic full inputs */}
@@ -169,7 +230,7 @@ const HomeAdminPage = () => {
           { label: "Individual Store Banner", name: "individualStoreBanner" },
         ].map(({ label, name }) => (
           <div key={name}>
-            <label className="block font-medium">{label}</label>
+            <label className="block font-medium mb-1">{label}</label>
             <textarea
               name={name}
               value={formik.values[name]}
@@ -177,6 +238,9 @@ const HomeAdminPage = () => {
               className="w-full border rounded p-2"
               rows={2}
             />
+            {formik.touched[name] && formik.errors[name] && (
+              <p className="text-red-600 text-sm mt-1">{formik.errors[name]}</p>
+            )}
           </div>
         ))}
 
@@ -195,6 +259,10 @@ const HomeAdminPage = () => {
                       placeholder="Question"
                       className="w-full border rounded p-1"
                     />
+                    {formik.touched?.faqs?.[i]?.question && formik.errors?.faqs?.[i]?.question && (
+                      <p className="text-red-600 text-sm">{formik.errors.faqs[i].question}</p>
+                    )}
+
                     <textarea
                       name={`faqs[${i}].answer`}
                       value={faq.answer}
@@ -203,9 +271,15 @@ const HomeAdminPage = () => {
                       className="w-full border rounded p-1"
                       rows={2}
                     />
-                    <button type="button" onClick={() => remove(i)} className="text-red-600 cursor-pointer">
-                      Remove
-                    </button>
+                    {formik.touched?.faqs?.[i]?.answer && formik.errors?.faqs?.[i]?.answer && (
+                      <p className="text-red-600 text-sm">{formik.errors.faqs[i].answer}</p>
+                    )}
+
+                    <div className="flex gap-3">
+                      <button type="button" onClick={() => remove(i)} className="text-red-600 cursor-pointer">
+                        Remove
+                      </button>
+                    </div>
                   </div>
                 ))}
                 <button
@@ -220,12 +294,25 @@ const HomeAdminPage = () => {
           </FieldArray>
         </FormikProvider>
 
-        <button
-          type="submit"
-          className="bg-green-600 text-white font-bold py-2 px-6 rounded hover:bg-green-700 cursor-pointer"
-        >
-          {editingEntry ? "Update Entry" : "Create Entry"}
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            type="submit"
+            disabled={formik.isSubmitting}
+            className="bg-green-600 text-white font-bold py-2 px-6 rounded hover:bg-green-700 cursor-pointer disabled:opacity-60"
+          >
+            {editingEntry ? "Update Entry" : "Create Entry"}
+          </button>
+
+          {editingEntry && (
+            <button
+              type="button"
+              onClick={cancelEditing}
+              className="bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded hover:bg-gray-300"
+            >
+              Cancel Edit
+            </button>
+          )}
+        </div>
       </form>
     </div>
   );

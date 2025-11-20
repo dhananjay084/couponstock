@@ -26,11 +26,11 @@ import DealOfWeek from "@/components/cards/DealOfWeek";
 import FAQ from '@/components/Minor/Faq'
 import NumberStats from "@/components/numbers/number";
 import BannerImage from '../assets/HomepageBanner.png';
-import AmazonBanner from '../assets/AmazoBanner.png';
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
 import { Pagination, Autoplay } from "swiper/modules";
+import PriceLineBanner from "@/assets/PriceLine.png"
 
  function Home() {
   const dispatch = useDispatch();
@@ -40,6 +40,7 @@ import { Pagination, Autoplay } from "swiper/modules";
   const { reviews = [] } = useSelector((state) => state.reviews);
   const { blogs = [],  } = useSelector((state) => state.blogs || {});
    const homeAdmin = useSelector((state) => state.homeAdmin) || { data: [] };
+   console.log("homeAdmin",homeAdmin)
     const data = homeAdmin.data?.[0] || {};
   const safeFilter = (arr, callback) => Array.isArray(arr) ? arr.filter(callback) : [];
 
@@ -224,8 +225,8 @@ import { Pagination, Autoplay } from "swiper/modules";
         <Banner
           Text=""
           ColorText=""
-          BgImage={BannerImage}
-          link="https://www.myntra.com/"
+          BgImage={PriceLineBanner}
+          link="https://www.priceline.com/"
         />
       </div>
 
@@ -266,7 +267,7 @@ import { Pagination, Autoplay } from "swiper/modules";
           deal?.dealType === "Coupons/Deals" &&
           deal?.dealCategory === "coupon"
         ).map((deal) => (
-          <Coupons_Deals key={deal._id} data={deal} />
+          <Coupons_Deals key={deal._id} data={deal} border={true} />
         ))}
       </div>
       <div className="md:flex md:justify-around md:items-center">

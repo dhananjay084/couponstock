@@ -11,6 +11,7 @@ import adminReducer from './admin/homeAdminSlice.js'
 import { paymentApi } from './razorpay/paymentApi';
 import paymeReducer from './razorpay/paymeslice';
 import countryReducer from "./country/countrySlice";
+import referralReducer from "./referral/referralSlice";
 
 
 export const store = configureStore({
@@ -22,6 +23,8 @@ export const store = configureStore({
     newsletter: newsletterReducer,
     country: countryReducer,
     reviews: reviewReducer,
+    referral: referralReducer,
+
     blogs: blogReducer,
     contact: contactReducer,
     homeAdmin: adminReducer,

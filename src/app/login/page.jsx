@@ -3,6 +3,7 @@
 
 import React, { useEffect, useRef, useState, Suspense } from "react";
 import { Formik, Form, Field } from "formik";
+import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
 import {
   loginUser,
@@ -68,15 +69,16 @@ const LoginComponent = () => {
   }, [searchParams, dispatch]);
 
   useEffect(() => {
-  if (error) {
-    // toast.error(error);
-    dispatch(clearAuthMessage());
-  }
-  if (message) {
-    // toast.success(message);
-    dispatch(clearAuthMessage());
-  }
-}, [error, message, dispatch]);
+    if (error) {
+      toast.error("Invalid credentials");
+      dispatch(clearAuthMessage());
+    }
+    if (message) {
+      toast.success(message);
+      dispatch(clearAuthMessage());
+    }
+  }, [ dispatch]);
+  
 
   useEffect(() => {
     if (isAuthenticated && !loading) {

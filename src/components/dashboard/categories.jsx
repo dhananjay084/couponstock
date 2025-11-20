@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
@@ -10,16 +10,9 @@ import {
   updateCategory,
   deleteCategory,
   searchCategories,
-} from "@/redux/category/categorySlice"; // adjust path
+} from "@/redux/category/categorySlice";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
-import { AgGridReact } from "ag-grid-react";
-import "ag-grid-community/styles/ag-grid.css";
-import "ag-grid-community/styles/ag-theme-alpine.css";
-
-import { ModuleRegistry, AllCommunityModule } from "ag-grid-community";
-ModuleRegistry.registerModules([AllCommunityModule]);
 
 const categorySchema = Yup.object().shape({
   name: Yup.string().required("Name is required"),
@@ -30,10 +23,8 @@ const categorySchema = Yup.object().shape({
 
 export default function CategoriesPage() {
   const dispatch = useDispatch();
-  const { categories, searchResults, loading, error } = useSelector((state) => state.category);
+  const { categories, searchResults, loading } = useSelector((state) => state.category);
   const [editCategory, setEditCategory] = useState(null);
-
-  const gridRef = useRef();
   const [searchText, setSearchText] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
 
@@ -43,7 +34,7 @@ export default function CategoriesPage() {
     return () => clearTimeout(handler);
   }, [searchText]);
 
-  // Fetch categories or search results
+  // Fetch or search categories
   useEffect(() => {
     if (debouncedSearchTerm.length > 0) {
       dispatch(searchCategories(debouncedSearchTerm));
@@ -72,70 +63,17 @@ export default function CategoriesPage() {
     try {
       await dispatch(updateCategory({ id: editCategory._id, data: values })).unwrap();
       toast.success("Category updated!");
+      resetForm();
+      setEditCategory(null);
       if (debouncedSearchTerm.length > 0) {
         dispatch(searchCategories(debouncedSearchTerm));
       } else {
         dispatch(getCategories());
       }
-      resetForm();
-      setEditCategory(null);
     } catch (err) {
       toast.error(`Update failed: ${err.message || "Unknown error"}`);
     }
   };
-
-  const columnDefs = [
-    { headerName: "Name", field: "name", sortable: true, filter: true, flex: 1 },
-    {
-      headerName: "Image",
-      field: "image",
-      cellRenderer: (params) => (
-        <img src={params.value} alt="category" className="h-12 w-12 object-fill rounded-md" />
-      ),
-      width: 100,
-      resizable: false,
-    },
-    {
-      headerName: "Popular Store",
-      field: "popularStore",
-      cellRenderer: (params) => (params.value ? "✅" : "❌"),
-      width: 150,
-      filter: true,
-    },
-    {
-      headerName: "Show on Homepage",
-      field: "showOnHomepage",
-      cellRenderer: (params) => (params.value ? "✅" : "❌"),
-      width: 150,
-      filter: true,
-    },
-    {
-      headerName: "Actions",
-      field: "_id",
-      cellRenderer: (params) => (
-        <div className="flex space-x-2 items-center h-full">
-          <button
-            onClick={() => handleDelete(params.value)}
-            className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-xs cursor-pointer"
-          >
-            Delete
-          </button>
-          <button
-            onClick={() => handleEdit(params.data)}
-            className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-xs cursor-pointer"
-          >
-            Edit
-          </button>
-        </div>
-      ),
-      width: 150,
-      resizable: false,
-    },
-  ];
-
-  const defaultColDef = useCallback(() => ({ flex: 1, minWidth: 100, resizable: true }), []);
-
-  const onGridReady = useCallback((params) => params.api.sizeColumnsToFit(), []);
 
   const dataToDisplay = searchText.length > 0 ? searchResults : categories;
 
@@ -144,6 +82,7 @@ export default function CategoriesPage() {
       <ToastContainer />
       <h1 className="text-2xl font-bold mb-6">Categories</h1>
 
+      {/* Search Input */}
       <input
         type="text"
         placeholder="Search categories..."
@@ -152,27 +91,66 @@ export default function CategoriesPage() {
         className="mb-4 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
 
+      {/* ✅ Normal HTML Table */}
       {loading ? (
         <div className="text-center py-8">Loading Categories...</div>
       ) : dataToDisplay?.length > 0 ? (
-        <div className="ag-theme-alpine flex-grow" style={{ width: "100%" }}>
-          <AgGridReact
-            ref={gridRef}
-            rowData={dataToDisplay}
-            columnDefs={columnDefs}
-            defaultColDef={defaultColDef}
-            onGridReady={onGridReady}
-            pagination
-            paginationPageSize={10}
-            domLayout="autoHeight"
-          />
+        <div className="overflow-x-auto rounded-lg shadow-md border border-gray-200 mb-10">
+          <table className="min-w-full bg-white border border-gray-200">
+            <thead className="bg-gray-100 text-left text-gray-700">
+              <tr>
+                <th className="py-3 px-4 border-b">Name</th>
+                <th className="py-3 px-4 border-b">Image</th>
+                <th className="py-3 px-4 border-b">Popular Store</th>
+                <th className="py-3 px-4 border-b">Show on Homepage</th>
+                <th className="py-3 px-4 border-b">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {dataToDisplay.map((category) => (
+                <tr key={category._id} className="hover:bg-gray-50">
+                  <td className="py-3 px-4 border-b">{category.name}</td>
+                  <td className="py-3 px-4 border-b">
+                    <img
+                      src={category.image}
+                      alt="category"
+                      className="h-12 w-12 object-cover rounded-md"
+                    />
+                  </td>
+                  <td className="py-3 px-4 border-b text-center">
+                    {category.popularStore ? "✅" : "❌"}
+                  </td>
+                  <td className="py-3 px-4 border-b text-center">
+                    {category.showOnHomepage ? "✅" : "❌"}
+                  </td>
+                  <td className="py-3 px-4 border-b flex space-x-2">
+                    <button
+                      onClick={() => handleDelete(category._id)}
+                      className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-xs cursor-pointer"
+                    >
+                      Delete
+                    </button>
+                    <button
+                      onClick={() => handleEdit(category)}
+                      className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-xs cursor-pointer"
+                    >
+                      Edit
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       ) : (
         <div className="text-center py-8 text-gray-500">
-          {searchText.length > 0 ? "No categories found for your search." : "No categories available."}
+          {searchText.length > 0
+            ? "No categories found for your search."
+            : "No categories available."}
         </div>
       )}
 
+      {/* ✅ Formik Form for Add / Edit */}
       <Formik
         enableReinitialize
         initialValues={

@@ -12,7 +12,13 @@ import { fetchReviews } from "@/redux/review/reviewSlice";
 import { getHomeAdminData } from "@/redux/admin/homeAdminSlice";
 import { toast } from "react-toastify";
 import AjioBanner from '../../assets/AjioBanner.png'
-import {fetchCountries} from "../../redux/country/countrySlice"
+import {fetchCountries} from "../../redux/country/countrySlice";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+import "swiper/css/pagination";
+import { Pagination, Autoplay } from "swiper/modules";
+import BannerCard from "@/components/cards/BannerCards";
+
 const AllCoupons = () => {
   const dispatch = useDispatch();
 
@@ -25,11 +31,10 @@ const AllCoupons = () => {
   const [searchTerm, setSearchTerm] = React.useState("");
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
   const dropdownRef = React.useRef();
-  // useEffect(() => {
-  //   dispatch(getDeals());
-  //   dispatch(fetchReviews());
-  //   dispatch(getHomeAdminData());
-  // }, [dispatch]);
+  useEffect(() => {
+  
+    dispatch(getHomeAdminData());
+  }, [dispatch]);
 
   useEffect(() => {
   const fetchData = async () => {
@@ -101,11 +106,7 @@ const filteredExpiredDeals = selectedCountries.length
   : expiredDeals;
 
 
-useEffect(() => {
-  if (activeDeals.length === 0) toast.info("No active deals available.");
-  if (expiredDeals.length === 0) toast.info("No expired deals found.");
-  if (reviews.length === 0) toast.info("No user reviews yet.");
-}, [activeDeals, expiredDeals, reviews]);
+
 useEffect(() => {
   const handleClickOutside = (event) => {
     if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -119,11 +120,53 @@ useEffect(() => {
   return (
     <>
       <div>
-        <h1 className="font-semibold text-xl max-w-[80%] px-4">
-          ALL DEALS & COUPONS CODES
-        </h1>
+      <h1 className="px-4 mt-3 text-2xl sm:text-3xl font-extrabold tracking-tight 
+text-[#592EA9] drop-shadow-sm flex items-center gap-2">
+  ALL DEALS 
+  <span className="text-[#222] font-semibold">& COUPON CODES</span>
+</h1>
 
-        <Banner text="" colorText="" BgImage={AjioBanner} link= 'https://www.ajio.com/' />
+
+        {/* <Banner text="" colorText="" BgImage={AjioBanner} link= 'https://www.ajio.com/' /> */}
+        <div className="lg:hidden px-2 pb-4 mt-6">
+  {Array.isArray(data.bannerDeals) && data.bannerDeals.length > 0 ? (
+    <Swiper
+      modules={[Pagination, Autoplay]}
+      pagination={{ clickable: true }}
+      autoplay={{ delay: 2500, disableOnInteraction: false }}
+      spaceBetween={10}
+      loop
+      breakpoints={{
+        0: { slidesPerView: 1 },      // 0–499px → 1 card
+        500: { slidesPerView: 2 },    // 500–1023px → 2 cards
+        1024: { slidesPerView: 1 },   // 1024+ → grid handles layout
+      }}
+    >
+      {data.bannerDeals.map((deal) => (
+        <SwiperSlide key={deal._id} className="flex justify-center items-center">
+          <BannerCard data={deal} />
+        </SwiperSlide>
+      ))}
+    </Swiper>
+  ) : (
+    <div className="text-center w-full">No deals available</div>
+  )}
+</div>
+
+
+
+      {/* Desktop Banner Cards */}
+      <div className="lg:flex flex-wrap gap-4 p-4 justify-center lg:justify-between hidden">
+        {Array.isArray(data.bannerDeals) && data.bannerDeals.length > 0 ? (
+          data.bannerDeals.map((deal) => (
+            <div className="w-full sm:w-[48%] lg:w-[32%]" key={deal._id}>
+              <BannerCard data={deal} />
+            </div>
+          ))
+        ) : (
+          <div className="text-center w-full">No deals available</div>
+        )}
+      </div>
         <div className="flex justify-between items-center flex-wrap gap-3">
   <TextLink text="All" colorText="Offers" link="" linkText="" />
 
@@ -199,7 +242,7 @@ useEffect(() => {
   </div>
 </div>
 {/* Active Deals */}
-<div className="space-y-4 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:justify-around max-h-[500px] overflow-y-auto">
+<div className=" mt-4 space-y-4 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:justify-around max-h-[500px] overflow-y-auto">
   {filteredActiveDeals.length > 0 ? (
     filteredActiveDeals.map((deal) => (
       <Coupons_Deals key={deal._id} data={deal} border={true} />

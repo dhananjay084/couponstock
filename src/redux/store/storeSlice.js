@@ -5,6 +5,7 @@ import {
   deleteStoreAPI,
   updateStoreAPI,
   getStoreByIdAPI,
+  getStoreBySlugAPI,
   searchStoresAPI // Import the new searchStoresAPI function
 } from './storeAPI.js';
 // No direct axios import needed here as it's handled in storeAPI.js
@@ -62,7 +63,19 @@ export const searchStores = createAsyncThunk('store/searchStores', async (search
     return thunkAPI.rejectWithValue(err.response?.data?.message || err.message);
   }
 });
-  
+export const getStoreBySlug = createAsyncThunk(
+  'store/getStoreBySlug',
+  async (slug, thunkAPI) => {
+    try {
+      return await getStoreBySlugAPI(slug);
+    } catch (err) {
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || err.message
+      );
+    }
+  }
+);
+
 const storeSlice = createSlice({
   name: 'store',
   initialState: {
@@ -151,7 +164,22 @@ const storeSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
         state.searchResults = []; // Clear results on error
-      });
+      })
+      // Handle getStoreBySlug
+.addCase(getStoreBySlug.pending, (state) => {
+  state.loading = true;
+  state.error = null;
+})
+.addCase(getStoreBySlug.fulfilled, (state, action) => {
+  state.loading = false;
+  state.singleStore = action.payload;
+})
+.addCase(getStoreBySlug.rejected, (state, action) => {
+  state.loading = false;
+  state.error = action.payload;
+  state.singleStore = null;
+});
+
   },
 });
 

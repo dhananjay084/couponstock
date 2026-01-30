@@ -26,15 +26,17 @@ import { fetchReviews } from "@/redux/review/reviewSlice";
 
 const IndividualStore = () => {
   const params = useParams();
-  const { id } = params; // Next.js params from app router
+  const { slug } = params;
   const dispatch = useDispatch();
 
   const { deals = [] } = useSelector((state) => state.deal);
   const { stores = [], loading, error } = useSelector((state) => state.store);
   const { reviews = [] } = useSelector((state) => state.reviews);
 
-  const storeFromList = stores.find((store) => store._id === id);
-
+  // const storeFromList = stores.find((store) => store._id === id);
+  const storeFromList = stores.find(
+    (store) => store.slug === slug
+  );
   useEffect(() => {
     dispatch(getDeals());
     dispatch(getStores());

@@ -100,12 +100,17 @@ const AllStores = () => {
   const handleSearchFocus = () => setShowSearchDropdown(true);
   const handleSearchBlur = () => setTimeout(() => setShowSearchDropdown(false), 200);
 
-  const handleSearchResultClick = (storeId) => {
-    router.push(`/store/${storeId}`);
+  const handleSearchResultClick = (slug) => {
+    if (!slug) {
+      toast.error("Store slug not found!");
+      return;
+    }
+    router.push(`/store/${slug}`);
     setSearchTerm("");
     dispatch(clearSearchResults());
     setShowSearchDropdown(false);
   };
+  
 
   const categories = ["All", ...Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i))];
 
@@ -193,7 +198,7 @@ const AllStores = () => {
                   <SearchResultItem>Loading...</SearchResultItem>
                 ) : searchResults.length > 0 ? (
                   searchResults.map((store) => (
-                    <SearchResultItem key={store._id} onClick={() => handleSearchResultClick(store._id)}>
+                    <SearchResultItem key={store._id} onClick={() => handleSearchResultClick(store.slug)}>
                       <Typography variant="body2" fontWeight="bold">{store.storeName}</Typography>
                       <Typography variant="caption" color="textSecondary">{store.storeType}</Typography>
                     </SearchResultItem>

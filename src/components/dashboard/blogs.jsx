@@ -13,9 +13,6 @@ import {
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import { AgGridReact } from "ag-grid-react";
-import "ag-grid-community/styles/ag-grid.css";
-import "ag-grid-community/styles/ag-theme-alpine.css";
 
 import { ModuleRegistry, AllCommunityModule } from "ag-grid-community";
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -24,7 +21,6 @@ export default function AddBlogPage() {
   const dispatch = useDispatch();
   const { blogs, loading } = useSelector((state) => state.blogs);
   const [editBlogId, setEditBlogId] = useState(null);
-  const gridRef = useRef();
 
   useEffect(() => {
     dispatch(fetchBlogs());
@@ -94,77 +90,7 @@ export default function AddBlogPage() {
     }
   };
 
-  const columnDefs = [
-    {
-      headerName: "Image",
-      field: "image",
-      cellRenderer: (params) => (
-        <img
-          src={params.value}
-          alt="blog"
-          className="h-12 w-12 object-fill rounded-md"
-        />
-      ),
-      width: 100,
-      resizable: false,
-    },
-    { headerName: "Heading", field: "heading", sortable: true, filter: true, flex: 1 },
-    {
-      headerName: "Tags",
-      field: "tags",
-      sortable: true,
-      filter: true,
-      cellRenderer: (params) => (params.value ? params.value.join(", ") : ""),
-      flex: 1,
-    },
-    {
-      headerName: "Homepage",
-      field: "showOnHomepage",
-      sortable: true,
-      filter: true,
-      cellRenderer: (params) => (params.value ? "✅" : "❌"),
-      width: 120,
-    },
-    {
-      headerName: "Featured",
-      field: "featuredPost",
-      sortable: true,
-      filter: true,
-      cellRenderer: (params) => (params.value ? "✅" : "❌"),
-      width: 120,
-    },
-    {
-      headerName: "Actions",
-      field: "_id",
-      cellRenderer: (params) => (
-        <div className="flex space-x-2 items-center h-full">
-          <button
-            onClick={() => handleDelete(params.value)}
-            className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-xs cursor-pointer"
-          >
-            Delete
-          </button>
-          <button
-            onClick={() => handleEdit(params.data)}
-            className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-xs cursor-pointer"
-          >
-            Edit
-          </button>
-        </div>
-      ),
-      width: 150,
-      resizable: false,
-    },
-  ];
 
-  const defaultColDef = useCallback(
-    () => ({ flex: 1, minWidth: 100, resizable: true }),
-    []
-  );
-
-  const onGridReady = useCallback((params) => {
-    params.api.sizeColumnsToFit();
-  }, []);
 
   return (
     <div className="p-6 max-w-7xl mx-auto flex flex-col min-h-screen">
@@ -263,23 +189,76 @@ export default function AddBlogPage() {
       </form>
 
       {loading ? (
-        <div className="text-center py-8">Loading Blogs...</div>
-      ) : blogs?.length > 0 ? (
-        <div className="ag-theme-alpine flex-grow" style={{ width: "100%" }}>
-          <AgGridReact
-            ref={gridRef}
-            rowData={blogs}
-            columnDefs={columnDefs}
-            defaultColDef={defaultColDef}
-            onGridReady={onGridReady}
-            pagination
-            paginationPageSize={10}
-            domLayout="autoHeight"
-          />
-        </div>
-      ) : (
-        <div className="text-center py-8 text-gray-500">No blogs available.</div>
-      )}
+  <div className="text-center py-8">Loading Blogs...</div>
+) : blogs?.length > 0 ? (
+  <div className="overflow-x-auto bg-white shadow-md rounded">
+    <table className="min-w-full border border-gray-200">
+      <thead className="bg-gray-100">
+        <tr>
+          <th className="border p-3 text-left">Image</th>
+          <th className="border p-3 text-left">Heading</th>
+          <th className="border p-3 text-left">Tags</th>
+          <th className="border p-3 text-center">Homepage</th>
+          <th className="border p-3 text-center">Featured</th>
+          <th className="border p-3 text-center">Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {blogs.map((blog) => (
+          <tr key={blog._id} className="hover:bg-gray-50">
+            <td className="border p-2">
+              <img
+                src={blog.image}
+                alt="blog"
+                className="h-12 w-12 object-fill rounded-md"
+              />
+            </td>
+
+            <td className="border p-2 font-medium">
+              {blog.heading}
+            </td>
+
+            <td className="border p-2 text-sm text-gray-600">
+              {blog.tags?.join(", ")}
+            </td>
+
+            <td className="border p-2 text-center">
+              {blog.showOnHomepage ? "✅" : "❌"}
+            </td>
+
+            <td className="border p-2 text-center">
+              {blog.featuredPost ? "✅" : "❌"}
+            </td>
+
+            <td className="border p-2 text-center">
+              <div className="flex gap-2 justify-center">
+                <button
+                  onClick={() => handleEdit(blog)}
+                  className="bg-yellow-500 text-white px-3 py-1 rounded text-xs hover:bg-yellow-600"
+                >
+                  Edit
+                </button>
+
+                <button
+                  onClick={() => handleDelete(blog._id)}
+                  className="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600"
+                >
+                  Delete
+                </button>
+              </div>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+) : (
+  <div className="text-center py-8 text-gray-500">
+    No blogs available.
+  </div>
+)}
+
     </div>
   );
 }

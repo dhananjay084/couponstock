@@ -34,3 +34,8 @@ export const searchStoresAPI = async (searchTerm) => {
   const response = await axios.get(`${BASE_URL}/search?q=${encodeURIComponent(searchTerm)}`);
   return response.data;
 };
+export const getStoreBySlugAPI = async (slug) => {
+  const response = await axios.get(`${BASE_URL}/slug/${slug}`);
+  return response.data;
+};
+

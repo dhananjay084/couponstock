@@ -12,12 +12,14 @@ const DealCard = ({ data }) => {
   const { storeDescription, storeImage, storeName } = data;
 
   const handleCardClick = () => {
-    if (!data?._id) {
-      toast.error("Store not found!");
+    console.log("clciked card")
+    if (!data?.slug) {
+      toast.error("Store slug not found!");
       return;
     }
-    router.push(`/store/${data._id}`);
+    router.push(`/store/${data.slug}`);
   };
+  
 
   return (
     <div className="relative flex items-center mx-4 border border-[#cacaca] rounded-lg shadow-md min-w-[277px] max-w-[450px] bg-white overflow-hidden">

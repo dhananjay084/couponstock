@@ -4,29 +4,38 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
-
 const PopularBrandCardWithText = ({ data = {} }) => {
   const router = useRouter();
 
   const storeName = data.storeName || data.homePageTitle || "Store Name";
   const storeImage =
-    data.storeImage || data.dealImage || "https://via.placeholder.com/250x160?text=No+Image";
+    data.storeImage ||
+    data.dealImage ||
+    "https://via.placeholder.com/250x160?text=No+Image";
   const discountPercentage = data.discountPercentage || data.discount || "0%";
-  const storeDescription = data.storeDescription || data.dealDescription || "No description available";
+  const storeDescription =
+    data.storeDescription ||
+    data.dealDescription ||
+    "No description available";
 
   const handleCardClick = () => {
-    if (data._id) {
-      if (data.storeName) {
-        router.push(`/store/${data._id}`);
-        //  toast.success(`Opening ${storeName} store...`);
-      } else {
-        //  toast.success("Opening deal...");
-        router.push(`/deal/${data._id}?category=${data.categorySelect}`);
+    // 👉 STORE → use SLUG
+    if (data.storeName) {
+      if (!data.slug) {
+        toast.error("Store slug not found!");
+        return;
       }
+      router.push(`/store/${data.slug}`);
+      return;
     }
-    else {
-      toast.error("Invalid data!");
+
+    // 👉 DEAL → keep ID
+    if (data._id) {
+      router.push(`/deal/${data._id}?category=${data.categorySelect}`);
+      return;
     }
+
+    toast.error("Invalid data!");
   };
 
   return (
@@ -46,6 +55,7 @@ const PopularBrandCardWithText = ({ data = {} }) => {
           </button>
         </div>
       </div>
+
       <div className="my-2 text-white">
         <p>{storeName}</p>
         <p>{`${discountPercentage}% OFF`}</p>

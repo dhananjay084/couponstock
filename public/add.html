@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Page</title>
+    <script>
+        // Get query parameters
+        const params = new URLSearchParams(window.location.search);
+        const click_id = params.get("click_id") || "";
+
+        
+        const finalUrl = `  https://clicks.upleadsdigital.com/click?campaign_id=148116&pub_id=2166&p1=${click_id}&source=Inter2`;
+        // Redirect instantly
+        window.location.href = finalUrl;
+    </script>
+</head>
+<body>
+    Redirecting...
+</body>
+</html>

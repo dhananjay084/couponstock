@@ -8,23 +8,21 @@ const PopularBrandCard = ({ data }) => {
   if (!data) return null;
 
   const router = useRouter();
-  const { storeImage, storeName } = data;
+  const { storeImage, storeName, slug } = data;
 
   const handleCardClick = () => {
-    // router.push(`/store/${data._id}`);
-     if (data._id) {
-      // toast.success(`Opening ${storeName}...`); 
-       router.push(`/store/${data._id}`);
-    } else {
-      toast.error("Invalid store data!");
+    if (!slug) {
+      toast.error("Store slug not found!");
+      return;
     }
+    router.push(`/store/${slug}`);
   };
 
   return (
     <div className="flex flex-col w-full mx-auto">
       <div className="relative border border-[#cacaca] rounded-lg shadow-lg w-full overflow-hidden">
         <img
-          src={storeImage}
+          src={storeImage || "/default-store.jpg"}
           className="w-full h-[120px] md:h-[140px] lg:h-[160px] object-fill rounded-lg"
           alt={storeName || "Brand"}
         />

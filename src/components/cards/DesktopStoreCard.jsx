@@ -15,15 +15,14 @@ const BannerCard = ({ data }) => {
 
   const router = useRouter();
 
-  const handleCardClick = () => {
-    // router.push(`/store/${data._id}`);
-     if (!data?._id) {
-      toast.error("Store ID is missing!");
-      return;
-    }
-    // toast.success(`Redirecting to ${data.storeName}...`);
-    router.push(`/store/${data._id}`);
-  };
+ const handleCardClick = () => {
+     console.log("clciked card")
+     if (!data?.slug) {
+       toast.error("Store slug not found!");
+       return;
+     }
+     router.push(`/store/${data.slug}`);
+   };
 
   return (
     <div className="bg-white rounded-2xl w-full max-w-sm overflow-hidden min-w-[322px]">

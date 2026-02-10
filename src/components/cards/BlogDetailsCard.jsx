@@ -4,6 +4,10 @@ import React from "react";
 import { Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+const stripHtml = (html) => {
+  if (!html) return "";
+  return html.replace(/<[^>]*>?/gm, "");
+};
 
 const Coupons_Deals = ({ border = false, data }) => {
   const router = useRouter();
@@ -36,10 +40,12 @@ const Coupons_Deals = ({ border = false, data }) => {
       {/* Text Content */}
       <div>
         <Typography color={"#592ea9"} sx={{ fontWeight: 500, fontSize: "13px" }}>
-          {`${data.heading.substring(0, 40)}..`}
+        {`${stripHtml(data.heading).substring(0, 40)}..`}
+
         </Typography>
         <Typography color={"black"} sx={{ fontWeight: 500, fontSize: "10px" }}>
-          {`${data.details.substring(0, 60)}...`}
+        {`${stripHtml(data.details).substring(0, 60)}...`}
+
         </Typography>
 
         <button

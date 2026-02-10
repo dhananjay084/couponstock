@@ -133,7 +133,7 @@ const IndividualStore = () => {
         </div>
       </div>
 
-      <TextLink text="Top" colorText="Deals" link="/home" linkText="View All" />
+      <TextLink text="Top" colorText="Deals" link="/allcoupons" linkText="View All" />
       <div className="flex overflow-x-scroll">
         {deals
           .filter(

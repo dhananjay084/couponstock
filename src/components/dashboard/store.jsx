@@ -168,6 +168,9 @@ console.log("dataToDisplay",dataToDisplay)
             discountPercentage: "",
             popularStore: false,
             storeHtmlContent: "",
+            metaTitle: "",
+metaDescription: "",
+metaKeywords: "",
           }
         }
         validationSchema={storeSchema}
@@ -230,7 +233,20 @@ console.log("dataToDisplay",dataToDisplay)
               <Field type="number" name="discountPercentage" className="w-full px-3 py-2 border rounded-md" />
               <ErrorMessage name="discountPercentage" component="div" className="text-red-500 text-sm mt-1" />
             </div>
+            <div>
+  <label className="block mb-1 font-medium">Meta Title</label>
+  <Field name="metaTitle" className="w-full px-3 py-2 border rounded-md" />
+</div>
 
+<div>
+  <label className="block mb-1 font-medium">Meta Description</label>
+  <Field as="textarea" name="metaDescription" className="w-full px-3 py-2 border rounded-md" />
+</div>
+
+<div>
+  <label className="block mb-1 font-medium">Meta Keywords</label>
+  <Field name="metaKeywords" className="w-full px-3 py-2 border rounded-md" />
+</div>
             <div className="flex items-center space-x-2">
               <Field type="checkbox" name="popularStore" />
               <label className="font-medium">Popular Store</label>

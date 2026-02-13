@@ -4,10 +4,10 @@ import ClientLayout from "./ClientLayout"; // move client logic here
 import "react-quill/dist/quill.snow.css";
 import Script from "next/script";
 
-export const metadata = {
-  title: "My Couponstock",
-  description: "Coupons & Deals",
-};
+// export const metadata = {
+//   title: "My Couponstock",
+//   description: "Coupons & Deals",
+// };
 
 export default function RootLayout({ children }) {
   return (

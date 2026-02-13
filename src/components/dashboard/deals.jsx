@@ -255,6 +255,9 @@ const DealsPage = () => {
               expiredDate: editDeal.expiredDate ? new Date(editDeal.expiredDate).toISOString().split('T')[0] : '',
               redirectionLink: editDeal.redirectionLink || '', // <-- NEW FIELD
               country: editDeal.country || [], // ✅ Add this
+              metaTitle: editDeal?.metaTitle || "",
+metaDescription: editDeal?.metaDescription || "",
+metaKeywords: editDeal?.metaKeywords || "",
 
             } : {
               dealTitle: '',
@@ -272,6 +275,9 @@ const DealsPage = () => {
               expiredDate: '',
               redirectionLink: '', // <-- NEW FIELD
               country: [], // ✅ Add this
+              metaTitle: editDeal?.metaTitle || "",
+metaDescription: editDeal?.metaDescription || "",
+metaKeywords: editDeal?.metaKeywords || "",
 
             },
           ],
@@ -437,6 +443,30 @@ const DealsPage = () => {
     name={`deals[${index}].redirectionLink`}
     component="div"
     className="text-red-500 text-sm mt-1"
+  />
+</div>
+<div className="mb-4">
+  <label className="block mb-1 font-medium">Meta Title</label>
+  <Field
+    name={`deals[${index}].metaTitle`}
+    className="w-full px-3 py-2 border rounded-md"
+  />
+</div>
+
+<div className="mb-4">
+  <label className="block mb-1 font-medium">Meta Description</label>
+  <Field
+    as="textarea"
+    name={`deals[${index}].metaDescription`}
+    className="w-full px-3 py-2 border rounded-md"
+  />
+</div>
+
+<div className="mb-4">
+  <label className="block mb-1 font-medium">Meta Keywords</label>
+  <Field
+    name={`deals[${index}].metaKeywords`}
+    className="w-full px-3 py-2 border rounded-md"
   />
 </div>
 

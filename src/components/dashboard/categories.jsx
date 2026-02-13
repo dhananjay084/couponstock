@@ -154,7 +154,9 @@ export default function CategoriesPage() {
       <Formik
         enableReinitialize
         initialValues={
-          editCategory || { name: "", image: "", showOnHomepage: false, popularStore: false }
+          editCategory || { name: "", image: "", showOnHomepage: false, popularStore: false, metaTitle: "",
+            metaDescription: "",
+            metaKeywords: "" }
         }
         validationSchema={categorySchema}
         onSubmit={async (values, { resetForm }) => {
@@ -189,7 +191,20 @@ export default function CategoriesPage() {
               <Field name="image" className="w-full px-3 py-2 border rounded-md" />
               <ErrorMessage name="image" component="div" className="text-red-500 text-sm mt-1" />
             </div>
+            <div>
+  <label className="block mb-1 font-medium">Meta Title</label>
+  <Field name="metaTitle" className="w-full px-3 py-2 border rounded-md" />
+</div>
 
+<div>
+  <label className="block mb-1 font-medium">Meta Description</label>
+  <Field as="textarea" name="metaDescription" rows={3} className="w-full px-3 py-2 border rounded-md" />
+</div>
+
+<div>
+  <label className="block mb-1 font-medium">Meta Keywords</label>
+  <Field name="metaKeywords" className="w-full px-3 py-2 border rounded-md" />
+</div>
             <div className="flex items-center space-x-4">
               <label className="flex items-center">
                 <Field type="checkbox" name="popularStore" className="mr-2" />

@@ -2,14 +2,14 @@
 
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import Banner from "@/components/Minor/Banner";
-import TextLink from "@/components/Minor/TextLink";
-import Coupons_Deals from "@/components/cards/Coupons_Deals";
-import ReviewCard from "@/components/cards/ReviewCard";
-import HeadingText from "@/components/Minor/HeadingText";
-import { getDeals } from "@/redux/deal/dealSlice";
-import { fetchReviews } from "@/redux/review/reviewSlice";
-import { getHomeAdminData } from "@/redux/admin/homeAdminSlice";
+import Banner from "../../components/Minor/Banner";
+import TextLink from "../../components/Minor/TextLink";
+import Coupons_Deals from "../../components/cards/Coupons_Deals";
+import ReviewCard from "../../components/cards/ReviewCard";
+import HeadingText from "../../components/Minor/HeadingText";
+import { getDeals } from "../../redux/deal/dealSlice";
+import { fetchReviews } from "../../redux/review/reviewSlice";
+import { getHomeAdminData } from "../../redux/admin/homeAdminSlice";
 import { toast } from "react-toastify";
 import AjioBanner from '../../assets/AjioBanner.png'
 import {fetchCountries} from "../../redux/country/countrySlice";
@@ -17,7 +17,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
 import { Pagination, Autoplay } from "swiper/modules";
-import BannerCard from "@/components/cards/BannerCards";
+import BannerCard from "../../components/cards/BannerCards";
 
 const AllCoupons = () => {
   const dispatch = useDispatch();

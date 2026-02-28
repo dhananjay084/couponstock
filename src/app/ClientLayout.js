@@ -1,7 +1,7 @@
 "use client";
 
-import NavBar from "@/components/NavBar";
-import Footer from "@/components/Footer";
+import NavBar from "../components/NavBar";
+import Footer from "../components/Footer";
 import { usePathname } from "next/navigation";
 // import withSkeleton from "@/components/skeletons/WithSkeleton";
 

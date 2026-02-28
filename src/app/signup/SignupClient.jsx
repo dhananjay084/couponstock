@@ -5,7 +5,7 @@ import { Formik, Form, Field } from "formik";
 import { useDispatch, useSelector } from "react-redux";
 import { registerUser, googleLogin } from "../../redux/auth/authApi";
 import { clearAuthMessage, setAuthMessage } from "../../redux/auth/authSlice";
-import { signupWithReferral } from "@/redux/referral/referralSlice";
+import { signupWithReferral } from "../../redux/referral/referralSlice";
 import GoogleIcon from "@mui/icons-material/Google";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-toastify";

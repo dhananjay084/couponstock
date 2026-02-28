@@ -5,7 +5,7 @@ import Image from "next/image";
 import NewsletterImg from "../../assets/NewsLetter.png";
 import { Typography, TextField, Button, Box } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import { subscribeUser, resetSubscriberState } from "@/redux/newletter/newsletterSlice";
+import { subscribeUser, resetSubscriberState } from "../../redux/newletter/newsletterSlice";
 import { toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css'; // Import the styles
 

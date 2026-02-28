@@ -236,7 +236,8 @@ async function getStore(slug) {
 }
 
 export async function generateMetadata({ params }) {
-  const store = await getStore(params.slug);
+  const { slug } = await params;
+  const store = await getStore(slug);
 
   if (!store) {
     return {
@@ -265,7 +266,8 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function Page({ params }) {
-  const store = await getStore(params.slug);
+  const { slug } = await params;
+  const store = await getStore(slug);
 
   if (!store) {
     return <div>Store not found</div>;

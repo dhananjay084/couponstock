@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import ProtectedAdminRoute from "@/components/ProtectedAdminRoute";
-import StoreAdmin from "@/components/dashboard/store";
+import ProtectedAdminRoute from "../../../components/ProtectedAdminRoute";
+import StoreAdmin from "../../../components/dashboard/store";
 
 const DealsPage = () => {
   return (

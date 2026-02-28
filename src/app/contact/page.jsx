@@ -5,7 +5,7 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { FiPhone, FiMail, FiMapPin } from "react-icons/fi";
 import { FaFacebook, FaInstagram, FaTwitter, FaLinkedin } from "react-icons/fa";
-import { submitContact, resetContactState } from "@/redux/contact/contactSlice"; // adjust path
+import { submitContact, resetContactState } from "../../redux/contact/contactSlice"; // adjust path
 import { toast } from "react-toastify";
 
 const subjects = [

@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import ProtectedAdminRoute from "@/components/ProtectedAdminRoute";
-import BlogsAdmin from "@/components/dashboard/blogs";
+import ProtectedAdminRoute from "../../../components/ProtectedAdminRoute";
+import BlogsAdmin from "../../../components/dashboard/blogs";
 
 const DealsPage = () => {
   return (

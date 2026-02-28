@@ -3,12 +3,12 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
-import Banner from "@/components/Minor/Banner";
-import TextLink from "@/components/Minor/TextLink";
-import CategoryCard from "@/components/cards/CategoryCard";
-import HeadingText from "@/components/Minor/HeadingText";
-import { getCategories, searchCategories, clearSearchResults } from "@/redux/category/categorySlice";
-import { getHomeAdminData } from "@/redux/admin/homeAdminSlice";
+import Banner from "../../components/Minor/Banner";
+import TextLink from "../../components/Minor/TextLink";
+import CategoryCard from "../../components/cards/CategoryCard";
+import HeadingText from "../../components/Minor/HeadingText";
+import { getCategories, searchCategories, clearSearchResults } from "../../redux/category/categorySlice";
+import { getHomeAdminData } from "../../redux/admin/homeAdminSlice";
 import { IconButton, Typography, InputBase, Box } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { styled } from "@mui/material/styles";
@@ -16,7 +16,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
 import { Pagination, Autoplay } from "swiper/modules";
-import BannerCard from "@/components/cards/BannerCards";
+import BannerCard from "../../components/cards/BannerCards";
 // Styled InputBase for search
 const StyledSearchInput = styled(InputBase)(({ theme }) => ({
   flexGrow: 1,

@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchContacts } from "@/redux/contact/contactSlice";
+import { fetchContacts } from "../../redux/contact/contactSlice";
 import { toast } from "react-toastify";
 
 

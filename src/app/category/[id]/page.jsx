@@ -175,7 +175,8 @@
 import CategoryClient from "./CategoryClient";
 
 export async function generateMetadata({ params }) {
-  const categoryName = decodeURIComponent(params.id);
+  const { id } = await params;
+  const categoryName = decodeURIComponent(id);
 
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_SERVER_URL}/api/categories/name/${categoryName}`,

@@ -10,7 +10,7 @@ import {
   updateCategory,
   deleteCategory,
   searchCategories,
-} from "@/redux/category/categorySlice";
+} from "../../redux/category/categorySlice";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 

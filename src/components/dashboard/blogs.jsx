@@ -9,7 +9,7 @@ import {
   fetchBlogs,
   updateBlog,
   deleteBlog,
-} from "@/redux/blog/blogSlice"; // adjust path for App Router
+} from "../../redux/blog/blogSlice"; // adjust path for App Router
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 

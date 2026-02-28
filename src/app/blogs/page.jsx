@@ -2,9 +2,9 @@
 
 import React, { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchBlogs } from "@/redux/blog/blogSlice";
-import BlogCard from "@/components/cards/BlogCard";
-import RecentBlogCard from "@/components/cards/NewBlogCard";
+import { fetchBlogs } from "../../redux/blog/blogSlice";
+import BlogCard from "../../components/cards/BlogCard";
+import RecentBlogCard from "../../components/cards/NewBlogCard";
 import { toast } from "react-toastify";
 
 const BlogsPage = () => {

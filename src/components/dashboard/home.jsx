@@ -4,8 +4,8 @@ import React, { useEffect, useState, useRef } from "react";
 import { useFormik, FieldArray, FormikProvider } from "formik";
 import * as Yup from "yup";
 import { useSelector, useDispatch } from "react-redux";
-import { getDeals } from "@/redux/deal/dealSlice";
-import { getHomeAdminData, createHomeAdmin, updateHomeAdmin } from "@/redux/admin/homeAdminSlice";
+import { getDeals } from "../../redux/deal/dealSlice";
+import { getHomeAdminData, createHomeAdmin, updateHomeAdmin } from "../../redux/admin/homeAdminSlice";
 import { toast } from "react-toastify";
 
 const HomeAdminPage = () => {

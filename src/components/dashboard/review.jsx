@@ -10,7 +10,7 @@ import {
   deleteReview,
   fetchReviews,
   updateReview,
-} from "@/redux/review/reviewSlice";
+} from "../../redux/review/reviewSlice";
 
 const ReviewsPage = () => {
   const dispatch = useDispatch();

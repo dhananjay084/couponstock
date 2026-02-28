@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
-import { checkCurrentUser } from "@/redux/auth/authApi";
+import { checkCurrentUser } from "../redux/auth/authApi";
 
 const ProtectedAdminRoute = ({ children }) => {
   const dispatch = useDispatch();

@@ -12,7 +12,7 @@ import HeadingText from "../../components/Minor/HeadingText";
 import ReviewCard from "../../components/cards/ReviewCard";
 import TextLink from "../../components/Minor/TextLink";
 import { fetchReviews, addReview } from "../../redux/review/reviewSlice";
-import { fetchReferralLink,fetchMyReferrals } from "@/redux/referral/referralSlice";
+import { fetchReferralLink,fetchMyReferrals } from "../../redux/referral/referralSlice";
 import Cookies from "js-cookie";
 
 import {

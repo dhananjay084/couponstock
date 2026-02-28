@@ -1,8 +1,9 @@
 import DealClient from "./DealClient";
 
 export async function generateMetadata({ params }) {
+  const { slug } = await params;
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/deals/slug/${params.slug}`,
+    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/deals/slug/${slug}`,
     { cache: "no-store" }
   );
 
@@ -17,8 +18,9 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function Page({ params }) {
+  const { slug } = await params;
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/deals/slug/${params.slug}`,
+    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/deals/slug/${slug}`,
     { cache: "no-store" }
   );
 

@@ -2,15 +2,15 @@
 
 import React, { useEffect } from "react";
 import Image from "next/image";
-import QuoteImage from "@/assets/aboutUspage.jpg"
-import UserImage from "@/assets/TeamMember1.webp";
-import UserImage2 from "@/assets/TeamMember2.webp";
-import UserImage3 from "@/assets/TeamMember3.webp";
+import QuoteImage from "../../assets/aboutUspage.jpg"
+import UserImage from "../../assets/TeamMember1.webp";
+import UserImage2 from "../../assets/TeamMember2.webp";
+import UserImage3 from "../../assets/TeamMember3.webp";
 
-import BannerImage from "@/assets/banner-image.webp";
-import TextLink from "@/components/Minor/TextLink";
-import ReviewCard from "@/components/cards/ReviewCard.jsx";
-import { fetchReviews } from "@/redux/review/reviewSlice";
+import BannerImage from "../../assets/banner-image.webp";
+import TextLink from "../../components/Minor/TextLink";
+import ReviewCard from "../../components/cards/ReviewCard.jsx";
+import { fetchReviews } from "../../redux/review/reviewSlice";
 import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 

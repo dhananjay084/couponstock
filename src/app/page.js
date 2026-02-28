@@ -1,36 +1,36 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Banner from "@/components/Minor/Banner";
-import BannerCard from "@/components/cards/BannerCards";
-import { getHomeAdminData } from "@/redux/admin/homeAdminSlice";
+import Banner from "../components/Minor/Banner";
+import BannerCard from "../components/cards/BannerCards";
+import { getHomeAdminData } from "../redux/admin/homeAdminSlice";
 import { useSelector, useDispatch } from "react-redux";
-import TextLink from "@/components/Minor/TextLink";
-import { getDeals } from "@/redux/deal/dealSlice";
-import DealCard from "@/components/cards/DealCard";
-import DesktopCard from "@/components/cards/DealsDesktopCard";
+import TextLink from "../components/Minor/TextLink";
+import { getDeals } from "../redux/deal/dealSlice";
+import DealCard from "../components/cards/DealCard";
+import DesktopCard from "../components/cards/DealsDesktopCard";
 import { getStores } from "../redux/store/storeSlice";
-import BrandCard from "@/components/cards/BrandCard";
-import DesktopStoreCard from '@/components/cards/DesktopStoreCard';
-import CategoryCard from "@/components/cards/CategoryCard";
-import PopularBrandCard from "@/components/cards/PopularBrandCard";
+import BrandCard from "../components/cards/BrandCard";
+import DesktopStoreCard from '../components/cards/DesktopStoreCard';
+import CategoryCard from "../components/cards/CategoryCard";
+import PopularBrandCard from "../components/cards/PopularBrandCard";
 import { getCategories } from "../redux/category/categorySlice";
-import PopularStores from "@/components/cards/PopularStores";
-import Coupons_Deals from "@/components/cards/Coupons_Deals";
-import FeaturedPost from "@/components/cards/FeaturedPost";
-import ReviewCard from "@/components/cards/ReviewCard";
-import NewsLetter from '@/components/Minor/NewsLetter';
+import PopularStores from "../components/cards/PopularStores";
+import Coupons_Deals from "../components/cards/Coupons_Deals";
+import FeaturedPost from "../components/cards/FeaturedPost";
+import ReviewCard from "../components/cards/ReviewCard";
+import NewsLetter from '../components/Minor/NewsLetter';
 import { fetchReviews } from "../redux/review/reviewSlice.js";
 import { fetchBlogs } from "../redux/blog/blogSlice";
-import DealOfWeek from "@/components/cards/DealOfWeek";
-import FAQ from '@/components/Minor/Faq'
-import NumberStats from "@/components/numbers/number";
+import DealOfWeek from "../components/cards/DealOfWeek";
+import FAQ from '../components/Minor/Faq'
+import NumberStats from "../components/numbers/number";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
 import { Pagination, Autoplay } from "swiper/modules";
-import PriceLineBanner from "@/assets/PriceLine.png";
-import PriceLineMobile from "@/assets/PricelineMobile.png"
+import PriceLineBanner from "../assets/PriceLine.png";
+import PriceLineMobile from "../assets/PricelineMobile.png"
 
  function Home() {
   const dispatch = useDispatch();

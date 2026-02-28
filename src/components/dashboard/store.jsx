@@ -10,7 +10,7 @@ import {
   deleteStore,
   updateStore,
   searchStores,
-} from "@/redux/store/storeSlice";
+} from "../../redux/store/storeSlice";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 

@@ -64,3 +64,6 @@
 // };
 
 // export default Payment;
+export default function PaymentPage() {
+  return null;
+}

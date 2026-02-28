@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useEffect } from "react";
-import Banner from "@/components/Minor/Banner";
-import DefaultBanner from "@/assets/banner-image.webp";
+import Banner from "../../../components/Minor/Banner";
+import DefaultBanner from "../../../assets/banner-image.webp";
 import { Typography } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchBlogById, fetchBlogs } from "@/redux/blog/blogSlice";
-import BlogCard from "@/components/cards/BlogDetailsCard";
+import { fetchBlogById, fetchBlogs } from "../../../redux/blog/blogSlice";
+import BlogCard from "../../../components/cards/BlogDetailsCard";
 import { useParams } from "next/navigation"; // to get dynamic param
 
 const BlogDetails = () => {

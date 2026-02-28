@@ -4,23 +4,23 @@ import React, { useEffect, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { Typography } from "@mui/material";
-import TextLink from "@/components/Minor/TextLink";
-import Coupons_Deals from "@/components/cards/Coupons_Deals";
-import PopularBrandCard from "@/components/cards/PopularBrandWithText";
-import DealCard from "@/components/cards/DealCard";
-import HeadingText from "@/components/Minor/HeadingText";
-import BarChartCard from "@/components/charts/BarChart";
+import TextLink from "../../../components/Minor/TextLink";
+import Coupons_Deals from "../../../components/cards/Coupons_Deals";
+import PopularBrandCard from "../../../components/cards/PopularBrandWithText";
+import DealCard from "../../../components/cards/DealCard";
+import HeadingText from "../../../components/Minor/HeadingText";
+import BarChartCard from "../../../components/charts/BarChart";
 import { LiaPercentageSolid } from "react-icons/lia";
 import { FaTruck } from "react-icons/fa6";
 import { MdAssignmentReturned } from "react-icons/md";
 import { RiCoupon2Fill } from "react-icons/ri";
 import { FaCheckCircle } from "react-icons/fa";
-import ReviewCard from "@/components/cards/ReviewCard";
-import FAQAccordion from "@/components/Minor/Faq";
+import ReviewCard from "../../../components/cards/ReviewCard";
+import FAQAccordion from "../../../components/Minor/Faq";
 
-import { getDeals } from "@/redux/deal/dealSlice";
-import { getStores } from "@/redux/store/storeSlice.js";
-import { fetchReviews } from "@/redux/review/reviewSlice";
+import { getDeals } from "../../../redux/deal/dealSlice";
+import { getStores } from "../../../redux/store/storeSlice.js";
+import { fetchReviews } from "../../../redux/review/reviewSlice";
 // import { toast } from "react-toastify";
 
 

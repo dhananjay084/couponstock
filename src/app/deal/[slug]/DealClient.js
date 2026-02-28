@@ -10,13 +10,13 @@ import {
   Box,
   Button,
 } from "@mui/material";
-import HeadingText from "@/components/Minor/HeadingText";
-import DealCard from "@/components/cards/DealCard";
-import { getDeals } from "@/redux/deal/dealSlice";
-import ReviewCard from "@/components/cards/ReviewCard";
-import { fetchReviews } from "@/redux/review/reviewSlice";
-import TextLink from "@/components/Minor/TextLink";
-import LoginModal from "@/components/modals/loginModal";
+import HeadingText from "../../../components/Minor/HeadingText";
+import DealCard from "../../../components/cards/DealCard";
+import { getDeals } from "../../../redux/deal/dealSlice";
+import ReviewCard from "../../../components/cards/ReviewCard";
+import { fetchReviews } from "../../../redux/review/reviewSlice";
+import TextLink from "../../../components/Minor/TextLink";
+import LoginModal from "../../../components/modals/loginModal";
 import { useRouter } from "next/navigation";
 export async function generateMetadata({ params }) {
   const res = await fetch(

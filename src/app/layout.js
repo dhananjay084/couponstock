@@ -36,3 +36,4 @@ gtag('config', 'G-GNT9Z6HJXS');`}
     </html>
   );
 }
+

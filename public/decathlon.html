@@ -1,0 +1,48 @@
+<html>
+<head>
+    <title>Redirecting...</title>
+
+    <!-- CRITICAL: Control referrer -->
+    <meta name="referrer" content="origin">
+    <meta http-equiv="Referrer-Policy" content="origin">
+    <meta name="robots" content="noindex, nofollow">
+
+    <!-- Prevent caching -->
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
+    <script>
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const click_id = urlParams.get('click_id') || '';
+        const sub_id = urlParams.get('sub_id') || '';
+
+        if (click_id) {
+            // Build AWIN URL with clickref2 = sub_id and clickref3 = click_id
+           const awinUrl = `https://clicks.upleadsdigital.com/click?campaign_id=148004&pub_id=2166&p1=${encodeURIComponent(click_id)}&source=${encodeURIComponent(sub_id)}`;
+            // 500ms delay to ensure referrer is preserved
+            setTimeout(function() {
+                window.location.replace(awinUrl);
+            }, 500);
+
+        } else {
+            // No click_id - show error
+            document.body.innerHTML = 'Error: Missing click_id parameter';
+        }
+    </script>
+
+    <style>
+        /* Minimal styling */
+        body {
+            margin: 0;
+            padding: 0;
+            background: white;
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    Loading...
+</body>
+</html>

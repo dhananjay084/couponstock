@@ -35,9 +35,9 @@ import { logoutUser, checkCurrentUser } from "../redux/auth/authApi";
 import { toast } from "react-toastify";
 
 const baseNavLinks = [
-  { name: "All Offers", href: "/allcoupons" },
-  { name: "Stores", href: "/allstores" },
-  { name: "All Categories", href: "/allcategories" },
+  { name: "All Offers", href: "/deal" },
+  { name: "Stores", href: "/store" },
+  { name: "All Categories", href: "/category" },
   { name: "All Blogs", href: "/blogs" }
 ];
 
@@ -145,7 +145,10 @@ const NavBar = () => {
   
   const handleAdminMenuOpen = (e) => setAdminAnchorEl(e.currentTarget);
   const handleAdminMenuClose = () => setAdminAnchorEl(null);
-  const isAdmin = isAuthenticated && user?.role === "admin";
+  const isAdmin =
+    isAuthenticated &&
+    typeof user?.role === "string" &&
+    user.role.toLowerCase() === "admin";
   const navLinks = isAdmin
   ?  adminLinks
   : baseNavLinks;

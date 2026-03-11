@@ -2,6 +2,7 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
+import { slugWithId } from "../../lib/slugify";
 
 // Remove HTML + trim description (dynamic length)
 const stripHTML = (html = "", limit = 90) => {
@@ -15,7 +16,7 @@ const RecentBlogCard = ({ blog, large = false }) => {
 
   return (
     <div
-      onClick={() => router.push(`/blog/${blog?._id}`)}
+      onClick={() => router.push(`/blog/${slugWithId(blog?.heading, blog?._id)}`)}
       className="cursor-pointer bg-white rounded-2xl shadow-md overflow-hidden
       transition hover:shadow-lg flex flex-col"
     >

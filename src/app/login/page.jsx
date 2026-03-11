@@ -24,11 +24,20 @@ const LoginComponent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const { loading, error, message, isAuthenticated } = useSelector(
+  const { loading, isAuthenticated } = useSelector(
     (state) => state.auth
   );
   const oauthHandledRef = useRef(false);
+  const loginHandledRef = useRef(false);
   const [showPassword, setShowPassword] = useState(false);
+  const redirectPath = searchParams?.get("redirect");
+
+  const getPostLoginPath = (user) => {
+    if (redirectPath && redirectPath.startsWith("/")) return redirectPath;
+    if (typeof user?.role === "string" && user.role.toLowerCase() === "admin")
+      return "/admin/home";
+    return "/";
+  };
 
   // Handle OAuth redirects safely
   useEffect(() => {
@@ -52,46 +61,51 @@ const LoginComponent = () => {
       if (typeof window !== "undefined") {
         window.history.replaceState({}, document.title, window.location.pathname);
       }
-      dispatch(checkCurrentUser());
+      dispatch(checkCurrentUser())
+        .unwrap()
+        .then((user) => {
+          toast.success(`Welcome, ${decodeURIComponent(name)}!`);
+          router.replace(getPostLoginPath(user));
+        })
+        .catch(() => {
+          toast.error("Google login completed, but session check failed.");
+        });
       oauthHandledRef.current = true;
     } else if (authError === "google_auth_failed") {
-      dispatch(
-        setAuthMessage({
-          message: "Google authentication failed. Please try again.",
-          type: "error",
-        })
-      );
+      toast.error("Google authentication failed. Please try again.");
       if (typeof window !== "undefined") {
         window.history.replaceState({}, document.title, window.location.pathname);
       }
       oauthHandledRef.current = true;
     }
-  }, [searchParams, dispatch]);
+  }, [searchParams, dispatch, router, redirectPath]);
 
   useEffect(() => {
-    if (error) {
-      toast.error("Invalid credentials");
-      dispatch(clearAuthMessage());
-    }
-    if (message) {
-      toast.success(message);
-      dispatch(clearAuthMessage());
-    }
-  }, [ dispatch]);
-  
-
-  useEffect(() => {
-    if (isAuthenticated && !loading) {
+    if (!loginHandledRef.current && isAuthenticated && !loading) {
+      loginHandledRef.current = true;
       router.replace("/");
     }
   }, [isAuthenticated, loading, router]);
 
   const handleEmailLogin = async (values, { setSubmitting }) => {
-    dispatch(loginUser(values));
-    dispatch(checkCurrentUser());
-    setSubmitting(false);
-    router.replace("/");
-    router.refresh?.();
+    dispatch(clearAuthMessage());
+    try {
+      const loginPayload = await dispatch(loginUser(values)).unwrap();
+      const user = loginPayload?.user || loginPayload || {};
+      toast.success(`Login successful${user?.name ? `, ${user.name}` : ""}!`);
+      loginHandledRef.current = true;
+      router.replace(getPostLoginPath(user));
+      router.refresh?.();
+      dispatch(checkCurrentUser());
+    } catch (err) {
+      const messageText =
+        typeof err === "string"
+          ? err
+          : err?.message || "Invalid credentials. Please try again.";
+      toast.error(messageText);
+    } finally {
+      setSubmitting(false);
+    }
   };
   
   

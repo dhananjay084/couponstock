@@ -17,6 +17,7 @@ import { RiCoupon2Fill } from "react-icons/ri";
 import { FaCheckCircle } from "react-icons/fa";
 import ReviewCard from "../../../components/cards/ReviewCard";
 import FAQAccordion from "../../../components/Minor/Faq";
+import { GridSkeleton, RowSkeleton, TextSkeleton } from "../../../components/skeletons/InlineSkeletons";
 
 import { getDeals } from "../../../redux/deal/dealSlice";
 import { getStores } from "../../../redux/store/storeSlice.js";
@@ -84,12 +85,23 @@ const IndividualStore = () => {
     return { chartData: counts, todayCount };
   }, [deals, storeFromList]);
 
-  if (loading || !storeFromList)
-    return <p className="text-center py-10">Loading...</p>;
+  if (loading) {
+    return (
+      <div className="p-4 space-y-4">
+        <TextSkeleton className="h-8 w-56" />
+        <div className="h-40 rounded-lg bg-gray-200 animate-pulse" />
+        <GridSkeleton count={6} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" itemClassName="h-36 rounded-lg bg-gray-200" />
+      </div>
+    );
+  }
+  if (!storeFromList) return <p className="text-center py-10">Store not found.</p>;
   if (error) return <p className="text-red-500 text-center py-10">{error}</p>;
 
   return (
     <div>
+      <h1 className="px-4 pt-2 text-2xl font-bold text-[#592EA9]">
+        {storeFromList.storeName}
+      </h1>
       <TextLink
         text={storeFromList.storeName}
         colorText="Offers"
@@ -111,7 +123,9 @@ const IndividualStore = () => {
 
       <TextLink text="Top Codes" colorText="" link="" linkText="" />
       <div className="space-y-4 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:justify-around">
-        {deals
+        {deals.length === 0 ? (
+          <GridSkeleton count={3} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" itemClassName="h-36 rounded-lg bg-gray-200" />
+        ) : deals
           .filter(
             (deal) =>
               deal.store === storeFromList.storeName &&
@@ -125,7 +139,9 @@ const IndividualStore = () => {
       <div className="bg-[#592EA9] text-white my-4">
         <p className="px-4 py-2">Popular Stores</p>
         <div className="flex overflow-x-auto space-x-4 p-4 scrollbar-hide">
-          {stores
+          {stores.length === 0 ? (
+            <RowSkeleton count={3} />
+          ) : stores
             .filter((store) => store.popularStore)
             .map((store) => (
               <PopularBrandCard key={store._id} data={store} />
@@ -133,9 +149,11 @@ const IndividualStore = () => {
         </div>
       </div>
 
-      <TextLink text="Top" colorText="Deals" link="/allcoupons" linkText="View All" />
+      <TextLink text="Top" colorText="Deals" link="/deal" linkText="View All" />
       <div className="flex overflow-x-scroll">
-        {deals
+        {deals.length === 0 ? (
+          <RowSkeleton count={3} />
+        ) : deals
           .filter(
             (deal) =>
               deal.store === storeFromList.storeName &&
@@ -212,7 +230,7 @@ const IndividualStore = () => {
         {reviews.length > 0 ? (
           reviews.map((review) => <ReviewCard key={review._id} data={review} />)
         ) : (
-          <p>No reviews found.</p>
+          <RowSkeleton count={2} />
         )}
       </div>
 

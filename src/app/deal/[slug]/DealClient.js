@@ -6,7 +6,6 @@ import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import {
   Typography,
-  CircularProgress,
   Box,
   Button,
 } from "@mui/material";
@@ -18,6 +17,7 @@ import { fetchReviews } from "../../../redux/review/reviewSlice";
 import TextLink from "../../../components/Minor/TextLink";
 import LoginModal from "../../../components/modals/loginModal";
 import { useRouter } from "next/navigation";
+import { RowSkeleton, TextSkeleton } from "../../../components/skeletons/InlineSkeletons";
 export async function generateMetadata({ params }) {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_SERVER_URL}/api/deals/slug/${params.slug}`,
@@ -120,8 +120,16 @@ const DealDetailsContent = () => {
     dispatch(fetchReviews());
   }, [dispatch]);
 
-  if (loading)
-    return <p className="text-center p-4">Loading deal details...</p>;
+  if (loading) {
+    return (
+      <div className="p-4 space-y-4">
+        <TextSkeleton className="h-6 w-64" />
+        <TextSkeleton className="h-8 w-3/4" />
+        <div className="h-40 rounded-lg bg-gray-200 animate-pulse" />
+        <RowSkeleton count={3} />
+      </div>
+    );
+  }
 
   if (!dealDetails)
     return <p className="text-center p-4 text-red-500">Deal not found.</p>;
@@ -158,6 +166,9 @@ const DealDetailsContent = () => {
 
   return (
     <>
+      <h1 className="px-4 pt-2 text-2xl font-bold text-[#592EA9]">
+        {dealDetails.dealTitle}
+      </h1>
       <Box
         display="flex"
         justifyContent="space-between"
@@ -216,7 +227,9 @@ const DealDetailsContent = () => {
       </Typography>
       
       <div className="flex overflow-x-scroll gap-4 p-4">
-        {deals
+        {deals.length === 0 ? (
+          <RowSkeleton count={3} />
+        ) : deals
           .filter(
             (deal) =>
               deal.categorySelect === category &&
@@ -242,9 +255,7 @@ const DealDetailsContent = () => {
             <ReviewCard key={review._id} data={review} />
           ))
         ) : (
-          <p className="col-span-full text-center text-gray-500">
-            No reviews found.
-          </p>
+          <RowSkeleton count={2} />
         )}
       </div>
 
@@ -262,9 +273,11 @@ const DealDetailsPage = () => {
   return (
     <Suspense
       fallback={
-        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
-          <CircularProgress />
-        </Box>
+        <div className="p-4 space-y-4">
+          <TextSkeleton className="h-6 w-64" />
+          <div className="h-40 rounded-lg bg-gray-200 animate-pulse" />
+          <RowSkeleton count={3} />
+        </div>
       }
     >
       <DealDetailsContent />

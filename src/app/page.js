@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Banner from "../components/Minor/Banner";
 import BannerCard from "../components/cards/BannerCards";
 import { getHomeAdminData } from "../redux/admin/homeAdminSlice";
@@ -25,6 +25,7 @@ import { fetchBlogs } from "../redux/blog/blogSlice";
 import DealOfWeek from "../components/cards/DealOfWeek";
 import FAQ from '../components/Minor/Faq'
 import NumberStats from "../components/numbers/number";
+import { GridSkeleton, RowSkeleton } from "../components/skeletons/InlineSkeletons";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -34,26 +35,23 @@ import PriceLineMobile from "../assets/PricelineMobile.png"
 
  function Home() {
   const dispatch = useDispatch();
-  const { deals = [] } = useSelector((state) => state.deal);
-  const { stores = [] } = useSelector((state) => state.store);
-  const { categories = [] } = useSelector((state) => state.category);
-  const { reviews = [] } = useSelector((state) => state.reviews);
-  const { blogs = [],  } = useSelector((state) => state.blogs || {});
-   const homeAdmin = useSelector((state) => state.homeAdmin) || { data: [] };
+  const { deals = [], loading: dealsLoading } = useSelector((state) => state.deal);
+  const { stores = [], loading: storesLoading } = useSelector((state) => state.store);
+  const { categories = [], loading: categoriesLoading } = useSelector((state) => state.category);
+  const { reviews = [], loading: reviewsLoading } = useSelector((state) => state.reviews);
+  const { blogs = [], loading: blogsLoading } = useSelector((state) => state.blogs || {});
+  const homeAdmin = useSelector((state) => state.homeAdmin) || { data: [], loading: false };
    console.log("homeAdmin",homeAdmin)
     const data = homeAdmin.data?.[0] || {};
   const safeFilter = (arr, callback) => Array.isArray(arr) ? arr.filter(callback) : [];
 
   useEffect(() => {
- 
-        // Wait for deals data
-         dispatch(getDeals());
-         dispatch(getStores());
-         dispatch(getCategories());
-         dispatch(fetchReviews());
-         dispatch(fetchBlogs());
-         dispatch(getHomeAdminData());
-
+    dispatch(getDeals());
+    dispatch(getStores());
+    dispatch(getCategories());
+    dispatch(fetchReviews());
+    dispatch(fetchBlogs());
+    dispatch(getHomeAdminData());
   }, [dispatch]);
 
   const stats = [
@@ -107,7 +105,9 @@ import PriceLineMobile from "../assets/PricelineMobile.png"
     {/* ✅ Mobile Banner Slider */}
 {/* ✅ Mobile Banner Slider */}
 <div className="lg:hidden px-2 pb-4">
-  {Array.isArray(data.bannerDeals) && data.bannerDeals.length > 0 ? (
+  {homeAdmin.loading ? (
+    <RowSkeleton count={2} itemClassName="h-36 w-full rounded-lg bg-gray-200" />
+  ) : Array.isArray(data.bannerDeals) && data.bannerDeals.length > 0 ? (
     <Swiper
       modules={[Pagination, Autoplay]}
       pagination={{ clickable: true }}
@@ -135,7 +135,9 @@ import PriceLineMobile from "../assets/PricelineMobile.png"
 
       {/* Desktop Banner Cards */}
       <div className="lg:flex flex-wrap gap-4 p-4 justify-center lg:justify-between hidden">
-        {Array.isArray(data.bannerDeals) && data.bannerDeals.length > 0 ? (
+        {homeAdmin.loading ? (
+          <GridSkeleton count={3} className="grid grid-cols-3 gap-4 w-full" itemClassName="h-40 rounded-lg bg-gray-200" />
+        ) : Array.isArray(data.bannerDeals) && data.bannerDeals.length > 0 ? (
           data.bannerDeals.map((deal) => (
             <div className="w-full sm:w-[48%] lg:w-[32%]" key={deal._id}>
               <BannerCard data={deal} />
@@ -149,12 +151,14 @@ import PriceLineMobile from "../assets/PricelineMobile.png"
       <TextLink
         text="Today's Top"
         colorText="Deals"
-        link="/allcoupons"
+        link="/deal"
         linkText="View All"
       />
 
       <div className="md:flex overflow-x-scroll gap-4 px-4 hidden">
-        {safeFilter(deals, (deal) =>
+        {dealsLoading && deals.length === 0 ? (
+          <RowSkeleton count={4} />
+        ) : safeFilter(deals, (deal) =>
           deal?.showOnHomepage &&
           deal?.dealType === "Today's Top Deal" &&
           deal?.dealCategory === "deal"
@@ -165,7 +169,9 @@ import PriceLineMobile from "../assets/PricelineMobile.png"
 
       {/* Mobile Top Deals */}
       <div className="flex overflow-x-scroll gap-4 md:hidden">
-        {safeFilter(deals, (deal) =>
+        {dealsLoading && deals.length === 0 ? (
+          <RowSkeleton count={3} />
+        ) : safeFilter(deals, (deal) =>
           deal?.showOnHomepage &&
           deal?.dealType === "Today's Top Deal" &&
           deal?.dealCategory === "deal"
@@ -177,27 +183,33 @@ import PriceLineMobile from "../assets/PricelineMobile.png"
   
       <NumberStats stats={stats} />
     </main>
-      <TextLink text="Brands" colorText="" link="/allstores" linkText="View All" />
+      <TextLink text="Brands" colorText="" link="/store" linkText="View All" />
       <div className="flex overflow-x-scroll md:hidden">
-        {safeFilter(stores, (store) => store?.showOnHomepage && store?.storeType === "Brands").map((store) => (
+        {storesLoading && stores.length === 0 ? (
+          <RowSkeleton count={3} />
+        ) : safeFilter(stores, (store) => store?.showOnHomepage && store?.storeType === "Brands").map((store) => (
           <BrandCard key={store._id} data={store} />
         ))}
       </div>
       <div className="md:flex overflow-x-scroll hidden px-4 gap-4">
-        {safeFilter(stores, (store) => store?.showOnHomepage && store?.storeType === "Brands").map((store) => (
+        {storesLoading && stores.length === 0 ? (
+          <RowSkeleton count={4} />
+        ) : safeFilter(stores, (store) => store?.showOnHomepage && store?.storeType === "Brands").map((store) => (
           <DesktopStoreCard key={store._id} data={store} />
         ))}
       </div>
       <TextLink
   text="Popular Categories"
   colorText=""
-  link="/allcategories"
+  link="/category"
   linkText="View All"
 />
 
 <div className="px-4 mb-10 overflow-x-auto">
   <div className="flex gap-4 w-max py-2">
-    {Array.isArray(categories) && categories.length > 0 ? (
+    {categoriesLoading && categories.length === 0 ? (
+      <GridSkeleton count={8} className="grid grid-cols-4 md:grid-cols-8 gap-3" itemClassName="h-24 rounded-lg bg-gray-200" />
+    ) : Array.isArray(categories) && categories.length > 0 ? (
       safeFilter(categories, (cat) => cat?.showOnHomepage).map((cat) => (
         <div key={cat._id} className="w-28 flex-shrink-0"> {/* 👈 fixed card width */}
           <CategoryCard data={cat} />
@@ -210,14 +222,18 @@ import PriceLineMobile from "../assets/PricelineMobile.png"
 </div>
 
       {/* Popular Brands */}
-      <TextLink text="Popular" colorText="Brands" link="/allstores" linkText="View All" />
+      <TextLink text="Popular" colorText="Brands" link="/store" linkText="View All" />
       <div className="flex overflow-x-auto space-x-4 p-4 pt-0 scrollbar-hide md:hidden">
-        {safeFilter(stores, (store) => store?.showOnHomepage && store?.storeType === "Popular").map((store) => (
+        {storesLoading && stores.length === 0 ? (
+          <RowSkeleton count={3} />
+        ) : safeFilter(stores, (store) => store?.showOnHomepage && store?.storeType === "Popular").map((store) => (
           <PopularBrandCard key={store._id} data={store} />
         ))}
       </div>
       <div className="md:flex overflow-x-auto space-x-4 p-4 pt-0 scrollbar-hide hidden px-4">
-        {safeFilter(stores, (store) => store?.showOnHomepage && store?.storeType === "Popular").map((store) => (
+        {storesLoading && stores.length === 0 ? (
+          <RowSkeleton count={4} />
+        ) : safeFilter(stores, (store) => store?.showOnHomepage && store?.storeType === "Popular").map((store) => (
           <DesktopStoreCard key={store._id} data={store} />
         ))}
       </div>
@@ -240,9 +256,11 @@ import PriceLineMobile from "../assets/PricelineMobile.png"
       </div>
 
       {/* Hot Deals */}
-      <TextLink text="Hot" colorText="Deals" link="/allcoupons" linkText="View All" />
+      <TextLink text="Hot" colorText="Deals" link="/deal" linkText="View All" />
       <div className="flex overflow-x-scroll md:hidden">
-        {safeFilter(deals, (deal) =>
+        {dealsLoading && deals.length === 0 ? (
+          <RowSkeleton count={3} />
+        ) : safeFilter(deals, (deal) =>
           deal?.showOnHomepage &&
           deal?.dealType === "Hot" &&
           deal?.dealCategory === "deal"
@@ -251,7 +269,9 @@ import PriceLineMobile from "../assets/PricelineMobile.png"
         ))}
       </div>
       <div className="md:flex overflow-x-scroll gap-4 hidden px-4">
-        {safeFilter(deals, (deal) =>
+        {dealsLoading && deals.length === 0 ? (
+          <RowSkeleton count={4} />
+        ) : safeFilter(deals, (deal) =>
           deal?.showOnHomepage &&
           deal?.dealType === "Hot" &&
           deal?.dealCategory === "deal"
@@ -259,9 +279,11 @@ import PriceLineMobile from "../assets/PricelineMobile.png"
           <DesktopCard key={deal._id} data={deal} />
         ))}
       </div>
-      <TextLink text="Popular" colorText="Stores" link="/allstores" linkText="View All" />
+      <TextLink text="Popular" colorText="Stores" link="/store" linkText="View All" />
       <div className="flex overflow-x-auto space-x-4 p-4 scrollbar-hide">
-        {safeFilter(stores, (store) =>
+        {storesLoading && stores.length === 0 ? (
+          <RowSkeleton count={4} />
+        ) : safeFilter(stores, (store) =>
           store?.showOnHomepage && store?.storeType === "Popular Store"
         ).map((store) => (
           <PopularStores key={store._id} data={store} />
@@ -269,9 +291,11 @@ import PriceLineMobile from "../assets/PricelineMobile.png"
       </div>
 
       {/* Coupons & Deals */}
-      <TextLink text="Coupons" colorText="& Deals" link="/allcoupons" linkText="View All" />
+      <TextLink text="Coupons" colorText="& Deals" link="/deal" linkText="View All" />
       <div className="space-y-4 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:justify-around">
-        {safeFilter(deals, (deal) =>
+        {dealsLoading && deals.length === 0 ? (
+          <GridSkeleton count={6} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" itemClassName="h-40 rounded-lg bg-gray-200" />
+        ) : safeFilter(deals, (deal) =>
           deal?.showOnHomepage &&
           deal?.dealType === "Coupons/Deals" &&
           deal?.dealCategory === "coupon"
@@ -285,7 +309,9 @@ import PriceLineMobile from "../assets/PricelineMobile.png"
         </div>
         <div className="md:w-1/2">
           <TextLink text="Featured" colorText="Post" link="" linkText="" />
-          {safeFilter(blogs, (blog) => blog?.featuredPost).map((blog) => (
+          {blogsLoading && blogs.length === 0 ? (
+            <RowSkeleton count={2} />
+          ) : safeFilter(blogs, (blog) => blog?.featuredPost).map((blog) => (
             <FeaturedPost key={blog._id} blog={blog} />
           ))}
         </div>
@@ -295,15 +321,19 @@ import PriceLineMobile from "../assets/PricelineMobile.png"
       {/* Reviews */}
       <TextLink text="Public" colorText="Reviews" link="" linkText="" />
       <div className="p-4 flex gap-4 overflow-x-scroll">
-        {Array.isArray(reviews) && reviews.length > 0 ? (
+        {reviewsLoading && reviews.length === 0 ? (
+          <RowSkeleton count={3} />
+        ) : Array.isArray(reviews) && reviews.length > 0 ? (
           reviews.map((review) => <ReviewCard key={review._id} data={review} />)
         ) : (
           <p>No reviews found.</p>
         )}
       </div>
-      <TextLink text="Deal of the " colorText="Week" link="/allcoupons" linkText="View All" />
+      <TextLink text="Deal of the " colorText="Week" link="/deal" linkText="View All" />
       <div className="flex overflow-x-scroll gap-4 px-4">
-        {safeFilter(deals, (deal) =>
+        {dealsLoading && deals.length === 0 ? (
+          <RowSkeleton count={3} />
+        ) : safeFilter(deals, (deal) =>
           deal?.showOnHomepage &&
           deal?.dealType === "Deal of week" &&
           deal?.dealCategory === "deal"

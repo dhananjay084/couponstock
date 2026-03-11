@@ -9,6 +9,13 @@ const nextConfig = {
         },
       ],
     },
+    async redirects() {
+      return [
+        { source: "/allstores", destination: "/store", permanent: true },
+        { source: "/allcategories", destination: "/category", permanent: true },
+        { source: "/allcoupons", destination: "/deal", permanent: true },
+      ];
+    },
   };
   
   export default nextConfig;

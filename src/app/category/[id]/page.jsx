@@ -176,7 +176,8 @@ import CategoryClient from "./CategoryClient";
 
 export async function generateMetadata({ params }) {
   const { id } = await params;
-  const categoryName = decodeURIComponent(id);
+  const categorySlug = decodeURIComponent(id).toLowerCase();
+  const categoryName = categorySlug.toUpperCase();
 
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_SERVER_URL}/api/categories/name/${categoryName}`,
@@ -196,6 +197,9 @@ export async function generateMetadata({ params }) {
     title: category.metaTitle || category.name,
     description: category.metaDescription || "",
     keywords: category.metaKeywords || "",
+    alternates: {
+      canonical: `/category/${encodeURIComponent(categorySlug)}`,
+    },
   };
 }
 

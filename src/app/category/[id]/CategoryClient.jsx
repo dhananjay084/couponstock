@@ -13,7 +13,8 @@ import { fetchReviews } from "../../../redux/review/reviewSlice";
 import { getDeals } from "../../../redux/deal/dealSlice";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams } from "next/navigation";
-import { toast } from "react-toastify";
+import { titleize } from "../../../lib/slugify";
+import { GridSkeleton, RowSkeleton, TextSkeleton } from "../../../components/skeletons/InlineSkeletons";
 
 // Loading fallback UI
 export async function generateMetadata({ params }) {
@@ -30,12 +31,6 @@ export async function generateMetadata({ params }) {
     keywords: category.metaKeywords || "",
   };
 }
-const LoadingFallback = () => (
-  <Box className="flex justify-center items-center h-screen">
-    <Typography variant="h5">Loading category deals...</Typography>
-  </Box>
-);
-
 const SingleCategoryContent = () => {
   const dispatch = useDispatch();
   const { reviews = [] } = useSelector((state) => state.reviews);
@@ -43,7 +38,9 @@ const SingleCategoryContent = () => {
 
   // Read the category from the dynamic route param `[id]`
   const params = useParams();
-  const category = params?.id ? decodeURIComponent(params.id).trim() : "All";
+  const categoryParam = params?.id ? decodeURIComponent(params.id).trim().toLowerCase() : "all";
+  const category = categoryParam === "all" ? "All" : categoryParam.toUpperCase();
+  const categoryDisplay = categoryParam === "all" ? "All" : titleize(categoryParam);
 
   // Filter deals based on category
   const filteredDeals = deals.filter((deal) => deal.categorySelect === category);
@@ -56,22 +53,20 @@ const SingleCategoryContent = () => {
   const handleClose = () => setAnchorEl(null);
 
   useEffect(() => {
-    dispatch(getDeals())
-      .unwrap()
-      .catch(() => toast.error("Failed to load deals"));
-
-    dispatch(fetchReviews())
-      .unwrap()
-      .catch(() => toast.error("Failed to load reviews"));
+    dispatch(getDeals());
+    dispatch(fetchReviews());
   }, [dispatch]);
 
   return (
     <Box>
+      <h1 className="px-4 pt-2 text-2xl font-bold text-[#592EA9]">
+        {categoryDisplay}
+      </h1>
       {/* Header */}
       <Box className="flex justify-between items-center px-4" sx={{ mb: 3, flexWrap: "wrap", gap: 2 }}>
         <Box>
           <Typography variant="body1" fontWeight="bold" className="text-lg">
-            {category}
+            {categoryDisplay}
           </Typography>
           <Typography>{filteredDeals.length} Offers</Typography>
         </Box>
@@ -100,14 +95,13 @@ const SingleCategoryContent = () => {
       </Box>
 
       {/* Section Links */}
-      <TextLink text={category} colorText="deals worth wearing" link="" linkText="" />
+      <TextLink text={categoryDisplay} colorText="deals worth wearing" link="" linkText="" />
 
       {/* Deals */}
       <Box className="flex overflow-x-scroll gap-4 px-4 scrollbar-hide" sx={{ py: 2 }}>
-        {[...Array(4)].map((_, index) => (
-          <DealCard key={`placeholder-${index}`} />
-        ))}
-        {filteredDeals
+        {filteredDeals.length === 0 ? (
+          <RowSkeleton count={4} />
+        ) : filteredDeals
           .filter((store) => store.dealCategory === "deal")
           .map((deal) => (
             <DealCard key={deal._id} data={deal} />
@@ -117,10 +111,12 @@ const SingleCategoryContent = () => {
       {/* Coupons Section */}
       <Box className="bg-[#592EA9] text-white my-4">
         <Typography sx={{ px: 4, py: 2, fontWeight: "bold" }}>
-          {category} Coupon
+          {categoryDisplay} Coupon
         </Typography>
         <Box className="flex overflow-x-auto space-x-4 p-4 scrollbar-hide">
-          {filteredDeals
+          {filteredDeals.length === 0 ? (
+            <RowSkeleton count={3} />
+          ) : filteredDeals
             .filter((store) => store.dealCategory === "coupon")
             .map((store) => (
               <PopularBrandCard key={store._id} data={store} />
@@ -132,7 +128,9 @@ const SingleCategoryContent = () => {
 
       {/* All Deals Grid */}
       <Box className="space-y-4 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:justify-around" sx={{ px: 4 }}>
-        {filteredDeals.map((deal) => (
+        {filteredDeals.length === 0 ? (
+          <GridSkeleton count={6} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" itemClassName="h-40 rounded-lg bg-gray-200" />
+        ) : filteredDeals.map((deal) => (
           <Coupons_Deals key={deal._id} data={deal} border={true} />
         ))}
       </Box>
@@ -140,10 +138,9 @@ const SingleCategoryContent = () => {
       {/* Deal of the Week */}
       <TextLink text="Deal of the " colorText="Week" link="" linkText="View All" />
       <Box className="flex overflow-x-scroll gap-4 px-4 scrollbar-hide" sx={{ py: 2 }}>
-        {[...Array(4)].map((_, index) => (
-          <DealOfWeek key={`placeholder-week-${index}`} />
-        ))}
-        {filteredDeals
+        {filteredDeals.length === 0 ? (
+          <RowSkeleton count={4} />
+        ) : filteredDeals
           .filter((deal) => deal.dealType === "Deal of week")
           .map((deal) => (
             <DealOfWeek key={deal._id} data={deal} />
@@ -156,7 +153,7 @@ const SingleCategoryContent = () => {
         {reviews.length > 0 ? (
           reviews.map((review) => <ReviewCard key={review._id} data={review} />)
         ) : (
-          <Typography>No reviews found.</Typography>
+          <RowSkeleton count={2} />
         )}
       </Box>
     </Box>
@@ -165,7 +162,7 @@ const SingleCategoryContent = () => {
 
 const SingleCategory = () => {
   return (
-    <Suspense fallback={<LoadingFallback />}>
+    <Suspense fallback={<div className="p-4 space-y-4"><TextSkeleton className="h-8 w-48" /><RowSkeleton count={3} /></div>}>
       <SingleCategoryContent />
     </Suspense>
   );

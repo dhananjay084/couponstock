@@ -8,10 +8,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchBlogById, fetchBlogs } from "../../../redux/blog/blogSlice";
 import BlogCard from "../../../components/cards/BlogDetailsCard";
 import { useParams } from "next/navigation"; // to get dynamic param
+import { extractIdFromSlug, titleize } from "../../../lib/slugify";
+import { RowSkeleton, TextSkeleton } from "../../../components/skeletons/InlineSkeletons";
+import { toast } from "react-toastify";
 
 const BlogDetails = () => {
   const params = useParams();
-  const id = params?.id; // dynamic route param
+  const slug = params?.slug;
+  const id = extractIdFromSlug(slug || "");
   const dispatch = useDispatch();
 
   const { blogs = [], currentBlog, loading, error } = useSelector(
@@ -37,6 +41,7 @@ const BlogDetails = () => {
 
   const blogDetails = currentBlog?.details || "";
   const isHTML = /<\/?[a-z][\s\S]*>/i.test(blogDetails); // simple HTML check
+  const headingText = currentBlog?.heading || (slug ? titleize(slug.split("--")[0]) : "Blog");
  return (
   <div className="p-4">
     {/* Banner */}
@@ -58,7 +63,11 @@ const BlogDetails = () => {
 
     <div className="my-4">
       {loading && !currentBlog ? (
-        <p className="text-sm text-gray-500">Loading blog...</p>
+        <div className="space-y-4">
+          <TextSkeleton className="h-5 w-48" />
+          <TextSkeleton className="h-8 w-2/3" />
+          <div className="h-40 rounded-lg bg-gray-200 animate-pulse" />
+        </div>
       ) : error ? (
         <>
           <p className="text-sm text-red-600">Error: {error}</p>
@@ -75,9 +84,9 @@ const BlogDetails = () => {
               year: "numeric",
             })}
           </p>
-          <h2 className="text-xl font-bold text-gray-900 mt-2">
-            {currentBlog.heading || "Untitled"}
-          </h2>
+          <h1 className="text-xl font-bold text-gray-900 mt-2">
+            {headingText || "Untitled"}
+          </h1>
           <Typography
             sx={{ fontSize: "13px" }}
             {...(isHTML
@@ -93,7 +102,9 @@ const BlogDetails = () => {
     {/* All Blogs Section */}
     <h2 className="font-semibold text-2xl my-8">All Blogs</h2>
     <div className="gap-4 overflow-x-auto flex">
-      {blogs.map((blog) => (
+      {loading && blogs.length === 0 ? (
+        <RowSkeleton count={3} />
+      ) : blogs.map((blog) => (
         <BlogCard key={blog._id} data={blog} border={true} />
       ))}
     </div>

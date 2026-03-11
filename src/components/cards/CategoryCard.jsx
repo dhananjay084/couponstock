@@ -15,7 +15,7 @@ const CategoryCard = ({ data }) => {
       toast.error("Category not found!");
       return;
     }
-    router.push(`/category/${encodeURIComponent(name)}`);
+    router.push(`/category/${encodeURIComponent(name.toLowerCase())}`);
   };
 
   return (

@@ -30,10 +30,10 @@ const Footer = () => {
         <div>
           <h3 className="text-white font-semibold mb-4">CATEGORIES</h3>
           <ul className="space-y-2">
-            <li><Link href="/allcategories">All Categories</Link></li>
+            <li><Link href="/category">All Categories</Link></li>
             {/* <li><Link href="/category">Category</Link></li> */}
-            {/* <li><Link href="/allcoupons">Deals</Link></li> */}
-            <li><Link href="/allcoupons">Coupons</Link></li>
+            {/* <li><Link href="/deal">Deals</Link></li> */}
+            <li><Link href="/deal">Coupons</Link></li>
           </ul>
         </div>
 
@@ -41,7 +41,7 @@ const Footer = () => {
         <div>
           <h3 className="text-white font-semibold mb-4">STORES</h3>
           <ul className="space-y-2">
-            <li><Link href="/allstores">All Stores</Link></li>
+            <li><Link href="/store">All Stores</Link></li>
             {/* <li><Link href="/store">Store Page</Link></li> */}
           </ul>
         </div>

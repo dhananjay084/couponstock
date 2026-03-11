@@ -20,6 +20,18 @@ const initialState = {
   message: null,
 };
 
+const normalizeUser = (payload) => {
+  if (!payload || typeof payload !== "object") return null;
+  return payload.user && typeof payload.user === "object" ? payload.user : payload;
+};
+
+const normalizeMessage = (payload, fallback) => {
+  if (payload && typeof payload === "object" && typeof payload.message === "string") {
+    return payload.message;
+  }
+  return fallback;
+};
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -52,9 +64,9 @@ const authSlice = createSlice({
       })
       .addCase(registerUser.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload; // Payload contains user data from backend
+        state.user = normalizeUser(action.payload);
         state.isAuthenticated = true;
-        state.message = action.payload.message || 'Registration successful!';
+        state.message = normalizeMessage(action.payload, "Registration successful!");
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
@@ -72,9 +84,9 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload;
+        state.user = normalizeUser(action.payload);
         state.isAuthenticated = true;
-        state.message = action.payload.message || 'Login successful!';
+        state.message = normalizeMessage(action.payload, "Login successful!");
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;

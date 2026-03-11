@@ -36,7 +36,10 @@ const ProtectedAdminRoute = ({ children }) => {
     );
   }
 
-  const isAdmin = isAuthenticated && user?.role === "admin";
+  const isAdmin =
+    isAuthenticated &&
+    typeof user?.role === "string" &&
+    user.role.toLowerCase() === "admin";
 
   if (!isAdmin) {
     router.replace("/"); // redirect to homepage

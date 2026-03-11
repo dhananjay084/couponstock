@@ -6,6 +6,7 @@ import { Typography, Button } from "@mui/material";
 import { useRouter } from "next/navigation";
 import DOMPurify from "dompurify";
 import { toast } from "react-toastify";
+import { slugWithId } from "../../lib/slugify";
 
 const FeaturedPost = ({ blog }) => {
   const router = useRouter();
@@ -24,11 +25,11 @@ const FeaturedPost = ({ blog }) => {
   };
 
   const handleClick = () => {
-     if (!blog?._id) {
+    if (!blog?._id) {
           toast.error("blog ID is missing!");
           return;
         }
-    router.push(`/blog/${blog._id}`);
+    router.push(`/blog/${slugWithId(blog?.heading, blog?._id)}`);
   };
 
   return (

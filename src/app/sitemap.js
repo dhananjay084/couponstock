@@ -6,9 +6,9 @@ const staticRoutes = [
   "/about",
   "/contact",
   "/blogs",
-  "/allstores",
-  "/allcategories",
-  "/allcoupons",
+  "/store",
+  "/category",
+  "/deal",
   "/privacy",
   "/terms",
 ];
@@ -67,7 +67,9 @@ export default async function sitemap() {
   const categoryEntries = categories
     .filter((category) => category?.name)
     .map((category) => ({
-      url: `${SITE_URL}/category/${encodeURIComponent(category.name)}`,
+      url: `${SITE_URL}/category/${encodeURIComponent(
+        category.name.toString().trim().toLowerCase()
+      )}`,
       lastModified: safeDate(category.updatedAt || category.createdAt),
       changeFrequency: "weekly",
       priority: 0.7,
@@ -76,7 +78,15 @@ export default async function sitemap() {
   const blogEntries = blogs
     .filter((blog) => blog?._id)
     .map((blog) => ({
-      url: `${SITE_URL}/blog/${encodeURIComponent(blog._id)}`,
+      url: `${SITE_URL}/blog/${encodeURIComponent(
+        `${(blog.heading || "blog")
+          .toString()
+          .trim()
+          .replace(/[^\w\s-]/g, "")
+          .replace(/\s+/g, "-")
+          .replace(/-+/g, "-")
+          .toLowerCase()}--${blog._id}`
+      )}`,
       lastModified: safeDate(blog.updatedAt || blog.createdAt),
       changeFrequency: "weekly",
       priority: 0.7,

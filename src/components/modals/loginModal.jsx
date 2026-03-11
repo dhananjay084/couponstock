@@ -14,16 +14,18 @@ import { useSearchParams, useRouter } from "next/navigation";
 import GoogleIcon from "@mui/icons-material/Google";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import { toast } from "react-toastify";
 
 const LoginModal = ({ isOpen, onClose, redirectUrl = "" }) => {
-    const dispatch = useDispatch();
+  const dispatch = useDispatch();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { loading, error, message, isAuthenticated } = useSelector(
+  const { loading, isAuthenticated } = useSelector(
     (state) => state.auth
   );
 
   const oauthHandledRef = useRef(false);
+  const loginHandledRef = useRef(false);
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
@@ -45,35 +47,64 @@ const LoginModal = ({ isOpen, onClose, redirectUrl = "" }) => {
         })
       );
       window.history.replaceState({}, document.title, window.location.pathname);
-      dispatch(checkCurrentUser());
+      dispatch(checkCurrentUser())
+        .unwrap()
+        .then((user) => {
+          toast.success(`Welcome, ${decodeURIComponent(name)}!`);
+          if (redirectUrl) {
+            window.open(redirectUrl, "_blank");
+          } else if (
+            typeof user?.role === "string" &&
+            user.role.toLowerCase() === "admin"
+          ) {
+            router.push("/admin/home");
+          }
+          onClose?.();
+        })
+        .catch(() => {
+          toast.error("Google login completed, but session check failed.");
+        });
       oauthHandledRef.current = true;
     } else if (authError === "google_auth_failed") {
-      dispatch(
-        setAuthMessage({
-          message: "Google authentication failed. Please try again.",
-          type: "error",
-        })
-      );
+      toast.error("Google authentication failed. Please try again.");
       window.history.replaceState({}, document.title, window.location.pathname);
       oauthHandledRef.current = true;
     }
-  }, [searchParams, dispatch]);
+  }, [searchParams, dispatch, onClose, redirectUrl, router]);
 
   useEffect(() => {
-    if (error || message) {
-      dispatch(clearAuthMessage());
-    }
-  }, [error, message, dispatch]);
-
-  useEffect(() => {
-    if (isAuthenticated && !loading) {
+    if (!loginHandledRef.current && isAuthenticated && !loading) {
       onClose?.(); // close modal on success
     }
   }, [isAuthenticated, loading, onClose]);
 
   const handleEmailLogin = async (values, { setSubmitting }) => {
-    await dispatch(loginUser(values));
-    setSubmitting(false);
+    dispatch(clearAuthMessage());
+    try {
+      const loginPayload = await dispatch(loginUser(values)).unwrap();
+      const user = loginPayload?.user || loginPayload || {};
+      toast.success(`Login successful${user?.name ? `, ${user.name}` : ""}!`);
+      loginHandledRef.current = true;
+
+      if (redirectUrl) {
+        window.open(redirectUrl, "_blank");
+      } else if (
+        typeof user?.role === "string" &&
+        user.role.toLowerCase() === "admin"
+      ) {
+        router.push("/admin/home");
+      }
+      dispatch(checkCurrentUser());
+      onClose?.();
+    } catch (err) {
+      const messageText =
+        typeof err === "string"
+          ? err
+          : err?.message || "Invalid credentials. Please try again.";
+      toast.error(messageText);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleGoogleLogin = () => {

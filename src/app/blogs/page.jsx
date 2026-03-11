@@ -6,12 +6,15 @@ import { fetchBlogs } from "../../redux/blog/blogSlice";
 import BlogCard from "../../components/cards/BlogCard";
 import RecentBlogCard from "../../components/cards/NewBlogCard";
 import { toast } from "react-toastify";
+import { RowSkeleton } from "../../components/skeletons/InlineSkeletons";
 
 const BlogsPage = () => {
   const dispatch = useDispatch();
   const { blogs = [], loading } = useSelector((state) => state.blogs || {});
   useEffect(() => {
-    dispatch(fetchBlogs()).unwrap().catch(() => toast.error("Failed to load blogs"));
+    dispatch(fetchBlogs())
+      .unwrap()
+      .catch(() => toast.error("Failed to load blogs"));
   }, [dispatch]);
 
   const sorted = useMemo(() => {
@@ -34,13 +37,26 @@ const BlogsPage = () => {
       <div className="hidden lg:grid grid-cols-12 gap-6 mb-14">
         {/* Left large card */}
         <div className="col-span-7">
-          {top3[0] && <BlogCard blog={top3[0]} large />}
+          {loading && !top3[0] ? (
+            <div className="h-72 rounded-lg bg-gray-200 animate-pulse" />
+          ) : (
+            top3[0] && <BlogCard blog={top3[0]} large />
+          )}
         </div>
 
         {/* Right side two small cards */}
         <div className="col-span-5 flex flex-col gap-6">
-          {top3[1] && <RecentBlogCard blog={top3[1]} />}
-          {top3[2] && <RecentBlogCard blog={top3[2]} />}
+          {loading && blogs.length === 0 ? (
+            <>
+              <div className="h-32 rounded-lg bg-gray-200 animate-pulse" />
+              <div className="h-32 rounded-lg bg-gray-200 animate-pulse" />
+            </>
+          ) : (
+            <>
+              {top3[1] && <RecentBlogCard blog={top3[1]} />}
+              {top3[2] && <RecentBlogCard blog={top3[2]} />}
+            </>
+          )}
         </div>
       </div>
 
@@ -55,7 +71,9 @@ const BlogsPage = () => {
 
       {/* MOBILE LAYOUT */}
       <div className="lg:hidden space-y-6">
-        {sorted.map((blog) => (
+        {loading && sorted.length === 0 ? (
+          <RowSkeleton count={3} itemClassName="h-44 w-full rounded-lg bg-gray-200" />
+        ) : sorted.map((blog) => (
           <BlogCard key={blog._id} blog={blog} />
         ))}
       </div>

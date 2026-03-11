@@ -12,6 +12,11 @@ axios.defaults.withCredentials = true;
 // Next.js uses process.env.NEXT_PUBLIC_* for client-safe env variables
 const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL;
 
+const extractUserFromResponse = (payload) => {
+  if (!payload || typeof payload !== "object") return null;
+  return payload.user && typeof payload.user === "object" ? payload.user : payload;
+};
+
 // Helper to store basic user info in client-side cookies
 export const setUserDataInCookies = (user) => {
   if (user && typeof user === "object") {
@@ -36,7 +41,7 @@ export const registerUser = createAsyncThunk(
   async (userData, { rejectWithValue }) => {
     try {
       const response = await axios.post(`${SERVER_URL}/api/auth/register`, userData);
-      setUserDataInCookies(response.data);
+      setUserDataInCookies(extractUserFromResponse(response.data));
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message || "Registration failed.");
@@ -50,7 +55,7 @@ export const loginUser = createAsyncThunk(
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await axios.post(`${SERVER_URL}/api/auth/login`, credentials);
-      setUserDataInCookies(response.data);
+      setUserDataInCookies(extractUserFromResponse(response.data));
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message || "Login failed.");

@@ -4,6 +4,7 @@ import React from "react";
 import { Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+import { slugWithId } from "../../lib/slugify";
 const stripHtml = (html) => {
   if (!html) return "";
   return html.replace(/<[^>]*>?/gm, "");
@@ -19,7 +20,7 @@ const Coupons_Deals = ({ border = false, data }) => {
         toast.error("Blog data not found!");
         return;
       }
-    router.push(`/blog/${data._id}`);
+    router.push(`/blog/${slugWithId(data?.heading, data?._id)}`);
   };
 
   return (

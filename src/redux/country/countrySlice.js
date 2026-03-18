@@ -46,10 +46,15 @@ const countrySlice = createSlice({
   name: "country",
   initialState: {
     countries: [],
+    selectedCountry: null,
     loading: false,
     error: null,
   },
-  reducers: {},
+  reducers: {
+    setSelectedCountry: (state, action) => {
+      state.selectedCountry = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder
       // Fetch
@@ -80,4 +85,5 @@ const countrySlice = createSlice({
   },
 });
 
+export const { setSelectedCountry } = countrySlice.actions;
 export default countrySlice.reducer;

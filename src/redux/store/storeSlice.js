@@ -11,9 +11,9 @@ import {
 // No direct axios import needed here as it's handled in storeAPI.js
 // import axios from 'axios'; // This line can be removed if not used elsewhere
 
-export const getStores = createAsyncThunk('store/getStores', async (_, thunkAPI) => {
+export const getStores = createAsyncThunk('store/getStores', async (country, thunkAPI) => {
   try {
-    return await getStoresAPI();
+    return await getStoresAPI(country);
   } catch (err) {
     return thunkAPI.rejectWithValue(err.response?.data?.message || err.message);
   }
@@ -56,9 +56,9 @@ export const getStoreById = createAsyncThunk('store/getStoreById', async (id, th
   });
 
 // New Async Thunk for searching stores
-export const searchStores = createAsyncThunk('store/searchStores', async (searchTerm, thunkAPI) => {
+export const searchStores = createAsyncThunk('store/searchStores', async ({ searchTerm, country }, thunkAPI) => {
   try {
-    return await searchStoresAPI(searchTerm); // Call the API function
+    return await searchStoresAPI(searchTerm, country); // Call the API function
   } catch (err) {
     return thunkAPI.rejectWithValue(err.response?.data?.message || err.message);
   }

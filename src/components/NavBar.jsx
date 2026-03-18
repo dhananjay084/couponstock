@@ -32,6 +32,7 @@ import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { searchDeals, clearSearchResults } from "../redux/deal/dealSlice";
 import { logoutUser, checkCurrentUser } from "../redux/auth/authApi";
+import { fetchCountries, setSelectedCountry } from "../redux/country/countrySlice";
 import { toast } from "react-toastify";
 
 const baseNavLinks = [
@@ -133,6 +134,7 @@ const NavBar = () => {
   const { searchResults, loading } = useSelector((state) => state.deal);
   // const { isAuthenticated } = useSelector((state) => state.auth);
   const { isAuthenticated, user } = useSelector((state) => state.auth);
+  const { countries = [], selectedCountry } = useSelector((state) => state.country || {});
 
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
@@ -175,6 +177,10 @@ const NavBar = () => {
   useEffect(() => {
     dispatch(checkCurrentUser());
   }, [dispatch]);
+  
+  useEffect(() => {
+    if (!countries.length) dispatch(fetchCountries());
+  }, [dispatch, countries.length]);
 
   // Debounce search input
   useEffect(() => {
@@ -187,11 +193,11 @@ const NavBar = () => {
   // Dispatch search with debounced term
   useEffect(() => {
     if (debouncedSearchTerm.length > 0) {
-      dispatch(searchDeals(debouncedSearchTerm));
+      dispatch(searchDeals({ searchTerm: debouncedSearchTerm, country: selectedCountry || undefined }));
     } else {
       dispatch(clearSearchResults());
     }
-  }, [debouncedSearchTerm, dispatch]);
+  }, [debouncedSearchTerm, dispatch, selectedCountry]);
 
   // Close search results when clicking outside
   useEffect(() => {
@@ -215,6 +221,12 @@ const NavBar = () => {
     setShowResults(false);
     setSearchTerm("");
     dispatch(clearSearchResults());
+  };
+
+  const handleCountryChange = (e) => {
+    const value = e.target.value;
+    if (!value) return;
+    dispatch(setSelectedCountry(value));
   };
 
   const handleMenuOpen = (e) => setAnchorEl(e.currentTarget);
@@ -358,6 +370,22 @@ const NavBar = () => {
                 transition: "color 0.4s ease",
               }}
             >
+              <Box>
+                <select
+                  value={selectedCountry || ""}
+                  onChange={handleCountryChange}
+                  className="border rounded-md px-2 py-1 text-sm bg-white text-[#2b1c4d] focus:outline-none focus:ring-2 focus:ring-[#592EA9]/30"
+                >
+                  <option value="" disabled>
+                    Select Country
+                  </option>
+                  {countries.map((c) => (
+                    <option key={c._id} value={c.country_name}>
+                      {c.country_name}
+                    </option>
+                  ))}
+                </select>
+              </Box>
               {navLinks.map((link) => (
                 <Link key={link.name} href={link.href} passHref>
                   <Typography
@@ -516,7 +544,7 @@ const NavBar = () => {
 
       {/* Mobile Drawer */}
       <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)}>
-  <Box width={260} p={2}>
+    <Box width={260} p={2}>
     <Box display="flex" justifyContent="space-between" alignItems="center">
       <Typography variant="h6" fontWeight="bold" color="#592EA9">
         Menu
@@ -527,6 +555,26 @@ const NavBar = () => {
     </Box>
 
     <Divider sx={{ my: 2 }} />
+
+    <Box sx={{ mb: 2 }}>
+      <select
+        value={selectedCountry || ""}
+        onChange={(e) => {
+          handleCountryChange(e);
+          setDrawerOpen(false);
+        }}
+        className="w-full border rounded-md px-2 py-2 text-sm bg-white text-[#2b1c4d] focus:outline-none focus:ring-2 focus:ring-[#592EA9]/30"
+      >
+        <option value="" disabled>
+          Select Country
+        </option>
+        {countries.map((c) => (
+          <option key={c._id} value={c.country_name}>
+            {c.country_name}
+          </option>
+        ))}
+      </select>
+    </Box>
 
     {/* 🔍 Search bar inside Drawer (mobile only) */}
     <Box

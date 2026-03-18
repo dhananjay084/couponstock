@@ -35,6 +35,7 @@ const SingleCategoryContent = () => {
   const dispatch = useDispatch();
   const { reviews = [] } = useSelector((state) => state.reviews);
   const { deals = [] } = useSelector((state) => state.deal);
+  const { selectedCountry } = useSelector((state) => state.country || {});
 
   // Read the category from the dynamic route param `[id]`
   const params = useParams();
@@ -53,9 +54,10 @@ const SingleCategoryContent = () => {
   const handleClose = () => setAnchorEl(null);
 
   useEffect(() => {
-    dispatch(getDeals());
+    if (!selectedCountry) return;
+    dispatch(getDeals(selectedCountry));
     dispatch(fetchReviews());
-  }, [dispatch]);
+  }, [dispatch, selectedCountry]);
 
   return (
     <Box>

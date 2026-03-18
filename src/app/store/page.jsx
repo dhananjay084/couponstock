@@ -20,6 +20,7 @@ const AllStores = () => {
 
   const { stores = [], loading, error } = useSelector((state) => state.store);
   const homeAdmin = useSelector((state) => state.homeAdmin) || { data: [], loading: false };
+  const { selectedCountry } = useSelector((state) => state.country || {});
   const data = homeAdmin.data?.[0] || {};
   const [selectedLetter, setSelectedLetter] = useState("All");
 
@@ -36,9 +37,10 @@ const AllStores = () => {
   }, [stores, selectedLetter]);
 
   useEffect(() => {
-    dispatch(getStores());
-    dispatch(getHomeAdminData());
-  }, [dispatch]);
+    if (!selectedCountry) return;
+    dispatch(getStores(selectedCountry));
+    dispatch(getHomeAdminData(selectedCountry));
+  }, [dispatch, selectedCountry]);
 
   return (
     <div>

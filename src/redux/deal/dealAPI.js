@@ -2,8 +2,9 @@ import axios from 'axios';
 
 const BASE_URL = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/deals`; // adjust for production if needed
 
-export const getAllDeals = async () => {
-  const response = await axios.get(BASE_URL);
+export const getAllDeals = async (country) => {
+  const params = country ? { country } : undefined;
+  const response = await axios.get(BASE_URL, { params });
   return response.data;
 };
 
@@ -28,8 +29,13 @@ export const getDealById = async (id) => {
   };
 
 // New API call for searching deals
-export const searchDeals = async (searchTerm) => {
+export const searchDeals = async (searchTerm, country) => {
   // Make sure to encode the search term for URL safety
-  const response = await axios.get(`${BASE_URL}/search?q=${encodeURIComponent(searchTerm)}`);
+  const response = await axios.get(`${BASE_URL}/search`, {
+    params: {
+      q: searchTerm,
+      ...(country ? { country } : {}),
+    },
+  });
   return response.data;
 };

@@ -58,6 +58,7 @@ const DealDetailsContent = () => {
   const category = searchParams?.get("category") || "";
   const { deals = [] } = useSelector((state) => state.deal);
   const { reviews = [] } = useSelector((state) => state.reviews);
+  const { selectedCountry } = useSelector((state) => state.country || {});
   const router = useRouter();
   const [userId, setUserId] = useState("");
 
@@ -116,9 +117,10 @@ const DealDetailsContent = () => {
 
   // Fetch deals and reviews
   useEffect(() => {
-    dispatch(getDeals());
+    if (!selectedCountry) return;
+    dispatch(getDeals(selectedCountry));
     dispatch(fetchReviews());
-  }, [dispatch]);
+  }, [dispatch, selectedCountry]);
 
   if (loading) {
     return (

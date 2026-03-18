@@ -11,6 +11,7 @@ import { getDeals } from "../../../redux/deal/dealSlice";
 import { fetchReviews } from "../../../redux/review/reviewSlice";
 import { GridSkeleton, RowSkeleton } from "../../../components/skeletons/InlineSkeletons";
 import { titleize } from "../../../lib/slugify";
+import { setSelectedCountry } from "../../../redux/country/countrySlice";
 
 const CountryDealsPage = () => {
   const dispatch = useDispatch();
@@ -22,9 +23,12 @@ const CountryDealsPage = () => {
   const { reviews = [], loading: reviewsLoading } = useSelector((state) => state.reviews || { reviews: [], loading: false });
 
   useEffect(() => {
-    dispatch(getDeals());
+    if (countryName) {
+      dispatch(setSelectedCountry(countryName));
+    }
+    dispatch(getDeals(countryName));
     dispatch(fetchReviews());
-  }, [dispatch]);
+  }, [dispatch, countryName]);
 
   const filteredDeals = deals.filter((deal) =>
     Array.isArray(deal.country)

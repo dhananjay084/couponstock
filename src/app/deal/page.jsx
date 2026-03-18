@@ -14,7 +14,7 @@ import { getStores } from "../../redux/store/storeSlice";
 import { getCategories } from "../../redux/category/categorySlice";
 import { toast } from "react-toastify";
 import AjioBanner from '../../assets/AjioBanner.png'
-import {fetchCountries} from "../../redux/country/countrySlice";
+import { fetchCountries, setSelectedCountry } from "../../redux/country/countrySlice";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -33,6 +33,7 @@ const AllCoupons = () => {
   const homeAdmin = useSelector((state) => state.homeAdmin) || { data: [], loading: false };
   const data = homeAdmin.data?.[0] || {};
   const { countries = [], loading: countriesLoading } = useSelector((state) => state.country || { countries: [], loading: false });
+  const { selectedCountry } = useSelector((state) => state.country || {});
   const { stores = [] } = useSelector((state) => state.store || { stores: [] });
   const { categories = [] } = useSelector((state) => state.category || { categories: [] });
   const [selectedCountries, setSelectedCountries] = React.useState([]);
@@ -42,15 +43,22 @@ const AllCoupons = () => {
   useEffect(() => {
   const fetchData = async () => {
     dispatch(fetchCountries());
-    dispatch(getDeals());
+    if (selectedCountry) {
+      dispatch(getDeals(selectedCountry));
+      dispatch(getHomeAdminData(selectedCountry));
+      dispatch(getStores(selectedCountry));
+    }
     dispatch(fetchReviews());
-    dispatch(getHomeAdminData());
-    dispatch(getStores());
     dispatch(getCategories());
   };
 
   fetchData();
-}, [dispatch]);
+}, [dispatch, selectedCountry]);
+
+  useEffect(() => {
+    if (!selectedCountry) return;
+    setSelectedCountries([selectedCountry]);
+  }, [selectedCountry]);
 
 
 
@@ -262,6 +270,7 @@ text-[#592EA9] drop-shadow-sm flex items-center gap-2">
                             onClick={() => {
                               const name = country.country_name;
                               setSelectedCountries([name]);
+                              dispatch(setSelectedCountry(name));
                               setSearchTerm("");
                               setIsDropdownOpen(false);
                               router.push(`/country/${encodeURIComponent(slugify(name))}`);

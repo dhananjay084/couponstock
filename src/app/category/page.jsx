@@ -20,6 +20,7 @@ const AllCategories = () => {
 
   const { categories = [], loading } = useSelector((state) => state.category);
   const homeAdmin = useSelector((state) => state.homeAdmin) || { data: [], loading: false };
+  const { selectedCountry } = useSelector((state) => state.country || {});
   const data = (homeAdmin.data && homeAdmin.data[0]) || {};
   const [selectedLetter, setSelectedLetter] = useState("All");
 
@@ -37,8 +38,10 @@ const AllCategories = () => {
 
   useEffect(() => {
     dispatch(getCategories());
-    dispatch(getHomeAdminData());
-  }, [dispatch]);
+    if (selectedCountry) {
+      dispatch(getHomeAdminData(selectedCountry));
+    }
+  }, [dispatch, selectedCountry]);
 
   return (
     <div className="overflow-x-hidden">

@@ -20,11 +20,13 @@ const CategoryDealsPage = () => {
 
   const { deals = [], loading: dealsLoading } = useSelector((state) => state.deal || { deals: [], loading: false });
   const { reviews = [], loading: reviewsLoading } = useSelector((state) => state.reviews || { reviews: [], loading: false });
+  const { selectedCountry } = useSelector((state) => state.country || {});
 
   useEffect(() => {
-    dispatch(getDeals());
+    if (!selectedCountry) return;
+    dispatch(getDeals(selectedCountry));
     dispatch(fetchReviews());
-  }, [dispatch]);
+  }, [dispatch, selectedCountry]);
 
   const filteredDeals = deals.filter((deal) => slugify(deal.categorySelect || "") === categorySlug);
 

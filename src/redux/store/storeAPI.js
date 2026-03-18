@@ -4,8 +4,9 @@ import axios from 'axios';
 const BASE_URL = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/stores`;
 
 
-export const getStoresAPI = async () => {
-  const response = await axios.get(BASE_URL);
+export const getStoresAPI = async (country) => {
+  const params = country ? { country } : undefined;
+  const response = await axios.get(BASE_URL, { params });
   return response.data;
 };
 
@@ -29,13 +30,17 @@ export const getStoreByIdAPI = async (id) => {
   };
   
 // New API call for searching stores
-export const searchStoresAPI = async (searchTerm) => {
+export const searchStoresAPI = async (searchTerm, country) => {
   // Make sure to encode the search term for URL safety
-  const response = await axios.get(`${BASE_URL}/search?q=${encodeURIComponent(searchTerm)}`);
+  const response = await axios.get(`${BASE_URL}/search`, {
+    params: {
+      q: searchTerm,
+      ...(country ? { country } : {}),
+    },
+  });
   return response.data;
 };
 export const getStoreBySlugAPI = async (slug) => {
   const response = await axios.get(`${BASE_URL}/slug/${slug}`);
   return response.data;
 };
-

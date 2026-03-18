@@ -6,12 +6,14 @@ import * as Yup from "yup";
 import { useSelector, useDispatch } from "react-redux";
 import { getDeals } from "../../redux/deal/dealSlice";
 import { getHomeAdminData, createHomeAdmin, updateHomeAdmin } from "../../redux/admin/homeAdminSlice";
+import { fetchCountries } from "../../redux/country/countrySlice";
 import { toast } from "react-toastify";
 
 const HomeAdminPage = () => {
   const dispatch = useDispatch();
   const { deals = [] } = useSelector((state) => state.deal || {});
   const { data: entries = [] } = useSelector((state) => state.homeAdmin || {});
+  const { countries = [] } = useSelector((state) => state.country || {});
   const [editingEntry, setEditingEntry] = useState(null);
 
   // ref to avoid stale closure issues inside formik's onSubmit
@@ -20,6 +22,7 @@ const HomeAdminPage = () => {
   useEffect(() => {
     dispatch(getDeals());
     dispatch(getHomeAdminData());
+    dispatch(fetchCountries());
   }, [dispatch]);
 
   // keep ref in sync whenever editingEntry state changes
@@ -29,6 +32,7 @@ const HomeAdminPage = () => {
 
   const formik = useFormik({
     initialValues: {
+      country: "",
       homepageBanner: "",
       midHomepageBanner: "",
       allCouponsPageBanner: "",
@@ -46,6 +50,7 @@ const HomeAdminPage = () => {
     },
 
     validationSchema: Yup.object({
+      country: Yup.string().required("Country is required"),
       bannerDeals: Yup.array().min(3, "Select exactly 3 deals").max(3, "Select exactly 3 deals").required("Required"),
       homepageBanner: Yup.string().url("Must be a valid URL").required("Required"),
       midHomepageBanner: Yup.string().url("Must be a valid URL").required("Required"),
@@ -93,12 +98,23 @@ console.log("values",values)
         }
       } catch (err) {
         console.error("HomeAdmin submit error:", err);
-        toast.error("Failed to save. Please try again.");
+        toast.error(err?.message || err?.error || "Failed to save. Please try again.");
       } finally {
         setSubmitting(false);
       }
     },
   });
+
+  useEffect(() => {
+    if (formik.values.country) {
+      dispatch(getDeals(formik.values.country));
+    } else {
+      dispatch(getDeals());
+    }
+    // reset banner deals when country changes to avoid cross-country picks
+    formik.setFieldValue("bannerDeals", []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, formik.values.country]);
 
   // Populate form values for editing — keeps editingEntry state AND ref consistent
   const editEntry = (entry) => {
@@ -112,6 +128,7 @@ console.log("values",values)
       : [];
 
     formik.setValues({
+      country: entry.country || "",
       homepageBanner: entry.homepageBanner || "",
       midHomepageBanner: entry.midHomepageBanner || "",
       allCouponsPageBanner: entry.allCouponsPageBanner || "",
@@ -144,6 +161,7 @@ console.log("values",values)
           <thead>
             <tr className="bg-gray-100">
               <th className="p-2 border">#</th>
+              <th className="p-2 border">Country</th>
               <th className="p-2 border">Home Banner</th>
               <th className="p-2 border">Coupons Heading</th>
               <th className="p-2 border">Deals</th>
@@ -155,6 +173,7 @@ console.log("values",values)
             {entries.map((entry, idx) => (
               <tr key={entry._id} className="text-center">
                 <td className="p-2 border">{idx + 1}</td>
+                <td className="p-2 border">{entry.country}</td>
                 <td className="p-2 border break-words max-w-xs">{entry.homepageBanner}</td>
                 <td className="p-2 border break-words max-w-xs">{entry.allCouponsAboutHeading}</td>
                 <td className="p-2 border">{Array.isArray(entry.bannerDeals) ? entry.bannerDeals.length : 0}</td>
@@ -188,6 +207,27 @@ console.log("values",values)
 
       {/* Form */}
       <form onSubmit={formik.handleSubmit} className="space-y-4">
+        {/* Country */}
+        <div>
+          <label className="block font-medium">Country</label>
+          <select
+            name="country"
+            value={formik.values.country}
+            onChange={formik.handleChange}
+            className="w-full border rounded p-2"
+          >
+            <option value="" disabled>Select country</option>
+            {countries.map((c) => (
+              <option key={c._id} value={c.country_name}>
+                {c.country_name}
+              </option>
+            ))}
+          </select>
+          {formik.touched.country && formik.errors.country && (
+            <p className="text-red-600 text-sm mt-1">{formik.errors.country}</p>
+          )}
+        </div>
+
         {/* Banner Deals multi-select */}
         <div>
           <label className="block font-medium">Banner Deals (select 3)</label>
@@ -203,7 +243,15 @@ console.log("values",values)
             }
             className="w-full border rounded p-2"
           >
-            {deals.map((deal) => (
+            {deals
+              .filter((deal) =>
+                formik.values.country
+                  ? Array.isArray(deal.country)
+                    ? deal.country.includes(formik.values.country)
+                    : deal.country === formik.values.country
+                  : true
+              )
+              .map((deal) => (
               <option key={deal._id} value={deal._id}>
                 {deal.dealTitle}
               </option>

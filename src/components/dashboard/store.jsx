@@ -11,6 +11,7 @@ import {
   updateStore,
   searchStores,
 } from "../../redux/store/storeSlice";
+import { fetchCountries } from "../../redux/country/countrySlice";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -32,12 +33,15 @@ const storeSchema = Yup.object().shape({
     .typeError("Must be a number")
     .required("Discount Percentage is required"),
   storeHtmlContent: Yup.string().required("HTML Content is required"),
+  country: Yup.array().min(1, "Please select at least one country").required("Country is required"),
 });
 
 const StoresPage = () => {
   const dispatch = useDispatch();
   const { stores, searchResults, loading } = useSelector((state) => state.store);
+  const { countries = [] } = useSelector((state) => state.country || {});
   const [editStore, setEditStore] = useState(null);
+  const [countryFilter, setCountryFilter] = useState("All");
 
   const gridRef = useRef();
   const [searchText, setSearchText] = useState("");
@@ -49,8 +53,9 @@ const StoresPage = () => {
   }, [searchText]);
 
   useEffect(() => {
+    dispatch(fetchCountries());
     if (debouncedSearchTerm.length > 0) {
-      dispatch(searchStores(debouncedSearchTerm));
+      dispatch(searchStores({ searchTerm: debouncedSearchTerm }));
     } else {
       dispatch(getStores());
     }
@@ -60,7 +65,7 @@ const StoresPage = () => {
     try {
       await dispatch(deleteStore(id)).unwrap();
       toast.success("Store deleted!");
-      if (debouncedSearchTerm.length > 0) dispatch(searchStores(debouncedSearchTerm));
+      if (debouncedSearchTerm.length > 0) dispatch(searchStores({ searchTerm: debouncedSearchTerm }));
       else dispatch(getStores());
     } catch (error) {
       toast.error(`Failed to delete store: ${error.message || "Unknown error"}`);
@@ -73,7 +78,7 @@ const StoresPage = () => {
     try {
       await dispatch(updateStore({ id: editStore._id, data: values })).unwrap();
       toast.success("Store updated!");
-      if (debouncedSearchTerm.length > 0) dispatch(searchStores(debouncedSearchTerm));
+      if (debouncedSearchTerm.length > 0) dispatch(searchStores({ searchTerm: debouncedSearchTerm }));
       else dispatch(getStores());
       resetForm();
       setEditStore(null);
@@ -96,6 +101,7 @@ const StoresPage = () => {
     { headerName: "Discount", field: "discountPercentage", sortable: true, filter: true, width: 120, cellRenderer: (params) => `${params.value}%` },
     { headerName: "Show on Homepage", field: "showOnHomepage", cellRenderer: (params) => (params.value ? "✅" : "❌"), width: 150 },
     { headerName: "Popular", field: "popularStore", cellRenderer: (params) => (params.value ? "✅" : "❌"), width: 100 },
+    { headerName: "Country", field: "country", flex: 1, valueFormatter: (p) => Array.isArray(p.value) ? p.value.join(", ") : (p.value || "") },
     { headerName: "HTML Content", field: "storeHtmlContent", flex: 1, cellRenderer: (params) => params.value ? `${params.value.substring(0, 50)}...` : "" },
     {
       headerName: "Actions",
@@ -115,15 +121,38 @@ const StoresPage = () => {
   const onGridReady = useCallback((params) => params.api.sizeColumnsToFit(), []);
 
   // const dataToDisplay = searchText.length > 0 ? searchResults : stores;
-  const dataToDisplay = Array.isArray(searchText.length > 0 ? searchResults : stores)
-  ? (searchText.length > 0 ? searchResults : stores)
-  : [];
+  const baseList = Array.isArray(searchText.length > 0 ? searchResults : stores)
+    ? (searchText.length > 0 ? searchResults : stores)
+    : [];
+  const dataToDisplay = countryFilter === "All"
+    ? baseList
+    : baseList.filter((s) =>
+        Array.isArray(s.country)
+          ? s.country.includes(countryFilter)
+          : s.country === countryFilter
+      );
 console.log("stores",stores)
 console.log("dataToDisplay",dataToDisplay)
   return (
     <div className="p-8 max-w-7xl mx-auto flex flex-col min-h-screen">
       <ToastContainer />
       <h1 className="text-2xl font-bold mb-6">Manage Stores</h1>
+
+      <div className="mb-4">
+        <label className="block mb-1 font-medium">Filter by Country</label>
+        <select
+          value={countryFilter}
+          onChange={(e) => setCountryFilter(e.target.value)}
+          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="All">All Countries</option>
+          {countries.map((c) => (
+            <option key={c._id} value={c.country_name}>
+              {c.country_name}
+            </option>
+          ))}
+        </select>
+      </div>
 
       <input
         type="text"
@@ -158,7 +187,10 @@ console.log("dataToDisplay",dataToDisplay)
       <Formik
         enableReinitialize
         initialValues={
-          editStore || {
+          editStore ? {
+            ...editStore,
+            country: Array.isArray(editStore.country) ? editStore.country : [],
+          } : {
             storeName: "",
             storeDescription: "",
             storeImage: "",
@@ -168,6 +200,7 @@ console.log("dataToDisplay",dataToDisplay)
             discountPercentage: "",
             popularStore: false,
             storeHtmlContent: "",
+            country: [],
             metaTitle: "",
 metaDescription: "",
 metaKeywords: "",
@@ -181,7 +214,7 @@ metaKeywords: "",
               await dispatch(addStore(values)).unwrap();
               toast.success("Store added!");
               resetForm();
-              if (debouncedSearchTerm.length > 0) dispatch(searchStores(debouncedSearchTerm));
+              if (debouncedSearchTerm.length > 0) dispatch(searchStores({ searchTerm: debouncedSearchTerm }));
               else dispatch(getStores());
             }
           } catch (error) {
@@ -189,7 +222,7 @@ metaKeywords: "",
           }
         }}
       >
-        {() => (
+        {({ values, setFieldValue }) => (
           <Form className="bg-white p-6 shadow-md rounded-lg space-y-6 mt-10">
             {/* All form fields same as your React code */}
             <div>
@@ -226,6 +259,29 @@ metaKeywords: "",
                 <option value="Popular Store">Popular Store</option>
               </Field>
               <ErrorMessage name="storeType" component="div" className="text-red-500 text-sm mt-1" />
+            </div>
+
+            <div>
+              <label className="block mb-1 font-medium">Country</label>
+              <select
+                name="country"
+                multiple
+                value={values.country || []}
+                onChange={(e) =>
+                  setFieldValue(
+                    "country",
+                    Array.from(e.target.selectedOptions, (opt) => opt.value)
+                  )
+                }
+                className="w-full px-3 py-2 border rounded-md"
+              >
+                {countries.map((c) => (
+                  <option key={c._id} value={c.country_name}>
+                    {c.country_name}
+                  </option>
+                ))}
+              </select>
+              <ErrorMessage name="country" component="div" className="text-red-500 text-sm mt-1" />
             </div>
 
             <div>

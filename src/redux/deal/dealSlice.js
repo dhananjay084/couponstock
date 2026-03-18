@@ -10,9 +10,9 @@ import {
 } from './dealAPI'; // Import the new searchDeals API function
 
 // Async Thunk for getting all deals
-export const getDeals = createAsyncThunk('deal/getDeals', async (_, thunkAPI) => {
+export const getDeals = createAsyncThunk('deal/getDeals', async (country, thunkAPI) => {
   try {
-    return await getAllDeals();
+    return await getAllDeals(country);
   } catch (err) {
     return thunkAPI.rejectWithValue(err.response?.data?.message || err.message);
   }
@@ -56,9 +56,9 @@ export const getSingleDeal = createAsyncThunk('deal/getSingleDeal', async (id, t
   });
 
 // New Async Thunk for searching deals
-export const searchDeals = createAsyncThunk('deal/searchDeals', async (searchTerm, thunkAPI) => {
+export const searchDeals = createAsyncThunk('deal/searchDeals', async ({ searchTerm, country }, thunkAPI) => {
   try {
-    return await searchDealsApi(searchTerm); // Call the API function
+    return await searchDealsApi(searchTerm, country); // Call the API function
   } catch (err) {
     return thunkAPI.rejectWithValue(err.response?.data?.message || err.message);
   }

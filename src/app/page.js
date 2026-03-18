@@ -41,18 +41,20 @@ import PriceLineMobile from "../assets/PricelineMobile.png"
   const { reviews = [], loading: reviewsLoading } = useSelector((state) => state.reviews);
   const { blogs = [], loading: blogsLoading } = useSelector((state) => state.blogs || {});
   const homeAdmin = useSelector((state) => state.homeAdmin) || { data: [], loading: false };
+  const { selectedCountry } = useSelector((state) => state.country || {});
    console.log("homeAdmin",homeAdmin)
     const data = homeAdmin.data?.[0] || {};
   const safeFilter = (arr, callback) => Array.isArray(arr) ? arr.filter(callback) : [];
 
   useEffect(() => {
-    dispatch(getDeals());
-    dispatch(getStores());
+    if (!selectedCountry) return;
+    dispatch(getDeals(selectedCountry));
+    dispatch(getStores(selectedCountry));
     dispatch(getCategories());
     dispatch(fetchReviews());
     dispatch(fetchBlogs());
-    dispatch(getHomeAdminData());
-  }, [dispatch]);
+    dispatch(getHomeAdminData(selectedCountry));
+  }, [dispatch, selectedCountry]);
 
   const stats = [
     { number: "200+", label: "Happy Clients" },

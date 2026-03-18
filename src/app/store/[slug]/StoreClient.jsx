@@ -33,16 +33,18 @@ const IndividualStore = () => {
   const { deals = [] } = useSelector((state) => state.deal);
   const { stores = [], loading, error } = useSelector((state) => state.store);
   const { reviews = [] } = useSelector((state) => state.reviews);
+  const { selectedCountry } = useSelector((state) => state.country || {});
 
   // const storeFromList = stores.find((store) => store._id === id);
   const storeFromList = stores.find(
     (store) => store.slug === slug
   );
   useEffect(() => {
-    dispatch(getDeals());
-    dispatch(getStores());
+    if (!selectedCountry) return;
+    dispatch(getDeals(selectedCountry));
+    dispatch(getStores(selectedCountry));
     dispatch(fetchReviews());
-  }, [dispatch]);
+  }, [dispatch, selectedCountry]);
 
   const { chartData, todayCount } = useMemo(() => {
     const now = new Date();

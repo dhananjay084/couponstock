@@ -33,7 +33,7 @@ const FeaturedPost = ({ blog }) => {
   };
 
   return (
-    <div className="p-4 border-2 border-[#f1f1f1] rounded-lg mx-4">
+    <div className="p-4 border-2 border-[#f1f1f1] rounded-lg w-full">
       <div className="relative w-full h-[300px] mb-4">
         <Image
           src={blog.image || "/default-blog.jpg"}

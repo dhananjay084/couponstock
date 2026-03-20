@@ -39,7 +39,8 @@ const baseNavLinks = [
   { name: "All Offers", href: "/deal" },
   { name: "Stores", href: "/store" },
   { name: "All Categories", href: "/category" },
-  { name: "All Blogs", href: "/blogs" }
+  { name: "All Blogs", href: "/blogs" },
+  { name: "Submit Coupon", href: "/submit-coupon" }
 ];
 
 const adminLinks =  [
@@ -50,6 +51,7 @@ const adminLinks =  [
   { name: "Contact List", href: "/admin/contact" },
   { name: "Add Home", href: "/admin/home" },
   { name: "Add Reviews", href: "/admin/review" },
+  { name: "Coupon Submissions", href: "/admin/submissions" },
 
 ];
 
@@ -143,6 +145,7 @@ const NavBar = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [adminAnchorEl, setAdminAnchorEl] = useState(null);
+  const [countryOpen, setCountryOpen] = useState(false);
   const isAdminMenuOpen = Boolean(adminAnchorEl);
   
   const handleAdminMenuOpen = (e) => setAdminAnchorEl(e.currentTarget);
@@ -159,6 +162,7 @@ const NavBar = () => {
   const open = Boolean(anchorEl);
 
   const searchBarRef = useRef();
+  const countryRef = useRef();
 
   // Scroll handler for background + scrolled state
   useEffect(() => {
@@ -170,6 +174,16 @@ const NavBar = () => {
   
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const handleOutside = (event) => {
+      if (countryRef.current && !countryRef.current.contains(event.target)) {
+        setCountryOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleOutside);
+    return () => document.removeEventListener("mousedown", handleOutside);
   }, []);
   
   
@@ -227,6 +241,12 @@ const NavBar = () => {
     const value = e.target.value;
     if (!value) return;
     dispatch(setSelectedCountry(value));
+  };
+
+  const selectCountry = (value) => {
+    if (!value) return;
+    dispatch(setSelectedCountry(value));
+    setCountryOpen(false);
   };
 
   const handleMenuOpen = (e) => setAnchorEl(e.currentTarget);
@@ -370,21 +390,68 @@ const NavBar = () => {
                 transition: "color 0.4s ease",
               }}
             >
-              <Box>
-                <select
-                  value={selectedCountry || ""}
-                  onChange={handleCountryChange}
-                  className="border rounded-md px-2 py-1 text-sm bg-white text-[#2b1c4d] focus:outline-none focus:ring-2 focus:ring-[#592EA9]/30"
+              <Box ref={countryRef} sx={{ position: "relative" }}>
+                <Box
+                  onClick={() => setCountryOpen((v) => !v)}
+                  sx={{
+                    cursor: "pointer",
+                    border: "1px solid #D9CCF5",
+                    borderRadius: "10px",
+                    px: 1.5,
+                    py: 0.75,
+                    fontSize: "0.85rem",
+                    background: "#fff",
+                    color: "#2b1c4d",
+                    minWidth: 140,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 1,
+                    boxShadow: "0 1px 6px rgba(0,0,0,0.05)",
+                  }}
                 >
-                  <option value="" disabled>
-                    Select Country
-                  </option>
-                  {countries.map((c) => (
-                    <option key={c._id} value={c.country_name}>
-                      {c.country_name}
-                    </option>
-                  ))}
-                </select>
+                  <span>{selectedCountry || "Select Country"}</span>
+                  <span style={{ fontSize: "0.75rem", color: "#592EA9" }}>▼</span>
+                </Box>
+                {countryOpen && (
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: "calc(100% + 6px)",
+                      right: 0,
+                      width: 200,
+                      maxHeight: 260,
+                      overflowY: "auto",
+                      bgcolor: "#fff",
+                      border: "1px solid #E4D8FF",
+                      borderRadius: "12px",
+                      boxShadow: "0 10px 24px rgba(0,0,0,0.12)",
+                      zIndex: 2000,
+                    }}
+                  >
+                    {countries.map((c) => (
+                      <Box
+                        key={c._id}
+                        onClick={() => selectCountry(c.country_name)}
+                        sx={{
+                          px: 2,
+                          py: 1,
+                          fontSize: "0.85rem",
+                          cursor: "pointer",
+                          color: "#2b1c4d",
+                          "&:hover": { background: "#F5F1FF" },
+                        }}
+                      >
+                        {c.country_name}
+                      </Box>
+                    ))}
+                    {countries.length === 0 && (
+                      <Box sx={{ px: 2, py: 1, fontSize: "0.85rem", color: "#777" }}>
+                        No countries found
+                      </Box>
+                    )}
+                  </Box>
+                )}
               </Box>
               {navLinks.map((link) => (
                 <Link key={link.name} href={link.href} passHref>
@@ -557,23 +624,65 @@ const NavBar = () => {
     <Divider sx={{ my: 2 }} />
 
     <Box sx={{ mb: 2 }}>
-      <select
-        value={selectedCountry || ""}
-        onChange={(e) => {
-          handleCountryChange(e);
-          setDrawerOpen(false);
+      <Box
+        onClick={() => setCountryOpen((v) => !v)}
+        sx={{
+          cursor: "pointer",
+          border: "1px solid #D9CCF5",
+          borderRadius: "10px",
+          px: 2,
+          py: 1.2,
+          fontSize: "0.9rem",
+          background: "#fff",
+          color: "#2b1c4d",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 1,
+          boxShadow: "0 1px 6px rgba(0,0,0,0.05)",
         }}
-        className="w-full border rounded-md px-2 py-2 text-sm bg-white text-[#2b1c4d] focus:outline-none focus:ring-2 focus:ring-[#592EA9]/30"
       >
-        <option value="" disabled>
-          Select Country
-        </option>
-        {countries.map((c) => (
-          <option key={c._id} value={c.country_name}>
-            {c.country_name}
-          </option>
-        ))}
-      </select>
+        <span>{selectedCountry || "Select Country"}</span>
+        <span style={{ fontSize: "0.75rem", color: "#592EA9" }}>▼</span>
+      </Box>
+      {countryOpen && (
+        <Box
+          sx={{
+            mt: 1,
+            maxHeight: 260,
+            overflowY: "auto",
+            bgcolor: "#fff",
+            border: "1px solid #E4D8FF",
+            borderRadius: "12px",
+            boxShadow: "0 10px 24px rgba(0,0,0,0.12)",
+          }}
+        >
+          {countries.map((c) => (
+            <Box
+              key={c._id}
+              onClick={() => {
+                selectCountry(c.country_name);
+                setDrawerOpen(false);
+              }}
+              sx={{
+                px: 2,
+                py: 1,
+                fontSize: "0.9rem",
+                cursor: "pointer",
+                color: "#2b1c4d",
+                "&:hover": { background: "#F5F1FF" },
+              }}
+            >
+              {c.country_name}
+            </Box>
+          ))}
+          {countries.length === 0 && (
+            <Box sx={{ px: 2, py: 1, fontSize: "0.9rem", color: "#777" }}>
+              No countries found
+            </Box>
+          )}
+        </Box>
+      )}
     </Box>
 
     {/* 🔍 Search bar inside Drawer (mobile only) */}

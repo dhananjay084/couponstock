@@ -5,9 +5,9 @@ import Image from "next/image";
 import { Accordion, AccordionSummary, AccordionDetails, Typography } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
-import FaqImage from "../../assets/faq.png"; // Keep the imported image
+import FaqImage from "../../assets/faq.png"; // fallback image
 
-const FAQAccordion = ({ data }) => {
+const FAQAccordion = ({ data, imageUrl }) => {
   if (!data) return null;
 
   const [expanded, setExpanded] = useState(false);
@@ -15,6 +15,8 @@ const FAQAccordion = ({ data }) => {
   const handleChange = (index) => (_, isExpanded) => {
     setExpanded(isExpanded ? index : false);
   };
+
+  const displayFaqs = Array.isArray(data) ? data.slice(0, 8) : [];
 
   return (
     <div className="max-w-2xl mx-auto py-10 px-4">
@@ -25,7 +27,7 @@ const FAQAccordion = ({ data }) => {
       <div className="sm:grid sm:grid-cols-2 gap-4">
         <div className="hidden sm:block relative w-full h-[400px]">
           <Image
-            src={FaqImage}
+            src={imageUrl || FaqImage}
             alt="FAQ"
             fill
             style={{ objectFit: "cover" }}
@@ -34,7 +36,7 @@ const FAQAccordion = ({ data }) => {
         </div>
 
         <div className="space-y-4">
-          {data.map((faq, index) => (
+          {displayFaqs.map((faq, index) => (
             <Accordion
               key={index}
               expanded={expanded === index}

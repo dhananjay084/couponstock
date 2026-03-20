@@ -22,6 +22,12 @@ const AllCategories = () => {
   const homeAdmin = useSelector((state) => state.homeAdmin) || { data: [], loading: false };
   const { selectedCountry } = useSelector((state) => state.country || {});
   const data = (homeAdmin.data && homeAdmin.data[0]) || {};
+  const pageBannerDeals =
+    Array.isArray(data.categoryPageBannerDeals) && data.categoryPageBannerDeals.length > 0
+      ? data.categoryPageBannerDeals
+      : Array.isArray(data.listingBannerDeals) && data.listingBannerDeals.length > 0
+        ? data.listingBannerDeals
+        : data.bannerDeals;
   const [selectedLetter, setSelectedLetter] = useState("All");
 
   const alphabet = useMemo(
@@ -48,11 +54,10 @@ const AllCategories = () => {
       <h1 className="px-4 pt-2 text-2xl font-bold text-[#592EA9]">
         Categories
       </h1>
-
       <div className="lg:hidden px-2 pb-4 mt-6">
         {homeAdmin.loading ? (
           <RowSkeleton count={2} itemClassName="h-36 w-full rounded-lg bg-gray-200" />
-        ) : Array.isArray(data.bannerDeals) && data.bannerDeals.length > 0 ? (
+        ) : Array.isArray(pageBannerDeals) && pageBannerDeals.length > 0 ? (
           <Swiper
             modules={[Pagination, Autoplay]}
             pagination={{ clickable: true }}
@@ -65,7 +70,7 @@ const AllCategories = () => {
               1024: { slidesPerView: 1 },
             }}
           >
-            {data.bannerDeals.map((deal) => (
+            {pageBannerDeals.map((deal) => (
               <SwiperSlide key={deal._id} className="flex justify-center items-center">
                 <BannerCard data={deal} />
               </SwiperSlide>
@@ -79,8 +84,8 @@ const AllCategories = () => {
       <div className="lg:flex flex-wrap gap-4 p-4 justify-center lg:justify-between hidden">
         {homeAdmin.loading ? (
           <GridSkeleton count={3} className="grid grid-cols-3 gap-4 w-full" itemClassName="h-40 rounded-lg bg-gray-200" />
-        ) : Array.isArray(data.bannerDeals) && data.bannerDeals.length > 0 ? (
-          data.bannerDeals.map((deal) => (
+        ) : Array.isArray(pageBannerDeals) && pageBannerDeals.length > 0 ? (
+          pageBannerDeals.map((deal) => (
             <div className="w-full sm:w-[48%] lg:w-[32%]" key={deal._id}>
               <BannerCard data={deal} />
             </div>

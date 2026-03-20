@@ -15,6 +15,9 @@ const HomeAdminPage = () => {
   const { data: entries = [] } = useSelector((state) => state.homeAdmin || {});
   const { countries = [] } = useSelector((state) => state.country || {});
   const [editingEntry, setEditingEntry] = useState(null);
+  const [countryOpen, setCountryOpen] = useState(false);
+  const countryRef = useRef(null);
+  const skipResetOnCountryRef = useRef(false);
 
   // ref to avoid stale closure issues inside formik's onSubmit
   const editingEntryRef = useRef(null);
@@ -30,11 +33,21 @@ const HomeAdminPage = () => {
     editingEntryRef.current = editingEntry;
   }, [editingEntry]);
 
+  useEffect(() => {
+    const handleOutside = (e) => {
+      if (countryRef.current && !countryRef.current.contains(e.target)) {
+        setCountryOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleOutside);
+    return () => document.removeEventListener("mousedown", handleOutside);
+  }, []);
+
   const formik = useFormik({
     initialValues: {
       country: "",
       homepageBanner: "",
-      midHomepageBanner: "",
+      midHomepageBanners: [{ image: "", link: "" }],
       allCouponsPageBanner: "",
       allCouponsAboutHeading: "",
       allCouponsAboutDescription: "",
@@ -45,15 +58,43 @@ const HomeAdminPage = () => {
       allCategoriesAboutHeading: "",
       allCategoriesAboutDescription: "",
       individualStoreBanner: "",
+      faqImage: "",
       bannerDeals: [],
+      dealPageBannerDeals: [],
+      storePageBannerDeals: [],
+      categoryPageBannerDeals: [],
       faqs: [{ question: "", answer: "" }],
     },
 
     validationSchema: Yup.object({
       country: Yup.string().required("Country is required"),
-      bannerDeals: Yup.array().min(3, "Select exactly 3 deals").max(3, "Select exactly 3 deals").required("Required"),
+      bannerDeals: Yup.array().min(6, "Select at least 6 deals").required("Required"),
+      dealPageBannerDeals: Yup.array().test(
+        "min-if-set",
+        "Select at least 3 deals",
+        (arr) => !arr || arr.length === 0 || arr.length >= 3
+      ),
+      storePageBannerDeals: Yup.array().test(
+        "min-if-set",
+        "Select at least 3 deals",
+        (arr) => !arr || arr.length === 0 || arr.length >= 3
+      ),
+      categoryPageBannerDeals: Yup.array().test(
+        "min-if-set",
+        "Select at least 3 deals",
+        (arr) => !arr || arr.length === 0 || arr.length >= 3
+      ),
       homepageBanner: Yup.string().url("Must be a valid URL").required("Required"),
-      midHomepageBanner: Yup.string().url("Must be a valid URL").required("Required"),
+      midHomepageBanners: Yup.array()
+        .of(
+          Yup.object({
+            image: Yup.string().url("Must be a valid URL").required("Required"),
+            link: Yup.string().url("Must be a valid URL").nullable().notRequired(),
+          })
+        )
+        .min(3, "Add at least 3 mid homepage banners")
+        .max(4, "Add at most 4 mid homepage banners")
+        .required("Required"),
       allCouponsPageBanner: Yup.string().url("Must be a valid URL").required("Required"),
       allCouponsAboutHeading: Yup.string().required("Required"),
       allCouponsAboutDescription: Yup.string().required("Required"),
@@ -64,6 +105,10 @@ const HomeAdminPage = () => {
       allCategoriesAboutHeading: Yup.string().required("Required"),
       allCategoriesAboutDescription: Yup.string().required("Required"),
       individualStoreBanner: Yup.string().url("Must be a valid URL").required("Required"),
+      faqImage: Yup.string()
+        .transform((val) => (val === "" ? null : val))
+        .nullable()
+        .url("Must be a valid URL"),
       faqs: Yup.array().of(
         Yup.object({
           question: Yup.string().required("Required"),
@@ -111,8 +156,15 @@ console.log("values",values)
     } else {
       dispatch(getDeals());
     }
-    // reset banner deals when country changes to avoid cross-country picks
+    // reset banner deals only on user-driven country changes
+    if (skipResetOnCountryRef.current) {
+      skipResetOnCountryRef.current = false;
+      return;
+    }
     formik.setFieldValue("bannerDeals", []);
+    formik.setFieldValue("dealPageBannerDeals", []);
+    formik.setFieldValue("storePageBannerDeals", []);
+    formik.setFieldValue("categoryPageBannerDeals", []);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, formik.values.country]);
 
@@ -121,16 +173,30 @@ console.log("values",values)
     if (!entry) return;
     setEditingEntry(entry);
     editingEntryRef.current = entry;
+    skipResetOnCountryRef.current = true;
 
     // map bannerDeals to IDs if they are objects
     const bannerDealsIds = Array.isArray(entry.bannerDeals)
       ? entry.bannerDeals.map((d) => (typeof d === "string" ? d : d._id))
       : [];
+    const dealPageBannerDealsIds = Array.isArray(entry.dealPageBannerDeals)
+      ? entry.dealPageBannerDeals.map((d) => (typeof d === "string" ? d : d._id))
+      : [];
+    const storePageBannerDealsIds = Array.isArray(entry.storePageBannerDeals)
+      ? entry.storePageBannerDeals.map((d) => (typeof d === "string" ? d : d._id))
+      : [];
+    const categoryPageBannerDealsIds = Array.isArray(entry.categoryPageBannerDeals)
+      ? entry.categoryPageBannerDeals.map((d) => (typeof d === "string" ? d : d._id))
+      : [];
 
     formik.setValues({
       country: entry.country || "",
       homepageBanner: entry.homepageBanner || "",
-      midHomepageBanner: entry.midHomepageBanner || "",
+      midHomepageBanners: Array.isArray(entry.midHomepageBanners) && entry.midHomepageBanners.length
+        ? entry.midHomepageBanners.map((b) =>
+            typeof b === "string" ? { image: b, link: "" } : { image: b.image || "", link: b.link || "" }
+          )
+        : [{ image: "", link: "" }],
       allCouponsPageBanner: entry.allCouponsPageBanner || "",
       allCouponsAboutHeading: entry.allCouponsAboutHeading || "",
       allCouponsAboutDescription: entry.allCouponsAboutDescription || "",
@@ -141,7 +207,11 @@ console.log("values",values)
       allCategoriesAboutHeading: entry.allCategoriesAboutHeading || "",
       allCategoriesAboutDescription: entry.allCategoriesAboutDescription || "",
       individualStoreBanner: entry.individualStoreBanner || "",
+      faqImage: entry.faqImage || "",
       bannerDeals: bannerDealsIds,
+      dealPageBannerDeals: dealPageBannerDealsIds,
+      storePageBannerDeals: storePageBannerDealsIds,
+      categoryPageBannerDeals: categoryPageBannerDealsIds,
       faqs: Array.isArray(entry.faqs) && entry.faqs.length ? entry.faqs : [{ question: "", answer: "" }],
     });
   };
@@ -208,21 +278,34 @@ console.log("values",values)
       {/* Form */}
       <form onSubmit={formik.handleSubmit} className="space-y-4">
         {/* Country */}
-        <div>
-          <label className="block font-medium">Country</label>
-          <select
-            name="country"
-            value={formik.values.country}
-            onChange={formik.handleChange}
-            className="w-full border rounded p-2"
+        <div ref={countryRef} className="relative">
+          <label className="block font-medium mb-1">Country</label>
+          <button
+            type="button"
+            onClick={() => setCountryOpen((v) => !v)}
+            className="w-full border border-[#D9CCF5] rounded-lg px-3 py-2 bg-white text-left text-sm text-[#2b1c4d] focus:outline-none focus:ring-2 focus:ring-[#592EA9]/30"
           >
-            <option value="" disabled>Select country</option>
-            {countries.map((c) => (
-              <option key={c._id} value={c.country_name}>
-                {c.country_name}
-              </option>
-            ))}
-          </select>
+            {formik.values.country ? formik.values.country : "Select country"}
+          </button>
+          {countryOpen && (
+            <div className="absolute z-20 mt-1 w-full rounded-lg border border-[#E4D8FF] bg-white shadow-lg max-h-60 overflow-y-auto">
+              {countries.map((c) => (
+                <div
+                  key={c._id}
+                  onClick={() => {
+                    formik.setFieldValue("country", c.country_name);
+                    setCountryOpen(false);
+                  }}
+                  className="px-4 py-2 text-sm cursor-pointer hover:bg-[#F5F1FF]"
+                >
+                  {c.country_name}
+                </div>
+              ))}
+              {countries.length === 0 && (
+                <div className="px-4 py-2 text-sm text-gray-500">No countries found.</div>
+              )}
+            </div>
+          )}
           {formik.touched.country && formik.errors.country && (
             <p className="text-red-600 text-sm mt-1">{formik.errors.country}</p>
           )}
@@ -230,7 +313,7 @@ console.log("values",values)
 
         {/* Banner Deals multi-select */}
         <div>
-          <label className="block font-medium">Banner Deals (select 3)</label>
+          <label className="block font-medium">Banner Deals (select at least 6)</label>
           <select
             name="bannerDeals"
             multiple
@@ -262,10 +345,111 @@ console.log("values",values)
           )}
         </div>
 
+        {/* Deals Page Banner Deals multi-select */}
+        <div>
+          <label className="block font-medium">Deals Page Banner Deals</label>
+          <select
+            name="dealPageBannerDeals"
+            multiple
+            value={formik.values.dealPageBannerDeals}
+            onChange={(e) =>
+              formik.setFieldValue(
+                "dealPageBannerDeals",
+                Array.from(e.target.selectedOptions, (opt) => opt.value)
+              )
+            }
+            className="w-full border rounded p-2"
+          >
+            {deals
+              .filter((deal) =>
+                formik.values.country
+                  ? Array.isArray(deal.country)
+                    ? deal.country.includes(formik.values.country)
+                    : deal.country === formik.values.country
+                  : true
+              )
+              .map((deal) => (
+              <option key={deal._id} value={deal._id}>
+                {deal.dealTitle}
+              </option>
+            ))}
+          </select>
+          {formik.touched.dealPageBannerDeals && formik.errors.dealPageBannerDeals && (
+            <p className="text-red-600 text-sm mt-1">{formik.errors.dealPageBannerDeals}</p>
+          )}
+        </div>
+
+        {/* Stores Page Banner Deals multi-select */}
+        <div>
+          <label className="block font-medium">Stores Page Banner Deals</label>
+          <select
+            name="storePageBannerDeals"
+            multiple
+            value={formik.values.storePageBannerDeals}
+            onChange={(e) =>
+              formik.setFieldValue(
+                "storePageBannerDeals",
+                Array.from(e.target.selectedOptions, (opt) => opt.value)
+              )
+            }
+            className="w-full border rounded p-2"
+          >
+            {deals
+              .filter((deal) =>
+                formik.values.country
+                  ? Array.isArray(deal.country)
+                    ? deal.country.includes(formik.values.country)
+                    : deal.country === formik.values.country
+                  : true
+              )
+              .map((deal) => (
+              <option key={deal._id} value={deal._id}>
+                {deal.dealTitle}
+              </option>
+            ))}
+          </select>
+          {formik.touched.storePageBannerDeals && formik.errors.storePageBannerDeals && (
+            <p className="text-red-600 text-sm mt-1">{formik.errors.storePageBannerDeals}</p>
+          )}
+        </div>
+
+        {/* Categories Page Banner Deals multi-select */}
+        <div>
+          <label className="block font-medium">Categories Page Banner Deals</label>
+          <select
+            name="categoryPageBannerDeals"
+            multiple
+            value={formik.values.categoryPageBannerDeals}
+            onChange={(e) =>
+              formik.setFieldValue(
+                "categoryPageBannerDeals",
+                Array.from(e.target.selectedOptions, (opt) => opt.value)
+              )
+            }
+            className="w-full border rounded p-2"
+          >
+            {deals
+              .filter((deal) =>
+                formik.values.country
+                  ? Array.isArray(deal.country)
+                    ? deal.country.includes(formik.values.country)
+                    : deal.country === formik.values.country
+                  : true
+              )
+              .map((deal) => (
+              <option key={deal._id} value={deal._id}>
+                {deal.dealTitle}
+              </option>
+            ))}
+          </select>
+          {formik.touched.categoryPageBannerDeals && formik.errors.categoryPageBannerDeals && (
+            <p className="text-red-600 text-sm mt-1">{formik.errors.categoryPageBannerDeals}</p>
+          )}
+        </div>
+
         {/* Generic full inputs */}
         {[
           { label: "Home Page Banner", name: "homepageBanner" },
-          { label: "Mid Homepage Banner", name: "midHomepageBanner" },
           { label: "All Coupons Banner", name: "allCouponsPageBanner" },
           { label: "All Coupons Heading", name: "allCouponsAboutHeading" },
           { label: "All Coupons Description", name: "allCouponsAboutDescription" },
@@ -291,6 +475,69 @@ console.log("values",values)
             )}
           </div>
         ))}
+
+        <FormikProvider value={formik}>
+          <FieldArray name="midHomepageBanners">
+            {({ push, remove }) => (
+              <div className="space-y-2">
+                <h2 className="font-semibold">Mid Homepage Banners (3–4)</h2>
+                {formik.values.midHomepageBanners.map((val, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <input
+                      name={`midHomepageBanners[${i}].image`}
+                      value={val?.image || ""}
+                      onChange={formik.handleChange}
+                      placeholder="Banner image URL"
+                      className="w-full border rounded p-2"
+                    />
+                    <input
+                      name={`midHomepageBanners[${i}].link`}
+                      value={val?.link || ""}
+                      onChange={formik.handleChange}
+                      placeholder="Redirect URL (optional)"
+                      className="w-full border rounded p-2"
+                    />
+                    {formik.values.midHomepageBanners.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => remove(i)}
+                        className="text-red-600 cursor-pointer"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                ))}
+                {formik.touched.midHomepageBanners && formik.errors.midHomepageBanners && (
+                  <p className="text-red-600 text-sm mt-1">{formik.errors.midHomepageBanners}</p>
+                )}
+                {formik.values.midHomepageBanners.length < 4 && (
+                  <button
+                    type="button"
+                    onClick={() => push({ image: "", link: "" })}
+                    className="bg-blue-500 text-white px-3 py-1 rounded cursor-pointer"
+                  >
+                    Add Banner
+                  </button>
+                )}
+              </div>
+            )}
+          </FieldArray>
+        </FormikProvider>
+
+        <div>
+          <label className="block font-medium mb-1">FAQ Image URL</label>
+          <input
+            name="faqImage"
+            value={formik.values.faqImage}
+            onChange={formik.handleChange}
+            className="w-full border rounded p-2"
+            placeholder="https://..."
+          />
+          {formik.touched.faqImage && formik.errors.faqImage && (
+            <p className="text-red-600 text-sm mt-1">{formik.errors.faqImage}</p>
+          )}
+        </div>
 
         {/* FAQs */}
         <FormikProvider value={formik}>
@@ -346,6 +593,12 @@ console.log("values",values)
           <button
             type="submit"
             disabled={formik.isSubmitting}
+            onClick={async () => {
+              const errors = await formik.validateForm();
+              if (Object.keys(errors).length > 0) {
+                toast.error("Please fix the highlighted fields before saving.");
+              }
+            }}
             className="bg-green-600 text-white font-bold py-2 px-6 rounded hover:bg-green-700 cursor-pointer disabled:opacity-60"
           >
             {editingEntry ? "Update Entry" : "Create Entry"}

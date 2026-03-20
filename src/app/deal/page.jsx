@@ -32,6 +32,12 @@ const AllCoupons = () => {
   const { reviews = [], loading: reviewsLoading } = useSelector((state) => state.reviews || { reviews: [], loading: false });
   const homeAdmin = useSelector((state) => state.homeAdmin) || { data: [], loading: false };
   const data = homeAdmin.data?.[0] || {};
+  const pageBannerDeals =
+    Array.isArray(data.dealPageBannerDeals) && data.dealPageBannerDeals.length > 0
+      ? data.dealPageBannerDeals
+      : Array.isArray(data.listingBannerDeals) && data.listingBannerDeals.length > 0
+        ? data.listingBannerDeals
+        : data.bannerDeals;
   const { countries = [], loading: countriesLoading } = useSelector((state) => state.country || { countries: [], loading: false });
   const { selectedCountry } = useSelector((state) => state.country || {});
   const { stores = [] } = useSelector((state) => state.store || { stores: [] });
@@ -68,13 +74,6 @@ const AllCoupons = () => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // Filter expired deals
-  const expiredDeals = deals.filter((deal) => {
-    const expiry = new Date(deal.expiredDate);
-    expiry.setHours(0, 0, 0, 0);
-    return expiry < today;
-  });
-
   // Filter active deals
   const activeDeals = deals.filter((deal) => {
     const expiry = new Date(deal.expiredDate);
@@ -92,13 +91,6 @@ const filteredActiveDeals = selectedCountries.length
     )
   : activeDeals;
 
-const filteredExpiredDeals = selectedCountries.length
-  ? expiredDeals.filter((deal) =>
-      Array.isArray(deal.country)
-        ? deal.country.some((c) => selectedCountries.includes(c))
-        : selectedCountries.includes(deal.country)
-    )
-  : expiredDeals;
 
 
 
@@ -121,12 +113,11 @@ text-[#592EA9] drop-shadow-sm flex items-center gap-2">
   <span className="text-[#222] font-semibold">& COUPON CODES</span>
 </h1>
 
-
         {/* <Banner text="" colorText="" BgImage={AjioBanner} link= 'https://www.ajio.com/' /> */}
         <div className="lg:hidden px-2 pb-4 mt-6">
   {homeAdmin.loading ? (
     <RowSkeleton count={2} itemClassName="h-36 w-full rounded-lg bg-gray-200" />
-  ) : Array.isArray(data.bannerDeals) && data.bannerDeals.length > 0 ? (
+  ) : Array.isArray(pageBannerDeals) && pageBannerDeals.length > 0 ? (
     <Swiper
       modules={[Pagination, Autoplay]}
       pagination={{ clickable: true }}
@@ -139,7 +130,7 @@ text-[#592EA9] drop-shadow-sm flex items-center gap-2">
         1024: { slidesPerView: 1 },   // 1024+ → grid handles layout
       }}
     >
-      {data.bannerDeals.map((deal) => (
+      {pageBannerDeals.map((deal) => (
         <SwiperSlide key={deal._id} className="flex justify-center items-center">
           <BannerCard data={deal} />
         </SwiperSlide>
@@ -156,8 +147,8 @@ text-[#592EA9] drop-shadow-sm flex items-center gap-2">
       <div className="lg:flex flex-wrap gap-4 p-4 justify-center lg:justify-between hidden">
         {homeAdmin.loading ? (
           <GridSkeleton count={3} className="grid grid-cols-3 gap-4 w-full" itemClassName="h-40 rounded-lg bg-gray-200" />
-        ) : Array.isArray(data.bannerDeals) && data.bannerDeals.length > 0 ? (
-          data.bannerDeals.map((deal) => (
+        ) : Array.isArray(pageBannerDeals) && pageBannerDeals.length > 0 ? (
+          pageBannerDeals.map((deal) => (
             <div className="w-full sm:w-[48%] lg:w-[32%]" key={deal._id}>
               <BannerCard data={deal} />
             </div>
@@ -307,27 +298,6 @@ text-[#592EA9] drop-shadow-sm flex items-center gap-2">
     <p className="text-sm text-gray-500 px-4">No active coupons found.</p>
   )}
 </div>
-
-{/* Expired Deals */}
-<TextLink text="Expired" colorText="Coupons" link="" linkText="" />
-<div className="space-y-4 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:justify-around max-h-[500px] overflow-y-auto">
-  {dealsLoading && filteredExpiredDeals.length === 0 ? (
-    <GridSkeleton count={3} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" itemClassName="h-40 rounded-lg bg-gray-200" />
-  ) : filteredExpiredDeals.length > 0 ? (
-    filteredExpiredDeals.slice(0, 3).map((deal) => (
-      <Coupons_Deals
-        key={deal._id}
-        data={deal}
-        border={true}
-        disabled={true}
-      />
-    ))
-  ) : (
-    <p className="text-sm text-gray-500 px-4">No expired coupons found.</p>
-  )}
-</div>
-
-
 
         <TextLink text="User" colorText="Review" link="" linkText="" />
         <div className="p-4 flex gap-4 overflow-x-scroll">

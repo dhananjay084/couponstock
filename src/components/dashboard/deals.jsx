@@ -108,6 +108,15 @@ const DealsPage = () => {
       cellRenderer: (params) => (
         <div className="flex space-x-2 items-center h-full">
           <button
+            onClick={() => {
+              const slug = params.data?.slug || params.value;
+              window.open(`/deal/${slug}?category=${params.data?.categorySelect || ""}`, "_blank");
+            }}
+            className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-xs cursor-pointer"
+          >
+            Preview
+          </button>
+          <button
             onClick={() => handleDelete(params.value)}
             className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-xs cursor-pointer"
           >

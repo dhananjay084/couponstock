@@ -95,7 +95,8 @@ const SignupClient = () => {
           </h1>
         </div>
 
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Sign Up</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-1">Create Account ✨</h2>
+        <p className="text-sm text-gray-600 mb-4">Please fill in your details to sign up.</p>
 
         {referralCode && (
           <div className="mb-4 text-sm bg-green-50 text-green-700 p-3 rounded-md w-full max-w-md border border-green-200">
@@ -108,6 +109,7 @@ const SignupClient = () => {
           initialValues={{
             name: "",
             email: "",
+            phone: "",
             password: "",
             confirmPassword: "",
           }}
@@ -140,6 +142,20 @@ const SignupClient = () => {
                   name="email"
                   type="email"
                   placeholder="Input email address"
+                  className="w-full border border-gray-300 p-3 mt-1 rounded-md focus:ring-2 focus:ring-[#592EA9] focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="phone"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Phone
+                </label>
+                <Field
+                  name="phone"
+                  placeholder="Enter phone number"
                   className="w-full border border-gray-300 p-3 mt-1 rounded-md focus:ring-2 focus:ring-[#592EA9] focus:border-transparent"
                 />
               </div>
@@ -185,6 +201,12 @@ const SignupClient = () => {
                   ? "Sign Up with Referral"
                   : "Sign Up"}
               </button>
+              <p className="text-xs text-gray-600 text-center mt-2">
+                By continuing, you agree to our{" "}
+                <a href="/terms" className="text-[#592EA9] hover:underline">Terms & Service</a>{" "}
+                and{" "}
+                <a href="/privacy" className="text-[#592EA9] hover:underline">Privacy Policy</a>.
+              </p>
             </Form>
           )}
         </Formik>

@@ -12,6 +12,7 @@ import {
 } from "../../redux/blog/blogSlice"; // adjust path for App Router
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { slugify } from "../../lib/slugify";
 
 
 import { ModuleRegistry, AllCommunityModule } from "ag-grid-community";
@@ -233,6 +234,15 @@ export default function AddBlogPage() {
 
             <td className="border p-2 text-center">
               <div className="flex gap-2 justify-center">
+                <button
+                  onClick={() => {
+                    const slug = `${slugify(blog.heading || "blog")}--${blog._id}`;
+                    window.open(`/blog/${slug}`, "_blank");
+                  }}
+                  className="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700"
+                >
+                  Preview
+                </button>
                 <button
                   onClick={() => handleEdit(blog)}
                   className="bg-yellow-500 text-white px-3 py-1 rounded text-xs hover:bg-yellow-600"

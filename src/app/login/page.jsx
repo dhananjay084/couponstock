@@ -146,9 +146,12 @@ const LoginComponent = () => {
 
 
         <div className="max-w-md mx-auto w-full">
-          <h2 className="text-2xl font-bold text-center text-[#592EA9] mb-4">
-            Welcome Back 👋
+          <h2 className="text-2xl font-bold text-center text-[#592EA9] mb-1">
+            Welcome Back Mycouponstock 👋
           </h2>
+          <p className="text-center text-sm text-gray-600 mb-4">
+            Please enter your credentials to login.
+          </p>
 
           <Formik
             initialValues={{ email: "", password: "" }}
@@ -202,6 +205,12 @@ const LoginComponent = () => {
                   </div>
                 </div>
 
+                <p className="text-xs text-gray-600 text-center mt-2">
+                  By continuing, you agree to our{" "}
+                  <a href="/terms" className="text-[#592EA9] hover:underline">Terms & Service</a>{" "}
+                  and{" "}
+                  <a href="/privacy" className="text-[#592EA9] hover:underline">Privacy Policy</a>.
+                </p>
                 <button
                   type="submit"
                   className="w-full bg-[#592EA9] text-white py-3 rounded-md font-medium hover:bg-opacity-90 transition cursor-pointer"

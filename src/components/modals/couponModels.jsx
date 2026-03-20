@@ -13,6 +13,23 @@ const CouponModal = ({ open, onClose, data }) => {
     router.push(`/deal/${data._id}?category=${data.categorySelect}`);
   };
 
+  const handleCopyAndGo = async () => {
+    if (data?.couponCode) {
+      await navigator.clipboard.writeText(data.couponCode);
+    }
+    if (data?.redirectionLink) {
+      window.open(data.redirectionLink, "_blank");
+    }
+  };
+
+  const expiryText = data?.expiredDate
+    ? new Date(data.expiredDate).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      })
+    : "N/A";
+
   return (
     <div className="fixed inset-0 z-50 bg-[rgba(0,0,0,0.3)] flex items-center justify-center">
       <div className="bg-white p-6 rounded-2xl shadow-xl w-[90%] max-w-md relative border-[2px] border-[#6c38d9]">
@@ -26,24 +43,32 @@ const CouponModal = ({ open, onClose, data }) => {
 
         {/* Content */}
         <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-          {data.store}
+          {data.store || "Store Name"}
         </Typography>
 
-        <div className="flex gap-2 text-sm my-2">
-          <span className="font-bold text-[#6c38d9]">{data.discount}% OFF</span>
+        <div className="mt-2 text-sm text-gray-700">
+          <div>
+            <strong>Headline Offer:</strong> {data.dealTitle || data.homePageTitle || "—"}
+          </div>
+          <div className="mt-1">
+            <strong>Coupon Code:</strong> {data.couponCode || "—"}
+          </div>
+          <div className="mt-1">
+            <strong>Expiry Date:</strong> {expiryText}
+          </div>
         </div>
 
         {/* Code section */}
-        <div className="border border-dashed border-[#6c38d9] p-2 rounded-xl mt-2 flex items-center justify-between text-sm">
+        <div className="border border-dashed border-[#6c38d9] p-2 rounded-xl mt-3 flex items-center justify-between text-sm">
           <span>
             <strong>{data.discount}% OFF</strong> with Code{" "}
             <strong>{data.couponCode}</strong>
           </span>
           <button
-            onClick={() => navigator.clipboard.writeText(data.couponCode)}
+            onClick={handleCopyAndGo}
             className="text-[#6c38d9] underline cursor-pointer"
           >
-            Copy
+            Copy & Go
           </button>
         </div>
 

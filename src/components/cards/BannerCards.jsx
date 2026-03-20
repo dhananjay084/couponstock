@@ -53,7 +53,7 @@ const ProductCard = ({ data }) => {
 
   return (
     <div
-    className="relative bg-white rounded-2xl shadow-lg overflow-hidden w-full max-w-[400px] mx-auto cursor-pointer"
+    className="relative bg-white rounded-2xl shadow-lg overflow-hidden w-full h-full cursor-pointer"
     onClick={handleRedirect}
   >
     {/* Image */}

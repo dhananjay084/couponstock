@@ -7,6 +7,10 @@ import BlogCard from "../../components/cards/BlogCard";
 import RecentBlogCard from "../../components/cards/NewBlogCard";
 import { toast } from "react-toastify";
 import { RowSkeleton } from "../../components/skeletons/InlineSkeletons";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+import "swiper/css/pagination";
+import { Pagination, Autoplay } from "swiper/modules";
 
 const BlogsPage = () => {
   const dispatch = useDispatch();
@@ -28,54 +32,60 @@ const BlogsPage = () => {
   const rest = sorted.slice(3);
 
   return (
-    <div className="p-4 md:p-8">
-      <h1 className="text-2xl md:text-3xl font-bold mb-8 text-[#592EA9]">
-        Recent Blog Posts
-      </h1>
+    <div className="p-4 md:p-8 bg-gradient-to-b from-[#F7F4FF] to-white min-h-screen">
+      <div className="max-w-6xl mx-auto">
+        <h1 className="text-2xl md:text-3xl font-bold mb-2 text-[#592EA9]">
+          Latest Stories
+        </h1>
+        <p className="text-sm text-gray-600 mb-6">
+          Fresh deals, tips, and shopping guides curated by Mycouponstock.
+        </p>
 
-      {/* DESKTOP LAYOUT */}
-      <div className="hidden lg:grid grid-cols-12 gap-6 mb-14">
-        {/* Left large card */}
-        <div className="col-span-7">
-          {loading && !top3[0] ? (
-            <div className="h-72 rounded-lg bg-gray-200 animate-pulse" />
+        {/* Featured Slider */}
+        <div className="mb-10">
+          {loading && sorted.length === 0 ? (
+            <RowSkeleton count={2} itemClassName="h-44 w-full rounded-lg bg-gray-200" />
           ) : (
-            top3[0] && <BlogCard blog={top3[0]} large />
+            <Swiper
+              modules={[Pagination, Autoplay]}
+              pagination={{ clickable: true }}
+              autoplay={{ delay: 2500, disableOnInteraction: false }}
+              spaceBetween={16}
+              loop
+              breakpoints={{
+                0: { slidesPerView: 1 },
+                768: { slidesPerView: 2 },
+                1024: { slidesPerView: 3 },
+              }}
+            >
+              {sorted.slice(0, 6).map((blog) => (
+                <SwiperSlide key={blog._id} style={{ height: "520px" }}>
+                  <BlogCard
+                    blog={blog}
+                    forceFullHeight
+                    descriptionLimit={140}
+                    descriptionSuffix=".."
+                    className="h-full"
+                    fixedHeight="520px"
+                    headingClamp={2}
+                    descriptionClamp={4}
+                  />
+                </SwiperSlide>
+              ))}
+            </Swiper>
           )}
         </div>
 
-        {/* Right side two small cards */}
-        <div className="col-span-5 flex flex-col gap-6">
-          {loading && blogs.length === 0 ? (
-            <>
-              <div className="h-32 rounded-lg bg-gray-200 animate-pulse" />
-              <div className="h-32 rounded-lg bg-gray-200 animate-pulse" />
-            </>
+        {/* Grid of recent posts */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {loading && rest.length === 0 ? (
+            <RowSkeleton count={4} itemClassName="h-44 w-full rounded-lg bg-gray-200" />
+          ) : rest.length > 0 ? (
+            rest.map((b) => <RecentBlogCard blog={b} key={b._id} />)
           ) : (
-            <>
-              {top3[1] && <RecentBlogCard blog={top3[1]} />}
-              {top3[2] && <RecentBlogCard blog={top3[2]} />}
-            </>
+            <p className="text-sm text-gray-500">No more posts available.</p>
           )}
         </div>
-      </div>
-
-      {/* Rest blogs 2 per row */}
-      {rest.length > 0 && (
-        <div className="hidden lg:grid grid-cols-2 gap-8 mb-16">
-          {rest.map((b) => (
-            <RecentBlogCard blog={b} key={b._id} />
-          ))}
-        </div>
-      )}
-
-      {/* MOBILE LAYOUT */}
-      <div className="lg:hidden space-y-6">
-        {loading && sorted.length === 0 ? (
-          <RowSkeleton count={3} itemClassName="h-44 w-full rounded-lg bg-gray-200" />
-        ) : sorted.map((blog) => (
-          <BlogCard key={blog._id} blog={blog} />
-        ))}
       </div>
     </div>
   );

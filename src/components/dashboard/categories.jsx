@@ -13,10 +13,14 @@ import {
 } from "../../redux/category/categorySlice";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { uploadImage } from "../../lib/uploadImage";
+import { isValidUrl } from "../../lib/validation";
 
 const categorySchema = Yup.object().shape({
   name: Yup.string().required("Name is required"),
-  image: Yup.string().url("Enter a valid image URL").required("Image URL is required"),
+  image: Yup.string()
+    .test("is-url", "Enter a valid image URL", (val) => isValidUrl(val))
+    .required("Image URL is required"),
   showOnHomepage: Yup.boolean(),
   popularStore: Yup.boolean(),
 });
@@ -178,7 +182,7 @@ export default function CategoriesPage() {
           }
         }}
       >
-        {() => (
+        {({ setFieldValue }) => (
           <Form className="bg-white p-6 shadow-md rounded-lg space-y-6 mt-10">
             <div>
               <label className="block mb-1 font-medium">Category Name</label>
@@ -189,6 +193,24 @@ export default function CategoriesPage() {
             <div>
               <label className="block mb-1 font-medium">Image URL</label>
               <Field name="image" className="w-full px-3 py-2 border rounded-md" />
+              <input
+                type="file"
+                accept="image/*"
+                className="mt-2"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  try {
+                    const url = await uploadImage(file);
+                    setFieldValue("image", url);
+                    toast.success("Image uploaded");
+                  } catch (err) {
+                    toast.error(err.message || "Upload failed");
+                  } finally {
+                    e.target.value = "";
+                  }
+                }}
+              />
               <ErrorMessage name="image" component="div" className="text-red-500 text-sm mt-1" />
             </div>
             <div>

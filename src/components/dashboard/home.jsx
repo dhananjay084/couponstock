@@ -8,6 +8,8 @@ import { getDeals } from "../../redux/deal/dealSlice";
 import { getHomeAdminData, createHomeAdmin, updateHomeAdmin } from "../../redux/admin/homeAdminSlice";
 import { fetchCountries } from "../../redux/country/countrySlice";
 import { toast } from "react-toastify";
+import { uploadImage } from "../../lib/uploadImage";
+import { isValidUrl } from "../../lib/validation";
 
 const HomeAdminPage = () => {
   const dispatch = useDispatch();
@@ -84,31 +86,46 @@ const HomeAdminPage = () => {
         "Select at least 3 deals",
         (arr) => !arr || arr.length === 0 || arr.length >= 3
       ),
-      homepageBanner: Yup.string().url("Must be a valid URL").required("Required"),
+      homepageBanner: Yup.string()
+        .test("is-url", "Enter a valid image URL", (val) => isValidUrl(val))
+        .required("Required"),
       midHomepageBanners: Yup.array()
         .of(
           Yup.object({
-            image: Yup.string().url("Must be a valid URL").required("Required"),
-            link: Yup.string().url("Must be a valid URL").nullable().notRequired(),
+            image: Yup.string()
+              .test("is-url", "Enter a valid image URL", (val) => isValidUrl(val))
+              .required("Required"),
+            link: Yup.string()
+              .test("is-url", "Must be a valid URL", (val) => !val || isValidUrl(val))
+              .nullable()
+              .notRequired(),
           })
         )
         .min(3, "Add at least 3 mid homepage banners")
         .max(4, "Add at most 4 mid homepage banners")
         .required("Required"),
-      allCouponsPageBanner: Yup.string().url("Must be a valid URL").required("Required"),
+      allCouponsPageBanner: Yup.string()
+        .test("is-url", "Enter a valid image URL", (val) => isValidUrl(val))
+        .required("Required"),
       allCouponsAboutHeading: Yup.string().required("Required"),
       allCouponsAboutDescription: Yup.string().required("Required"),
-      allStoresPageBanner: Yup.string().url("Must be a valid URL").required("Required"),
+      allStoresPageBanner: Yup.string()
+        .test("is-url", "Enter a valid image URL", (val) => isValidUrl(val))
+        .required("Required"),
       allStoresAboutHeading: Yup.string().required("Required"),
       allStoresAboutDescription: Yup.string().required("Required"),
-      allCategoriesPageBanner: Yup.string().url("Must be a valid URL").required("Required"),
+      allCategoriesPageBanner: Yup.string()
+        .test("is-url", "Enter a valid image URL", (val) => isValidUrl(val))
+        .required("Required"),
       allCategoriesAboutHeading: Yup.string().required("Required"),
       allCategoriesAboutDescription: Yup.string().required("Required"),
-      individualStoreBanner: Yup.string().url("Must be a valid URL").required("Required"),
+      individualStoreBanner: Yup.string()
+        .test("is-url", "Enter a valid image URL", (val) => isValidUrl(val))
+        .required("Required"),
       faqImage: Yup.string()
         .transform((val) => (val === "" ? null : val))
         .nullable()
-        .url("Must be a valid URL"),
+        .test("is-url", "Must be a valid URL", (val) => !val || isValidUrl(val)),
       faqs: Yup.array().of(
         Yup.object({
           question: Yup.string().required("Required"),
@@ -447,19 +464,55 @@ console.log("values",values)
           )}
         </div>
 
-        {/* Generic full inputs */}
+        {/* Image URL inputs */}
         {[
           { label: "Home Page Banner", name: "homepageBanner" },
           { label: "All Coupons Banner", name: "allCouponsPageBanner" },
+          { label: "All Stores Banner", name: "allStoresPageBanner" },
+          { label: "All Categories Banner", name: "allCategoriesPageBanner" },
+          { label: "Individual Store Banner", name: "individualStoreBanner" },
+        ].map(({ label, name }) => (
+          <div key={name}>
+            <label className="block font-medium mb-1">{label}</label>
+            <input
+              name={name}
+              value={formik.values[name]}
+              onChange={formik.handleChange}
+              className="w-full border rounded p-2"
+              placeholder="https://..."
+            />
+            <input
+              type="file"
+              accept="image/*"
+              className="mt-2"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                try {
+                  const url = await uploadImage(file);
+                  formik.setFieldValue(name, url);
+                  toast.success("Image uploaded");
+                } catch (err) {
+                  toast.error(err.message || "Upload failed");
+                } finally {
+                  e.target.value = "";
+                }
+              }}
+            />
+            {formik.touched[name] && formik.errors[name] && (
+              <p className="text-red-600 text-sm mt-1">{formik.errors[name]}</p>
+            )}
+          </div>
+        ))}
+
+        {/* Text inputs */}
+        {[
           { label: "All Coupons Heading", name: "allCouponsAboutHeading" },
           { label: "All Coupons Description", name: "allCouponsAboutDescription" },
-          { label: "All Stores Banner", name: "allStoresPageBanner" },
           { label: "All Stores Heading", name: "allStoresAboutHeading" },
           { label: "All Stores Description", name: "allStoresAboutDescription" },
-          { label: "All Categories Banner", name: "allCategoriesPageBanner" },
           { label: "All Categories Heading", name: "allCategoriesAboutHeading" },
           { label: "All Categories Description", name: "allCategoriesAboutDescription" },
-          { label: "Individual Store Banner", name: "individualStoreBanner" },
         ].map(({ label, name }) => (
           <div key={name}>
             <label className="block font-medium mb-1">{label}</label>
@@ -489,6 +542,24 @@ console.log("values",values)
                       onChange={formik.handleChange}
                       placeholder="Banner image URL"
                       className="w-full border rounded p-2"
+                    />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="w-full border rounded p-2"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        try {
+                          const url = await uploadImage(file);
+                          formik.setFieldValue(`midHomepageBanners[${i}].image`, url);
+                          toast.success("Image uploaded");
+                        } catch (err) {
+                          toast.error(err.message || "Upload failed");
+                        } finally {
+                          e.target.value = "";
+                        }
+                      }}
                     />
                     <input
                       name={`midHomepageBanners[${i}].link`}
@@ -533,6 +604,24 @@ console.log("values",values)
             onChange={formik.handleChange}
             className="w-full border rounded p-2"
             placeholder="https://..."
+          />
+          <input
+            type="file"
+            accept="image/*"
+            className="mt-2"
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              try {
+                const url = await uploadImage(file);
+                formik.setFieldValue("faqImage", url);
+                toast.success("Image uploaded");
+              } catch (err) {
+                toast.error(err.message || "Upload failed");
+              } finally {
+                e.target.value = "";
+              }
+            }}
           />
           {formik.touched.faqImage && formik.errors.faqImage && (
             <p className="text-red-600 text-sm mt-1">{formik.errors.faqImage}</p>

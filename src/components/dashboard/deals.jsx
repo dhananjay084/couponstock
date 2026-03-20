@@ -10,6 +10,8 @@ import { getCategories } from "../../redux/category/categorySlice";
 import { getStores } from "../../redux/store/storeSlice";
 import { fetchCountries, addCountry } from "../../redux/country/countrySlice";
 import "react-toastify/dist/ReactToastify.css";
+import { uploadImage } from "../../lib/uploadImage";
+import { isValidUrl } from "../../lib/validation";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
@@ -24,7 +26,9 @@ const DealSchema = Yup.object().shape({
     Yup.object().shape({
       dealTitle: Yup.string().required("Title is required"),
       dealDescription: Yup.string().required("Description is required"),
-      dealImage: Yup.string().url("Enter a valid image URL").required("Image URL is required"),
+      dealImage: Yup.string()
+        .test("is-url", "Enter a valid image URL", (val) => isValidUrl(val))
+        .required("Image URL is required"),
       homePageTitle: Yup.string().required("Home page title is required"),
       dealType: Yup.string().required("Deal type is required"),
       dealCategory: Yup.string().oneOf(["coupon", "deal"], "Invalid category").required("Category is required"),
@@ -310,7 +314,7 @@ metaKeywords: editDeal?.metaKeywords || "",
           }
         }}
       >
-        {({ values }) => (
+        {({ values, setFieldValue }) => (
           <Form className="mt-10">
             <FieldArray name="deals">
               {({ push, remove }) => (
@@ -337,6 +341,24 @@ metaKeywords: editDeal?.metaKeywords || "",
                       <div className="mb-4">
                         <label className="block mb-1 font-medium">Deal Image URL</label>
                         <Field name={`deals[${index}].dealImage`} className="w-full px-3 py-2 border rounded-md" />
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="mt-2"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            try {
+                              const url = await uploadImage(file);
+                              setFieldValue(`deals[${index}].dealImage`, url);
+                              toast.success("Image uploaded");
+                            } catch (err) {
+                              toast.error(err.message || "Upload failed");
+                            } finally {
+                              e.target.value = "";
+                            }
+                          }}
+                        />
                         <ErrorMessage name={`deals[${index}].dealImage`} component="div" className="text-red-500 text-sm mt-1" />
                       </div>
 

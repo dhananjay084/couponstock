@@ -11,6 +11,8 @@ import {
   fetchReviews,
   updateReview,
 } from "../../redux/review/reviewSlice";
+import { uploadImage } from "../../lib/uploadImage";
+import { isValidUrl } from "../../lib/validation";
 
 const ReviewsPage = () => {
   const dispatch = useDispatch();
@@ -35,7 +37,9 @@ const ReviewsPage = () => {
       name: Yup.string().required("Name is required"),
       designation: Yup.string().required("Designation is required"),
       desc: Yup.string().required("Description is required"),
-      image: Yup.string().url("Must be a valid URL").required("Image URL is required"),
+      image: Yup.string()
+        .test("is-url", "Enter a valid image URL", (val) => isValidUrl(val))
+        .required("Image URL is required"),
     }),
     onSubmit: (values, { resetForm }) => {
       if (editId) {
@@ -93,6 +97,26 @@ const ReviewsPage = () => {
               onBlur={formik.handleBlur}
               className="w-full border px-3 py-2 rounded"
             />
+            {field === "image" && (
+              <input
+                type="file"
+                accept="image/*"
+                className="mt-2"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  try {
+                    const url = await uploadImage(file);
+                    formik.setFieldValue("image", url);
+                    toast.success("Image uploaded");
+                  } catch (err) {
+                    toast.error(err.message || "Upload failed");
+                  } finally {
+                    e.target.value = "";
+                  }
+                }}
+              />
+            )}
             {formik.touched[field] && formik.errors[field] && (
               <p className="text-red-500 text-sm">{formik.errors[field]}</p>
             )}

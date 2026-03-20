@@ -13,6 +13,8 @@ import {
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { slugify } from "../../lib/slugify";
+import { uploadImage } from "../../lib/uploadImage";
+import { isValidUrl } from "../../lib/validation";
 
 
 import { ModuleRegistry, AllCommunityModule } from "ag-grid-community";
@@ -37,7 +39,9 @@ export default function AddBlogPage() {
       featuredPost: false,
     },
     validationSchema: Yup.object({
-      imageLink: Yup.string().url("Must be a valid URL").required("Required"),
+      imageLink: Yup.string()
+        .test("is-url", "Enter a valid image URL", (val) => isValidUrl(val))
+        .required("Required"),
       heading: Yup.string().required("Required"),
       blogDetails: Yup.string().required("Required"),
       tags: Yup.string().required("Required"),
@@ -112,6 +116,24 @@ export default function AddBlogPage() {
             onChange={formik.handleChange}
             value={formik.values.imageLink}
             className="border p-2 w-full rounded"
+          />
+          <input
+            type="file"
+            accept="image/*"
+            className="mt-2"
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              try {
+                const url = await uploadImage(file);
+                formik.setFieldValue("imageLink", url);
+                toast.success("Image uploaded");
+              } catch (err) {
+                toast.error(err.message || "Upload failed");
+              } finally {
+                e.target.value = "";
+              }
+            }}
           />
           {formik.touched.imageLink && formik.errors.imageLink && (
             <p className="text-red-500 text-sm">{formik.errors.imageLink}</p>

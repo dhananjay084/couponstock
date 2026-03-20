@@ -14,6 +14,8 @@ import {
 import { fetchCountries } from "../../redux/country/countrySlice";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { uploadImage } from "../../lib/uploadImage";
+import { isValidUrl } from "../../lib/validation";
 
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
@@ -24,7 +26,9 @@ ModuleRegistry.registerModules([AllCommunityModule]);
 const storeSchema = Yup.object().shape({
   storeName: Yup.string().required("Store Name is required"),
   storeDescription: Yup.string().required("Store Description is required"),
-  storeImage: Yup.string().url("Enter a valid image URL").required("Store image is required"),
+  storeImage: Yup.string()
+    .test("is-url", "Enter a valid image URL", (val) => isValidUrl(val))
+    .required("Store image is required"),
   homePageTitle: Yup.string().required("Home Page Title is required"),
   showOnHomepage: Yup.boolean(),
   popularStore: Yup.boolean(),
@@ -240,6 +244,24 @@ metaKeywords: "",
             <div>
               <label className="block mb-1 font-medium">Store Image URL</label>
               <Field name="storeImage" className="w-full px-3 py-2 border rounded-md" />
+              <input
+                type="file"
+                accept="image/*"
+                className="mt-2"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  try {
+                    const url = await uploadImage(file);
+                    setFieldValue("storeImage", url);
+                    toast.success("Image uploaded");
+                  } catch (err) {
+                    toast.error(err.message || "Upload failed");
+                  } finally {
+                    e.target.value = "";
+                  }
+                }}
+              />
               <ErrorMessage name="storeImage" component="div" className="text-red-500 text-sm mt-1" />
             </div>
 

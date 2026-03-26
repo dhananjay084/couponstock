@@ -47,12 +47,7 @@ const CouponModal = ({ open, onClose, data }) => {
         </Typography>
 
         <div className="mt-2 text-sm text-gray-700">
-          <div>
-            <strong>Headline Offer:</strong> {data.dealTitle || data.homePageTitle || "—"}
-          </div>
-          <div className="mt-1">
-            <strong>Coupon Code:</strong> {data.couponCode || "—"}
-          </div>
+          <div>{data.dealTitle || data.homePageTitle || "—"}</div>
           <div className="mt-1">
             <strong>Expiry Date:</strong> {expiryText}
           </div>
@@ -61,8 +56,7 @@ const CouponModal = ({ open, onClose, data }) => {
         {/* Code section */}
         <div className="border border-dashed border-[#6c38d9] p-2 rounded-xl mt-3 flex items-center justify-between text-sm">
           <span>
-            <strong>{data.discount}% OFF</strong> with Code{" "}
-            <strong>{data.couponCode}</strong>
+            <strong>{data.discount}% OFF</strong>
           </span>
           <button
             onClick={handleCopyAndGo}

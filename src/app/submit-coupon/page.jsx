@@ -17,17 +17,13 @@ const schema = Yup.object().shape({
   dealTitle: Yup.string().required("Deal title is required"),
   dealDescription: Yup.string().required("Description is required"),
   dealImage: Yup.string().url("Invalid URL").required("Image URL is required"),
-  homePageTitle: Yup.string().required("Headline offer is required"),
-  dealType: Yup.string().required("Deal type is required"),
   dealCategory: Yup.string().required("Category type is required"),
-  details: Yup.string().required("Details are required"),
   categorySelect: Yup.string().required("Category is required"),
   couponCode: Yup.string().required("Coupon code is required"),
   discount: Yup.string().required("Discount is required"),
   expiredDate: Yup.date().required("Expiry date is required"),
   store: Yup.string().required("Store is required"),
   country: Yup.array().min(1, "Select at least one country").required("Country is required"),
-  redirectionLink: Yup.string().url("Invalid URL").required("Redirection link is required"),
 });
 
 export default function SubmitCouponPage() {
@@ -49,20 +45,13 @@ export default function SubmitCouponPage() {
     dealTitle: "",
     dealDescription: "",
     dealImage: "",
-    homePageTitle: "",
-    dealType: "",
     dealCategory: "coupon",
-    details: "",
     categorySelect: "",
     couponCode: "",
     discount: "",
     expiredDate: "",
     store: "",
     country: selectedCountry ? [selectedCountry] : [],
-    redirectionLink: "",
-    metaTitle: "",
-    metaDescription: "",
-    metaKeywords: "",
   };
 
   const handleSubmit = async (values, { resetForm, setSubmitting }) => {
@@ -116,26 +105,10 @@ export default function SubmitCouponPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium">Headline Offer</label>
-              <Field name="homePageTitle" className="w-full border rounded-md px-3 py-2" />
-              {touched.homePageTitle && errors.homePageTitle && (
-                <p className="text-red-500 text-sm">{errors.homePageTitle}</p>
-              )}
-            </div>
-
-            <div>
               <label className="block text-sm font-medium">Deal Description</label>
               <Field as="textarea" name="dealDescription" rows={3} className="w-full border rounded-md px-3 py-2" />
               {touched.dealDescription && errors.dealDescription && (
                 <p className="text-red-500 text-sm">{errors.dealDescription}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium">Details</label>
-              <Field as="textarea" name="details" rows={3} className="w-full border rounded-md px-3 py-2" />
-              {touched.details && errors.details && (
-                <p className="text-red-500 text-sm">{errors.details}</p>
               )}
             </div>
 
@@ -147,29 +120,9 @@ export default function SubmitCouponPage() {
                   <p className="text-red-500 text-sm">{errors.dealImage}</p>
                 )}
               </div>
-              <div>
-                <label className="block text-sm font-medium">Redirection Link</label>
-                <Field name="redirectionLink" className="w-full border rounded-md px-3 py-2" />
-                {touched.redirectionLink && errors.redirectionLink && (
-                  <p className="text-red-500 text-sm">{errors.redirectionLink}</p>
-                )}
-              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium">Deal Type</label>
-                <Field as="select" name="dealType" className="w-full border rounded-md px-3 py-2">
-                  <option value="">Select type</option>
-                  <option value="Today's Top Deal">Today's Top Deal</option>
-                  <option value="Hot">Hot</option>
-                  <option value="Coupons/Deals">Coupons/Deals</option>
-                  <option value="Deal of week">Deal of week</option>
-                </Field>
-                {touched.dealType && errors.dealType && (
-                  <p className="text-red-500 text-sm">{errors.dealType}</p>
-                )}
-              </div>
               <div>
                 <label className="block text-sm font-medium">Offer Type</label>
                 <Field as="select" name="dealCategory" className="w-full border rounded-md px-3 py-2">
@@ -257,21 +210,6 @@ export default function SubmitCouponPage() {
                 {touched.country && errors.country && (
                   <p className="text-red-500 text-sm">{errors.country}</p>
                 )}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium">Meta Title</label>
-                <Field name="metaTitle" className="w-full border rounded-md px-3 py-2" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Meta Description</label>
-                <Field name="metaDescription" className="w-full border rounded-md px-3 py-2" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Meta Keywords</label>
-                <Field name="metaKeywords" className="w-full border rounded-md px-3 py-2" />
               </div>
             </div>
 

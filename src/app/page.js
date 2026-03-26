@@ -240,10 +240,6 @@ import PriceLineMobile from "../assets/PricelineMobile.png"
           <DealCard key={deal._id} data={deal} />
         ))}
       </div>
-      <main className=" flex flex-col justify-center items-center bg-white">
-  
-      <NumberStats stats={stats} />
-    </main>
       <TextLink text="Brands" colorText="" link="/store" linkText="View All" />
       <div className="flex overflow-x-scroll md:hidden">
         {storesLoading && stores.length === 0 ? (
@@ -385,6 +381,10 @@ import PriceLineMobile from "../assets/PricelineMobile.png"
           <PopularStores key={store._id} data={store} />
         ))}
       </div>
+
+      <main className=" flex flex-col justify-center items-center bg-white">
+        <NumberStats stats={stats} />
+      </main>
 
       {/* Coupons & Deals */}
       <TextLink text="Coupons" colorText="& Deals" link="/deal" linkText="View All" />

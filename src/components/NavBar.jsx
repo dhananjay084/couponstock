@@ -34,9 +34,11 @@ import { searchDeals, clearSearchResults } from "../redux/deal/dealSlice";
 import { logoutUser, checkCurrentUser } from "../redux/auth/authApi";
 import { fetchCountries, setSelectedCountry } from "../redux/country/countrySlice";
 import { toast } from "react-toastify";
+import { addCountryPrefix, getCountryCodeFromName, isAllowedCountryCode } from "../lib/countryPath";
+import { titleize } from "../lib/slugify";
 
 const baseNavLinks = [
-  { name: "All Offers", href: "/deal" },
+  { name: "All Offers", href: "/deals" },
   { name: "Stores", href: "/store" },
   { name: "All Categories", href: "/category" },
   { name: "All Blogs", href: "/blogs" },
@@ -208,10 +210,12 @@ const NavBar = () => {
   useEffect(() => {
     if (debouncedSearchTerm.length > 0) {
       dispatch(searchDeals({ searchTerm: debouncedSearchTerm, country: selectedCountry || undefined }));
-    } else {
+      return;
+    }
+    if (searchResults.length) {
       dispatch(clearSearchResults());
     }
-  }, [debouncedSearchTerm, dispatch, selectedCountry]);
+  }, [debouncedSearchTerm, dispatch, searchResults.length, selectedCountry]);
 
   // Close search results when clicking outside
   useEffect(() => {
@@ -277,6 +281,38 @@ const NavBar = () => {
   const toggleDrawer = (open) => () => {
     setDrawerOpen(open);
   };
+
+  const allowedCountries = Object.values(
+    countries.reduce((acc, c) => {
+      const name = (c.country_name || "").trim();
+      if (!name) return acc;
+      const key = name.toLowerCase();
+      if (!acc[key]) {
+        acc[key] = { ...c, code: getCountryCodeFromName(name) };
+      } else {
+        const existingName = acc[key].country_name || "";
+        const existingIsTitle = existingName === titleize(existingName.toLowerCase());
+        const nextIsTitle = name === titleize(name.toLowerCase());
+        if (!existingIsTitle && nextIsTitle) {
+          acc[key] = { ...c, code: getCountryCodeFromName(name) };
+        }
+      }
+      return acc;
+    }, {})
+  ).filter((c) => isAllowedCountryCode(c.code));
+
+  const selectedCode = selectedCountry ? getCountryCodeFromName(selectedCountry) : "";
+  const selectedFlagCode = selectedCode === "uk" ? "gb" : selectedCode;
+  const getFlagUrl = (code) => {
+    const flagCode = code === "uk" ? "gb" : code;
+    return flagCode ? `https://flagcdn.com/w20/${flagCode}.png` : "";
+  };
+
+  const withCountry = (href) => {
+    if (!href) return href;
+    if (href.startsWith("/admin")) return href;
+    return addCountryPrefix(href, selectedCountry || "");
+  };
   
 
   return (
@@ -305,7 +341,7 @@ const NavBar = () => {
         >
           {/* Left: Logo */}
           <Box display="flex" alignItems="center" sx={{ flex: "0 0 auto" }}>
-            <Link href="/" passHref>
+            <Link href={withCountry("/")} passHref>
             <Typography
   variant={isMobile ? "subtitle1" : "h6"}
   fontWeight="bold"
@@ -320,6 +356,20 @@ const NavBar = () => {
                 MY COUPON STOCK
               </Typography>
             </Link>
+            {selectedCountry && (
+              <Typography
+                variant="caption"
+                sx={{
+                  ml: 1,
+                  color: scrolled ? "rgba(255,255,255,0.9)" : "#592EA9",
+                  fontWeight: 600,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.04em",
+                }}
+              >
+                {selectedCountry}
+              </Typography>
+            )}
           </Box>
 
           {/* Center: Search bar (only when scrolled) */}
@@ -410,7 +460,17 @@ const NavBar = () => {
                     boxShadow: "0 1px 6px rgba(0,0,0,0.05)",
                   }}
                 >
-                  <span>{selectedCountry || "Select Country"}</span>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    {selectedFlagCode && (
+                      <Box
+                        component="img"
+                        src={getFlagUrl(selectedFlagCode)}
+                        alt={`${selectedCountry || "Country"} flag`}
+                        sx={{ width: 18, height: 12, borderRadius: "2px" }}
+                      />
+                    )}
+                    <span>{selectedCountry || "Select Country"}</span>
+                  </Box>
                   <span style={{ fontSize: "0.75rem", color: "#592EA9" }}>▼</span>
                 </Box>
                 {countryOpen && (
@@ -429,7 +489,7 @@ const NavBar = () => {
                       zIndex: 2000,
                     }}
                   >
-                    {countries.map((c) => (
+                    {allowedCountries.map((c) => (
                       <Box
                         key={c._id}
                         onClick={() => selectCountry(c.country_name)}
@@ -440,12 +500,23 @@ const NavBar = () => {
                           cursor: "pointer",
                           color: "#2b1c4d",
                           "&:hover": { background: "#F5F1FF" },
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1,
                         }}
                       >
+                        {c.code && (
+                          <Box
+                            component="img"
+                            src={getFlagUrl(c.code)}
+                            alt={`${c.country_name} flag`}
+                            sx={{ width: 18, height: 12, borderRadius: "2px" }}
+                          />
+                        )}
                         {c.country_name}
                       </Box>
                     ))}
-                    {countries.length === 0 && (
+                    {allowedCountries.length === 0 && (
                       <Box sx={{ px: 2, py: 1, fontSize: "0.85rem", color: "#777" }}>
                         No countries found
                       </Box>
@@ -454,7 +525,7 @@ const NavBar = () => {
                 )}
               </Box>
               {navLinks.map((link) => (
-                <Link key={link.name} href={link.href} passHref>
+                <Link key={link.name} href={withCountry(link.href)} passHref>
                   <Typography
                     variant="body1"
                     sx={{
@@ -642,7 +713,17 @@ const NavBar = () => {
           boxShadow: "0 1px 6px rgba(0,0,0,0.05)",
         }}
       >
-        <span>{selectedCountry || "Select Country"}</span>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          {selectedFlagCode && (
+            <Box
+              component="img"
+              src={getFlagUrl(selectedFlagCode)}
+              alt={`${selectedCountry || "Country"} flag`}
+              sx={{ width: 18, height: 12, borderRadius: "2px" }}
+            />
+          )}
+          <span>{selectedCountry || "Select Country"}</span>
+        </Box>
         <span style={{ fontSize: "0.75rem", color: "#592EA9" }}>▼</span>
       </Box>
       {countryOpen && (
@@ -657,7 +738,7 @@ const NavBar = () => {
             boxShadow: "0 10px 24px rgba(0,0,0,0.12)",
           }}
         >
-          {countries.map((c) => (
+          {allowedCountries.map((c) => (
             <Box
               key={c._id}
               onClick={() => {
@@ -671,12 +752,23 @@ const NavBar = () => {
                 cursor: "pointer",
                 color: "#2b1c4d",
                 "&:hover": { background: "#F5F1FF" },
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
               }}
             >
+              {c.code && (
+                <Box
+                  component="img"
+                  src={getFlagUrl(c.code)}
+                  alt={`${c.country_name} flag`}
+                  sx={{ width: 18, height: 12, borderRadius: "2px" }}
+                />
+              )}
               {c.country_name}
             </Box>
           ))}
-          {countries.length === 0 && (
+          {allowedCountries.length === 0 && (
             <Box sx={{ px: 2, py: 1, fontSize: "0.9rem", color: "#777" }}>
               No countries found
             </Box>
@@ -741,7 +833,7 @@ const NavBar = () => {
     <List>
       {navLinks.map((item) => (
         <ListItem key={item.name} disablePadding>
-          <ListItemButton component={Link} href={item.href}>
+          <ListItemButton component={Link} href={withCountry(item.href)}>
             <ListItemText primary={item.name} />
           </ListItemButton>
         </ListItem>

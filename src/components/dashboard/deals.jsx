@@ -16,6 +16,8 @@ import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import clsx from "clsx";
+import { getCountryCodeFromName, isAllowedCountryCode } from "../../lib/countryPath";
+import { titleize } from "../../lib/slugify";
 
 // AG Grid modules
 import { ModuleRegistry, AllCommunityModule } from "ag-grid-community";
@@ -58,9 +60,30 @@ const DealsPage = () => {
   const [editDeal, setEditDeal] = useState(null);
   const [newCountry, setNewCountry] = useState("");
   const { countries } = useSelector((state) => state.country); // ✅ ADD THIS LINE
+  const allowedCountries = Object.values(
+    (countries || []).reduce((acc, c) => {
+      const name = (c.country_name || "").trim();
+      if (!name) return acc;
+      const code = getCountryCodeFromName(name);
+      if (!isAllowedCountryCode(code)) return acc;
+      const key = name.toLowerCase();
+      if (!acc[key]) {
+        acc[key] = { ...c, code };
+      } else {
+        const existingName = acc[key].country_name || "";
+        const existingIsTitle = existingName === titleize(existingName.toLowerCase());
+        const nextIsTitle = name === titleize(name.toLowerCase());
+        if (!existingIsTitle && nextIsTitle) {
+          acc[key] = { ...c, code };
+        }
+      }
+      return acc;
+    }, {})
+  );
 
   // AG Grid state
   const gridRef = useRef();
+  const formTopRef = useRef(null);
   const [searchText, setSearchText] = useState("");
 
   useEffect(() => {
@@ -134,8 +157,12 @@ const DealsPage = () => {
           </button>
         </div>
       ),
-      width: 150,
+      width: 260,
+      minWidth: 220,
       resizable: false,
+      suppressSizeToFit: true,
+      pinned: "right",
+      cellStyle: { overflow: "visible" },
     },
   ];
 
@@ -157,6 +184,9 @@ const DealsPage = () => {
 
   const handleEdit = (deal) => {
     setEditDeal(deal);
+    setTimeout(() => {
+      formTopRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 0);
   };
 
   const handleUpdate = async (values, resetForm) => {
@@ -316,6 +346,7 @@ metaKeywords: editDeal?.metaKeywords || "",
       >
         {({ values, setFieldValue }) => (
           <Form className="mt-10">
+            <div ref={formTopRef} />
             <FieldArray name="deals">
               {({ push, remove }) => (
                 <div className="space-y-10">
@@ -324,7 +355,20 @@ metaKeywords: editDeal?.metaKeywords || "",
                       key={index}
                       className="border border-gray-300 p-6 rounded-lg shadow-sm relative bg-white"
                     >
-                      <h2 className="text-xl font-semibold mb-4">Deal Entry</h2>
+                      <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-xl font-semibold">
+                          {editDeal ? "Edit Deal" : "Deal Entry"}
+                        </h2>
+                        {editDeal && (
+                          <button
+                            type="button"
+                            onClick={() => setEditDeal(null)}
+                            className="text-sm text-gray-600 underline"
+                          >
+                            Cancel Edit
+                          </button>
+                        )}
+                      </div>
 
                       <div className="mb-4">
                         <label className="block mb-1 font-medium">Deal Title</label>
@@ -534,8 +578,8 @@ metaKeywords: editDeal?.metaKeywords || "",
 
       return (
         <div className="flex flex-wrap gap-2 mt-2">
-          {countries.length > 0 ? (
-            countries.map((country) => {
+          {allowedCountries.length > 0 ? (
+            allowedCountries.map((country) => {
               const isSelected = selectedCountries.includes(country.country_name);
               return (
                 <button

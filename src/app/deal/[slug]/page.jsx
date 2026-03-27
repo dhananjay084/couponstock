@@ -4,7 +4,7 @@ export async function generateMetadata({ params }) {
   const { slug } = await params;
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_SERVER_URL}/api/deals/slug/${slug}`,
-    { cache: "no-store" }
+    { next: { revalidate: 300 } }
   );
 
   const deal = await res.json();
@@ -21,7 +21,7 @@ export default async function Page({ params }) {
   const { slug } = await params;
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_SERVER_URL}/api/deals/slug/${slug}`,
-    { cache: "no-store" }
+    { next: { revalidate: 300 } }
   );
 
   const deal = await res.json();

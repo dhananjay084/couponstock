@@ -148,11 +148,31 @@ text-[#592EA9] drop-shadow-sm flex items-center gap-2">
         {homeAdmin.loading ? (
           <GridSkeleton count={3} className="grid grid-cols-3 gap-4 w-full" itemClassName="h-40 rounded-lg bg-gray-200" />
         ) : Array.isArray(pageBannerDeals) && pageBannerDeals.length > 0 ? (
-          pageBannerDeals.map((deal) => (
-            <div className="w-full sm:w-[48%] lg:w-[32%]" key={deal._id}>
-              <BannerCard data={deal} />
-            </div>
-          ))
+          pageBannerDeals.length > 3 ? (
+            <Swiper
+              modules={[Pagination, Autoplay]}
+              pagination={{ clickable: true }}
+              autoplay={{ delay: 2500, disableOnInteraction: false }}
+              spaceBetween={16}
+              loop
+              breakpoints={{
+                1024: { slidesPerView: 3 },
+                1280: { slidesPerView: 3 },
+              }}
+            >
+              {pageBannerDeals.map((deal) => (
+                <SwiperSlide key={deal._id} className="flex justify-center items-center">
+                  <BannerCard data={deal} />
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          ) : (
+            pageBannerDeals.map((deal) => (
+              <div className="w-full sm:w-[48%] lg:w-[32%]" key={deal._id}>
+                <BannerCard data={deal} />
+              </div>
+            ))
+          )
         ) : (
           <div className="text-center w-full">No deals available</div>
         )}

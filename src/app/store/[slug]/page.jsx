@@ -227,7 +227,7 @@ import StoreClient from "./StoreClient";
 async function getStore(slug) {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_SERVER_URL}/api/stores/slug/${slug}`,
-    { cache: "no-store" }
+    { next: { revalidate: 300 } }
   );
 
   if (!res.ok) return null;

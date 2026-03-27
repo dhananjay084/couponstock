@@ -45,14 +45,14 @@ export async function generateMetadata({ params }) {
     },
   };
 }
-const DealDetailsContent = () => {
+const DealDetailsContent = ({ initialDeal }) => {
   const dispatch = useDispatch();
   const searchParams = useSearchParams();
   const params = useParams();
   const slug = params?.slug;
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [dealDetails, setDealDetails] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [dealDetails, setDealDetails] = useState(initialDeal || null);
+  const [loading, setLoading] = useState(!initialDeal);
   const [loginRedirectUrl, setLoginRedirectUrl] = useState("");
   
   const category = searchParams?.get("category") || "";
@@ -65,6 +65,12 @@ const DealDetailsContent = () => {
   // Fetch deal by slug
   useEffect(() => {
     if (!slug || typeof slug !== "string") {
+      setLoading(false);
+      return;
+    }
+
+    if (initialDeal && initialDeal.slug === slug) {
+      setDealDetails(initialDeal);
       setLoading(false);
       return;
     }
@@ -100,7 +106,7 @@ const DealDetailsContent = () => {
     };
 
     fetchDealBySlug();
-  }, [slug, category, router]);
+  }, [slug, category, router, initialDeal]);
 
   // Get user ID from cookie
   useEffect(() => {
@@ -271,7 +277,7 @@ const DealDetailsContent = () => {
 };
 
 // Main Page Component
-const DealDetailsPage = () => {
+const DealDetailsPage = ({ deal }) => {
   return (
     <Suspense
       fallback={
@@ -282,7 +288,7 @@ const DealDetailsPage = () => {
         </div>
       }
     >
-      <DealDetailsContent />
+      <DealDetailsContent initialDeal={deal} />
     </Suspense>
   );
 };

@@ -1,6 +1,8 @@
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://mycouponstock.com").replace(/\/$/, "");
 const API_BASE_URL = (process.env.NEXT_PUBLIC_SERVER_URL || "").replace(/\/$/, "");
 
+export const revalidate = 3600; // 1 hour
+
 const staticRoutes = [
   "/",
   "/about",
@@ -16,7 +18,7 @@ const staticRoutes = [
 async function getJson(path) {
   if (!API_BASE_URL) return [];
   try {
-    const res = await fetch(`${API_BASE_URL}${path}`, { cache: "no-store" });
+    const res = await fetch(`${API_BASE_URL}${path}`, { next: { revalidate } });
     if (!res.ok) return [];
     const data = await res.json();
     return Array.isArray(data) ? data : [];

@@ -833,7 +833,11 @@ const NavBar = () => {
     <List>
       {navLinks.map((item) => (
         <ListItem key={item.name} disablePadding>
-          <ListItemButton component={Link} href={withCountry(item.href)}>
+          <ListItemButton
+            component={Link}
+            href={withCountry(item.href)}
+            onClick={() => setDrawerOpen(false)}
+          >
             <ListItemText primary={item.name} />
           </ListItemButton>
         </ListItem>

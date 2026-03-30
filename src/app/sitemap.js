@@ -1,4 +1,5 @@
 import { fetchJson } from "../lib/serverFetchJson";
+import { ALLOWED_COUNTRY_CODES } from "../lib/countryPath";
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://mycouponstock.com").replace(/\/$/, "");
 const API_BASE_URL = (process.env.NEXT_PUBLIC_SERVER_URL || "").replace(/\/$/, "");
@@ -54,6 +55,15 @@ export default async function sitemap() {
     priority: route === "/" ? 1 : 0.7,
   }));
 
+  const countryCodeEntries = ALLOWED_COUNTRY_CODES.flatMap((code) =>
+    staticRoutes.map((route) => ({
+      url: `${SITE_URL}/${code}${route === "/" ? "" : route}`,
+      lastModified: new Date(),
+      changeFrequency: route === "/" ? "daily" : "weekly",
+      priority: route === "/" ? 1 : 0.6,
+    }))
+  );
+
   const storeEntries = stores
     .filter((store) => store?.slug)
     .map((store) => ({
@@ -62,6 +72,17 @@ export default async function sitemap() {
       changeFrequency: "daily",
       priority: 0.8,
     }));
+
+  const countryCodeStoreEntries = ALLOWED_COUNTRY_CODES.flatMap((code) =>
+    stores
+      .filter((store) => store?.slug)
+      .map((store) => ({
+        url: `${SITE_URL}/${code}/store/${encodeURIComponent(store.slug)}`,
+        lastModified: safeDate(store.updatedAt || store.createdAt),
+        changeFrequency: "daily",
+        priority: 0.7,
+      }))
+  );
 
   const dealEntries = deals
     .map((deal) => deal?.slug || deal?._id)
@@ -73,6 +94,18 @@ export default async function sitemap() {
       priority: 0.8,
     }));
 
+  const countryCodeDealEntries = ALLOWED_COUNTRY_CODES.flatMap((code) =>
+    deals
+      .map((deal) => deal?.slug || deal?._id)
+      .filter(Boolean)
+      .map((slugOrId) => ({
+        url: `${SITE_URL}/${code}/deal/${encodeURIComponent(slugOrId)}`,
+        lastModified: new Date(),
+        changeFrequency: "daily",
+        priority: 0.7,
+      }))
+  );
+
   const categoryEntries = categories
     .filter((category) => category?.name)
     .map((category) => ({
@@ -83,6 +116,19 @@ export default async function sitemap() {
       changeFrequency: "weekly",
       priority: 0.7,
     }));
+
+  const countryCodeCategoryEntries = ALLOWED_COUNTRY_CODES.flatMap((code) =>
+    categories
+      .filter((category) => category?.name)
+      .map((category) => ({
+        url: `${SITE_URL}/${code}/category/${encodeURIComponent(
+          category.name.toString().trim().toLowerCase()
+        )}`,
+        lastModified: safeDate(category.updatedAt || category.createdAt),
+        changeFrequency: "weekly",
+        priority: 0.6,
+      }))
+  );
 
   const blogEntries = blogs
     .filter((blog) => blog?._id)
@@ -100,6 +146,25 @@ export default async function sitemap() {
       changeFrequency: "weekly",
       priority: 0.7,
     }));
+
+  const countryCodeBlogEntries = ALLOWED_COUNTRY_CODES.flatMap((code) =>
+    blogs
+      .filter((blog) => blog?._id)
+      .map((blog) => ({
+        url: `${SITE_URL}/${code}/blog/${encodeURIComponent(
+          `${(blog.heading || "blog")
+            .toString()
+            .trim()
+            .replace(/[^\w\s-]/g, "")
+            .replace(/\s+/g, "-")
+            .replace(/-+/g, "-")
+            .toLowerCase()}--${blog._id}`
+        )}`,
+        lastModified: safeDate(blog.updatedAt || blog.createdAt),
+        changeFrequency: "weekly",
+        priority: 0.6,
+      }))
+  );
 
   const countryEntries = countries
     .map((c) => (c?.country_name || c?.name || "").toString().trim())
@@ -120,10 +185,15 @@ export default async function sitemap() {
 
   return [
     ...staticEntries,
+    ...countryCodeEntries,
     ...storeEntries,
+    ...countryCodeStoreEntries,
     ...dealEntries,
+    ...countryCodeDealEntries,
     ...categoryEntries,
+    ...countryCodeCategoryEntries,
     ...blogEntries,
+    ...countryCodeBlogEntries,
     ...countryEntries,
   ];
 }

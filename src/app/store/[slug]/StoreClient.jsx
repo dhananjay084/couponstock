@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import { Typography } from "@mui/material";
+import { Dialog, DialogContent, Typography } from "@mui/material";
 import TextLink from "../../../components/Minor/TextLink";
 import Coupons_Deals from "../../../components/cards/Coupons_Deals";
 import PopularBrandCard from "../../../components/cards/PopularBrandWithText";
@@ -14,6 +14,7 @@ import { LiaPercentageSolid } from "react-icons/lia";
 import { FaTruck } from "react-icons/fa6";
 import { MdAssignmentReturned } from "react-icons/md";
 import { RiCoupon2Fill } from "react-icons/ri";
+import { RiCloseLine } from "react-icons/ri";
 import { FaCheckCircle } from "react-icons/fa";
 import ReviewCard from "../../../components/cards/ReviewCard";
 import FAQAccordion from "../../../components/Minor/Faq";
@@ -29,6 +30,7 @@ const IndividualStore = () => {
   const params = useParams();
   const { slug } = params;
   const dispatch = useDispatch();
+  const [isDescOpen, setIsDescOpen] = useState(false);
 
   const { deals = [] } = useSelector((state) => state.deal);
   const { stores = [], loading, error } = useSelector((state) => state.store);
@@ -99,6 +101,9 @@ const IndividualStore = () => {
   if (!storeFromList) return <p className="text-center py-10">Store not found.</p>;
   if (error) return <p className="text-red-500 text-center py-10">{error}</p>;
 
+  const description = storeFromList.storeDescription || "";
+  const shouldTruncate = description.length > 140;
+
   return (
     <div>
       <h1 className="px-4 pt-2 text-2xl font-bold text-[#592EA9]">
@@ -111,16 +116,37 @@ const IndividualStore = () => {
         linkText=""
       />
 
-      <div className="border-b pb-2 mb-4 px-4 flex flex-col md:flex-row gap-4 items-center md:items-start text-center md:text-left">
+      <div className="border-b pb-2 mb-4 px-4 flex flex-row gap-4 items-start text-left md:items-start">
         <img
           src={storeFromList.storeImage}
           alt="store"
-          className="w-40 h-40 rounded-full object-fill border-4 border-[#592EA9]"
+          className="w-20 h-20 md:w-40 md:h-40 rounded-full object-fill border-4 border-[#592EA9] flex-shrink-0"
         />
 
-        <Typography sx={{ fontSize: "13px" }}>
-          {storeFromList.storeDescription}
-        </Typography>
+        <div className="flex-1">
+          <Typography sx={{ fontSize: { xs: "12px", md: "13px" } }} className="text-gray-700">
+            <span
+              className="block"
+              style={{
+                display: "-webkit-box",
+                WebkitBoxOrient: "vertical",
+                WebkitLineClamp: 3,
+                overflow: "hidden",
+              }}
+            >
+              {description}
+            </span>
+          </Typography>
+          {shouldTruncate && (
+            <button
+              type="button"
+              onClick={() => setIsDescOpen(true)}
+              className="mt-1 text-xs font-semibold text-[#592EA9]"
+            >
+              ... show more
+            </button>
+          )}
+        </div>
       </div>
 
       <TextLink text="Top Codes" colorText="" link="" linkText="" />
@@ -237,6 +263,32 @@ const IndividualStore = () => {
       </div>
 
       <FAQAccordion />
+
+      <Dialog
+        open={isDescOpen}
+        onClose={() => setIsDescOpen(false)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogContent>
+          <div className="relative flex flex-col items-center text-center gap-4">
+            <button
+              type="button"
+              onClick={() => setIsDescOpen(false)}
+              className="absolute right-0 top-0 text-[#592EA9] p-1"
+              aria-label="Close"
+            >
+              <RiCloseLine className="text-2xl" />
+            </button>
+            <img
+              src={storeFromList.storeImage}
+              alt={`${storeFromList.storeName} logo`}
+              className="w-20 h-20 rounded-full object-fill border-4 border-[#592EA9]"
+            />
+            <p className="text-sm text-gray-700 text-justify">{description}</p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

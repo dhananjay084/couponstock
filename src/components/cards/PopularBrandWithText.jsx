@@ -3,11 +3,12 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+import { slugify } from "../../lib/slugify";
 
 const PopularBrandCardWithText = ({ data = {} }) => {
   const router = useRouter();
 
-  const storeName = data.storeName || data.homePageTitle || "Store Name";
+  const storeName = data.storeName || data.store || data.homePageTitle || "Store Name";
   const storeImage =
     data.storeImage ||
     data.dealImage ||
@@ -20,12 +21,13 @@ const PopularBrandCardWithText = ({ data = {} }) => {
 
   const handleCardClick = () => {
     // 👉 STORE → use SLUG
-    if (data.storeName) {
-      if (!data.slug) {
+    if (data.storeName || data.store) {
+      const storeSlug = data.slug || slugify(storeName);
+      if (!storeSlug) {
         toast.error("Store slug not found!");
         return;
       }
-      router.push(`/store/${data.slug}`);
+      router.push(`/store/${storeSlug}`);
       return;
     }
 

@@ -223,16 +223,13 @@
 
 // export default IndividualStore;
 import StoreClient from "./StoreClient";
+import { fetchJson } from "../../../lib/serverFetchJson";
 
 async function getStore(slug) {
-  const res = await fetch(
+  return fetchJson(
     `${process.env.NEXT_PUBLIC_SERVER_URL}/api/stores/slug/${slug}`,
     { next: { revalidate: 300 } }
   );
-
-  if (!res.ok) return null;
-
-  return res.json();
 }
 
 export async function generateMetadata({ params }) {

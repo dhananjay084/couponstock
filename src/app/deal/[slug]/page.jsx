@@ -1,30 +1,27 @@
 import DealClient from "./DealClient";
+import { fetchJson } from "../../../lib/serverFetchJson";
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const res = await fetch(
+  const deal = await fetchJson(
     `${process.env.NEXT_PUBLIC_SERVER_URL}/api/deals/slug/${slug}`,
     { next: { revalidate: 300 } }
   );
 
-  const deal = await res.json();
-
   return {
-    title: deal.metaTitle || `${deal.dealTitle} | My Couponstock`,
+    title: deal?.metaTitle || `${deal?.dealTitle || "Deal"} | My Couponstock`,
     description:
-      deal.metaDescription ||
-      deal.dealDescription?.slice(0, 150),
+      deal?.metaDescription ||
+      deal?.dealDescription?.slice(0, 150),
   };
 }
 
 export default async function Page({ params }) {
   const { slug } = await params;
-  const res = await fetch(
+  const deal = await fetchJson(
     `${process.env.NEXT_PUBLIC_SERVER_URL}/api/deals/slug/${slug}`,
     { next: { revalidate: 300 } }
   );
-
-  const deal = await res.json();
 
   return <DealClient deal={deal} />;
 }

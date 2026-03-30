@@ -173,25 +173,24 @@
 
 // export default SingleCategory;
 import CategoryClient from "./CategoryClient";
+import { fetchJson } from "../../../lib/serverFetchJson";
 
 export async function generateMetadata({ params }) {
   const { id } = await params;
   const categorySlug = decodeURIComponent(id).toLowerCase();
   const categoryName = categorySlug.toUpperCase();
 
-  const res = await fetch(
+  const category = await fetchJson(
     `${process.env.NEXT_PUBLIC_SERVER_URL}/api/categories/name/${categoryName}`,
     { next: { revalidate: 300 } }
   );
 
-  if (!res.ok) {
+  if (!category) {
     return {
       title: categoryName,
       description: "",
     };
   }
-
-  const category = await res.json();
 
   return {
     title: category.metaTitle || category.name,

@@ -1,3 +1,5 @@
+import { fetchJson } from "../lib/serverFetchJson";
+
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://mycouponstock.com").replace(/\/$/, "");
 const API_BASE_URL = (process.env.NEXT_PUBLIC_SERVER_URL || "").replace(/\/$/, "");
 
@@ -18,9 +20,7 @@ const staticRoutes = [
 async function getJson(path) {
   if (!API_BASE_URL) return [];
   try {
-    const res = await fetch(`${API_BASE_URL}${path}`, { next: { revalidate } });
-    if (!res.ok) return [];
-    const data = await res.json();
+    const data = await fetchJson(`${API_BASE_URL}${path}`, { cache: "no-store" });
     return Array.isArray(data) ? data : [];
   } catch {
     return [];

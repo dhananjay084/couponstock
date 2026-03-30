@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useMemo } from "react";
 import Link from "next/link";
 import {
   FaFacebookF,
@@ -7,8 +8,64 @@ import {
   FaInstagram,
   FaLinkedinIn,
 } from "react-icons/fa";
+import { slugify } from "../lib/slugify";
+import { useDispatch, useSelector } from "react-redux";
+import { getStores } from "../redux/store/storeSlice";
+
+const toStoreSlug = (name) => slugify(name.replace(/&/g, "and"));
+const normalizeType = (value = "") => value.toString().trim().toLowerCase();
 
 const Footer = () => {
+  const dispatch = useDispatch();
+  const { selectedCountry } = useSelector((state) => state.country || {});
+  const { stores = [] } = useSelector((state) => state.store || {});
+
+  useEffect(() => {
+    if (!selectedCountry) return;
+    dispatch(getStores(selectedCountry));
+  }, [dispatch, selectedCountry]);
+
+  const grouped = useMemo(() => {
+    const matchesSection = (store, keywords) => {
+      const type = normalizeType(store.storeType);
+      return keywords.some((keyword) => type.includes(keyword));
+    };
+
+    const byKeywords = (keywords) =>
+      stores.filter((store) => matchesSection(store, keywords)).slice(0, 9);
+
+    const fashion = byKeywords(["fashion", "apparel", "clothing"]);
+    const beauty = byKeywords(["beauty", "cosmetic", "skincare", "makeup"]);
+    const travel = byKeywords(["travel", "flight", "hotel", "booking"]);
+    const food = byKeywords(["food", "restaurant", "grocery", "delivery"]);
+    const popular = stores.filter((store) => store.popularStore).slice(0, 8);
+
+    const fallback = stores.slice(0, 9);
+
+    return {
+      fashion: fashion.length ? fashion : fallback,
+      beauty: beauty.length ? beauty : fallback,
+      travel: travel.length ? travel : fallback,
+      food: food.length ? food : fallback,
+      popular: popular.length ? popular : stores.slice(0, 8),
+    };
+  }, [stores]);
+
+  const renderStoreLinks = (items) => {
+    if (!items.length) {
+      return <span className="text-gray-500">No stores for selected country.</span>;
+    }
+    return items.map((store) => {
+      const name = store.storeName || "Store";
+      const slug = store.slug || toStoreSlug(name);
+      return (
+        <Link key={store._id || slug} href={`/store/${encodeURIComponent(slug)}`} className="hover:text-white">
+          {name}
+        </Link>
+      );
+    });
+  };
+
   return (
     <footer className="bg-black text-gray-300 text-sm">
       <div className="max-w-7xl mx-auto px-6 py-12 space-y-10">
@@ -41,13 +98,13 @@ const Footer = () => {
           <div>
             <h3 className="text-white font-semibold mb-4">GLOBAL COUPONS</h3>
             <ul className="space-y-2">
-              <li><Link href="/in">India Coupons</Link></li>
-              <li><Link href="/us">USA Coupons</Link></li>
-              <li><Link href="/uk">UK Coupons</Link></li>
-              <li><Link href="/es">Spain Coupons</Link></li>
-              <li><Link href="/de">Germany Coupons</Link></li>
-              <li><Link href="/fr">France Coupons</Link></li>
-              <li><Link href="/pt">Portugal Coupons</Link></li>
+              <li><Link href="/country/india">India Coupons</Link></li>
+              <li><Link href="/country/usa">USA Coupons</Link></li>
+              <li><Link href="/country/uk">UK Coupons</Link></li>
+              <li><Link href="/country/spain">Spain Coupons</Link></li>
+              <li><Link href="/country/germany">Germany Coupons</Link></li>
+              <li><Link href="/country/france">France Coupons</Link></li>
+              <li><Link href="/country/portugal">Portugal Coupons</Link></li>
             </ul>
           </div>
 
@@ -74,38 +131,33 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 text-gray-400">
           <div>
             <h4 className="text-white font-semibold mb-2">Fashion</h4>
-            <p>
-              Libas, Zouk, Marks &amp; Spencer, Myntra Coupons, Beyoung, Ajio Deals,
-              Boohoo, FirstCry Coupons, Superdry, Libas
-            </p>
+            <div className="flex flex-wrap gap-x-2 gap-y-1">
+              {renderStoreLinks(grouped.fashion)}
+            </div>
           </div>
           <div>
             <h4 className="text-white font-semibold mb-2">Beauty</h4>
-            <p>
-              Sephora, Mamaearth, Nykaa, Maybelline, Lakme, MAC Cosmetics,
-              Maybelline, Mama Earth, Wow
-            </p>
+            <div className="flex flex-wrap gap-x-2 gap-y-1">
+              {renderStoreLinks(grouped.beauty)}
+            </div>
           </div>
           <div>
             <h4 className="text-white font-semibold mb-2">Travel</h4>
-            <p>
-              Air Asia, Booking.com, Qatar Airways, ITA Airways, Viator, Expedia,
-              Klook, Trivago
-            </p>
+            <div className="flex flex-wrap gap-x-2 gap-y-1">
+              {renderStoreLinks(grouped.travel)}
+            </div>
           </div>
           <div>
             <h4 className="text-white font-semibold mb-2">Food</h4>
-            <p>
-              Dominos, Swiggy Deals, Zomato Coupons, Myprotein, Good Monk,
-              Pizza Hut Coupons
-            </p>
+            <div className="flex flex-wrap gap-x-2 gap-y-1">
+              {renderStoreLinks(grouped.food)}
+            </div>
           </div>
           <div>
             <h4 className="text-white font-semibold mb-2">Popular Stores</h4>
-            <p>
-              Croma, Amazon Coupons, Flipkart Coupons, NordVPN, DHGate,
-              Decathlon, Meesho, Redbus
-            </p>
+            <div className="flex flex-wrap gap-x-2 gap-y-1">
+              {renderStoreLinks(grouped.popular)}
+            </div>
           </div>
         </div>
       </div>

@@ -138,19 +138,6 @@ const IndividualStore = () => {
           ))}
       </div>
 
-      <div className="bg-[#592EA9] text-white my-4">
-        <p className="px-4 py-2">Popular Stores</p>
-        <div className="flex overflow-x-auto space-x-4 p-4 scrollbar-hide">
-          {stores.length === 0 ? (
-            <RowSkeleton count={3} />
-          ) : stores
-            .filter((store) => store.popularStore)
-            .map((store) => (
-              <PopularBrandCard key={store._id} data={store} />
-            ))}
-        </div>
-      </div>
-
       <TextLink text="Top" colorText="Deals" link="/deal" linkText="View All" />
       <div className="flex overflow-x-scroll">
         {deals.length === 0 ? (
@@ -226,6 +213,19 @@ const IndividualStore = () => {
           <FaCheckCircle className="text-[#592EA9] text-3xl" />
         </div>
       </div> */}
+
+      <div className="bg-[#592EA9] text-white my-4">
+        <p className="px-4 py-2">Popular Stores</p>
+        <div className="flex overflow-x-auto space-x-4 p-4 scrollbar-hide">
+          {stores.length === 0 ? (
+            <RowSkeleton count={3} />
+          ) : stores
+            .filter((store) => store.popularStore)
+            .map((store) => (
+              <PopularBrandCard key={store._id} data={store} />
+            ))}
+        </div>
+      </div>
 
       <TextLink text="User" colorText="Reviews" link="" linkText="" />
       <div className="px-4 flex gap-4 overflow-x-scroll">

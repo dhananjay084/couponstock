@@ -661,7 +661,7 @@ const NavBar = () => {
         
         <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
           {isAuthenticated ? (
-            <>
+            <Box>
               <MenuItem onClick={handleProfile} sx={{ gap: 1.5 }}>
                 <Person3Icon fontSize="small" color="primary" />
                 Profile
@@ -670,7 +670,7 @@ const NavBar = () => {
                 <LogoutIcon fontSize="small" color="error" />
                 Logout
               </MenuItem>
-            </>
+            </Box>
           ) : (
             <MenuItem onClick={handleLogin} sx={{ gap: 1.5 }}>
               <LoginIcon fontSize="small" color="primary" />

@@ -67,162 +67,193 @@ export default function SubmitCouponPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-2xl font-bold text-[#592EA9] mb-6">Submit a Coupon</h1>
-      <Formik initialValues={initialValues} validationSchema={schema} onSubmit={handleSubmit} enableReinitialize>
-        {({ values, errors, touched, isSubmitting, setFieldValue }) => (
-          <Form className="space-y-4 bg-white p-6 rounded-xl shadow-sm border border-[#E4D8FF]">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium">Your Name</label>
-                <Field name="submitterName" className="w-full border rounded-md px-3 py-2" />
-                {touched.submitterName && errors.submitterName && (
-                  <p className="text-red-500 text-sm">{errors.submitterName}</p>
-                )}
+    <div className="min-h-screen bg-[radial-gradient(1200px_600px_at_10%_-10%,#efe7ff_0%,rgba(239,231,255,0)_60%),radial-gradient(900px_500px_at_90%_10%,#ffe9ef_0%,rgba(255,233,239,0)_55%)]">
+      <div className="max-w-6xl mx-auto px-4 py-10 md:py-14">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1.2fr] gap-8 items-start">
+          <div className="space-y-6">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#E4D8FF] bg-white/80 px-4 py-2 text-xs uppercase tracking-[0.2em] text-[#592EA9]">
+              Coupon Submission
+            </div>
+            <h1 className="text-3xl md:text-4xl font-semibold text-[#2b1c4d] leading-tight font-['Space_Grotesk',_system-ui]">
+              Submit a Deal That Customers Will Love
+            </h1>
+            <p className="text-sm md:text-base text-[#4a3d66] max-w-xl">
+              Share your best offer with the MyCouponStock community. We review every
+              submission quickly and publish the approved ones across the site.
+            </p>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="rounded-2xl border border-[#E9E1FF] bg-white/90 p-4 shadow-sm">
+                <p className="text-xs uppercase tracking-[0.2em] text-[#7b6aa8]">Approval</p>
+                <p className="text-2xl font-semibold text-[#2b1c4d]">Fast</p>
+                <p className="text-xs text-[#6c5f8a]">Usually within 24 hours</p>
               </div>
-              <div>
-                <label className="block text-sm font-medium">Email Address</label>
-                <Field name="submitterEmail" type="email" className="w-full border rounded-md px-3 py-2" />
-                {touched.submitterEmail && errors.submitterEmail && (
-                  <p className="text-red-500 text-sm">{errors.submitterEmail}</p>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Phone</label>
-                <Field name="submitterPhone" className="w-full border rounded-md px-3 py-2" />
-                {touched.submitterPhone && errors.submitterPhone && (
-                  <p className="text-red-500 text-sm">{errors.submitterPhone}</p>
-                )}
+              <div className="rounded-2xl border border-[#E9E1FF] bg-white/90 p-4 shadow-sm">
+                <p className="text-xs uppercase tracking-[0.2em] text-[#7b6aa8]">Reach</p>
+                <p className="text-2xl font-semibold text-[#2b1c4d]">Global</p>
+                <p className="text-xs text-[#6c5f8a]">All active countries</p>
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium">Deal Title</label>
-              <Field name="dealTitle" className="w-full border rounded-md px-3 py-2" />
-              {touched.dealTitle && errors.dealTitle && (
-                <p className="text-red-500 text-sm">{errors.dealTitle}</p>
-              )}
+            <div className="rounded-2xl border border-[#E9E1FF] bg-white/80 p-4 text-xs text-[#5b4a7a]">
+              Tip: Use a clear deal title, a short description, and a high‑quality
+              image URL to boost approval chances.
             </div>
+          </div>
 
-            <div>
-              <label className="block text-sm font-medium">Deal Description</label>
-              <Field as="textarea" name="dealDescription" rows={3} className="w-full border rounded-md px-3 py-2" />
-              {touched.dealDescription && errors.dealDescription && (
-                <p className="text-red-500 text-sm">{errors.dealDescription}</p>
-              )}
-            </div>
+          <Formik initialValues={initialValues} validationSchema={schema} onSubmit={handleSubmit} enableReinitialize>
+            {({ values, errors, touched, isSubmitting, setFieldValue }) => (
+              <Form className="space-y-5 rounded-3xl border border-[#E4D8FF] bg-white/95 p-6 md:p-8 shadow-[0_30px_90px_-60px_rgba(89,46,169,0.5)]">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs uppercase tracking-[0.2em] text-[#7b6aa8]">Your Name</label>
+                    <Field name="submitterName" className="mt-2 w-full rounded-xl border border-[#E1D7FF] bg-white px-3 py-2.5 text-sm focus:border-[#592EA9] focus:ring-2 focus:ring-[#592EA9]/20" />
+                    {touched.submitterName && errors.submitterName && (
+                      <p className="text-red-500 text-xs mt-1">{errors.submitterName}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-xs uppercase tracking-[0.2em] text-[#7b6aa8]">Email Address</label>
+                    <Field name="submitterEmail" type="email" className="mt-2 w-full rounded-xl border border-[#E1D7FF] bg-white px-3 py-2.5 text-sm focus:border-[#592EA9] focus:ring-2 focus:ring-[#592EA9]/20" />
+                    {touched.submitterEmail && errors.submitterEmail && (
+                      <p className="text-red-500 text-xs mt-1">{errors.submitterEmail}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-xs uppercase tracking-[0.2em] text-[#7b6aa8]">Phone</label>
+                    <Field name="submitterPhone" className="mt-2 w-full rounded-xl border border-[#E1D7FF] bg-white px-3 py-2.5 text-sm focus:border-[#592EA9] focus:ring-2 focus:ring-[#592EA9]/20" />
+                    {touched.submitterPhone && errors.submitterPhone && (
+                      <p className="text-red-500 text-xs mt-1">{errors.submitterPhone}</p>
+                    )}
+                  </div>
+                </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium">Deal Image URL</label>
-                <Field name="dealImage" className="w-full border rounded-md px-3 py-2" />
-                {touched.dealImage && errors.dealImage && (
-                  <p className="text-red-500 text-sm">{errors.dealImage}</p>
-                )}
-              </div>
-            </div>
+                <div>
+                  <label className="block text-xs uppercase tracking-[0.2em] text-[#7b6aa8]">Deal Title</label>
+                  <Field name="dealTitle" className="mt-2 w-full rounded-xl border border-[#E1D7FF] bg-white px-3 py-2.5 text-sm focus:border-[#592EA9] focus:ring-2 focus:ring-[#592EA9]/20" />
+                  {touched.dealTitle && errors.dealTitle && (
+                    <p className="text-red-500 text-xs mt-1">{errors.dealTitle}</p>
+                  )}
+                </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium">Offer Type</label>
-                <Field as="select" name="dealCategory" className="w-full border rounded-md px-3 py-2">
-                  <option value="coupon">Coupon</option>
-                  <option value="deal">Deal</option>
-                </Field>
-              </div>
-            </div>
+                <div>
+                  <label className="block text-xs uppercase tracking-[0.2em] text-[#7b6aa8]">Deal Description</label>
+                  <Field as="textarea" name="dealDescription" rows={3} className="mt-2 w-full rounded-xl border border-[#E1D7FF] bg-white px-3 py-2.5 text-sm focus:border-[#592EA9] focus:ring-2 focus:ring-[#592EA9]/20" />
+                  {touched.dealDescription && errors.dealDescription && (
+                    <p className="text-red-500 text-xs mt-1">{errors.dealDescription}</p>
+                  )}
+                </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium">Category</label>
-                <Field as="select" name="categorySelect" className="w-full border rounded-md px-3 py-2">
-                  <option value="">Select category</option>
-                  {categories.map((c) => (
-                    <option key={c._id} value={c.name}>
-                      {c.name}
-                    </option>
-                  ))}
-                </Field>
-                {touched.categorySelect && errors.categorySelect && (
-                  <p className="text-red-500 text-sm">{errors.categorySelect}</p>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Store</label>
-                <Field as="select" name="store" className="w-full border rounded-md px-3 py-2">
-                  <option value="">Select store</option>
-                  {stores.map((s) => (
-                    <option key={s._id} value={s.storeName}>
-                      {s.storeName}
-                    </option>
-                  ))}
-                </Field>
-                {touched.store && errors.store && (
-                  <p className="text-red-500 text-sm">{errors.store}</p>
-                )}
-              </div>
-            </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs uppercase tracking-[0.2em] text-[#7b6aa8]">Deal Image URL</label>
+                    <Field name="dealImage" className="mt-2 w-full rounded-xl border border-[#E1D7FF] bg-white px-3 py-2.5 text-sm focus:border-[#592EA9] focus:ring-2 focus:ring-[#592EA9]/20" />
+                    {touched.dealImage && errors.dealImage && (
+                      <p className="text-red-500 text-xs mt-1">{errors.dealImage}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-xs uppercase tracking-[0.2em] text-[#7b6aa8]">Offer Type</label>
+                    <Field as="select" name="dealCategory" className="mt-2 w-full rounded-xl border border-[#E1D7FF] bg-white px-3 py-2.5 text-sm focus:border-[#592EA9] focus:ring-2 focus:ring-[#592EA9]/20">
+                      <option value="coupon">Coupon</option>
+                      <option value="deal">Deal</option>
+                    </Field>
+                  </div>
+                </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium">Coupon Code</label>
-                <Field name="couponCode" className="w-full border rounded-md px-3 py-2" />
-                {touched.couponCode && errors.couponCode && (
-                  <p className="text-red-500 text-sm">{errors.couponCode}</p>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Discount</label>
-                <Field name="discount" className="w-full border rounded-md px-3 py-2" />
-                {touched.discount && errors.discount && (
-                  <p className="text-red-500 text-sm">{errors.discount}</p>
-                )}
-              </div>
-            </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs uppercase tracking-[0.2em] text-[#7b6aa8]">Category</label>
+                    <Field as="select" name="categorySelect" className="mt-2 w-full rounded-xl border border-[#E1D7FF] bg-white px-3 py-2.5 text-sm focus:border-[#592EA9] focus:ring-2 focus:ring-[#592EA9]/20">
+                      <option value="">Select category</option>
+                      {categories.map((c) => (
+                        <option key={c._id} value={c.name}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </Field>
+                    {touched.categorySelect && errors.categorySelect && (
+                      <p className="text-red-500 text-xs mt-1">{errors.categorySelect}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-xs uppercase tracking-[0.2em] text-[#7b6aa8]">Store</label>
+                    <Field as="select" name="store" className="mt-2 w-full rounded-xl border border-[#E1D7FF] bg-white px-3 py-2.5 text-sm focus:border-[#592EA9] focus:ring-2 focus:ring-[#592EA9]/20">
+                      <option value="">Select store</option>
+                      {stores.map((s) => (
+                        <option key={s._id} value={s.storeName}>
+                          {s.storeName}
+                        </option>
+                      ))}
+                    </Field>
+                    {touched.store && errors.store && (
+                      <p className="text-red-500 text-xs mt-1">{errors.store}</p>
+                    )}
+                  </div>
+                </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium">Expiry Date</label>
-                <Field name="expiredDate" type="date" className="w-full border rounded-md px-3 py-2" />
-                {touched.expiredDate && errors.expiredDate && (
-                  <p className="text-red-500 text-sm">{errors.expiredDate}</p>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Country</label>
-                <select
-                  multiple
-                  value={values.country}
-                  onChange={(e) =>
-                    setFieldValue(
-                      "country",
-                      Array.from(e.target.selectedOptions, (opt) => opt.value)
-                    )
-                  }
-                  className="w-full border rounded-md px-3 py-2"
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs uppercase tracking-[0.2em] text-[#7b6aa8]">Coupon Code</label>
+                    <Field name="couponCode" className="mt-2 w-full rounded-xl border border-[#E1D7FF] bg-white px-3 py-2.5 text-sm focus:border-[#592EA9] focus:ring-2 focus:ring-[#592EA9]/20" />
+                    {touched.couponCode && errors.couponCode && (
+                      <p className="text-red-500 text-xs mt-1">{errors.couponCode}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-xs uppercase tracking-[0.2em] text-[#7b6aa8]">Discount</label>
+                    <Field name="discount" className="mt-2 w-full rounded-xl border border-[#E1D7FF] bg-white px-3 py-2.5 text-sm focus:border-[#592EA9] focus:ring-2 focus:ring-[#592EA9]/20" />
+                    {touched.discount && errors.discount && (
+                      <p className="text-red-500 text-xs mt-1">{errors.discount}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs uppercase tracking-[0.2em] text-[#7b6aa8]">Expiry Date</label>
+                    <Field name="expiredDate" type="date" className="mt-2 w-full rounded-xl border border-[#E1D7FF] bg-white px-3 py-2.5 text-sm focus:border-[#592EA9] focus:ring-2 focus:ring-[#592EA9]/20" />
+                    {touched.expiredDate && errors.expiredDate && (
+                      <p className="text-red-500 text-xs mt-1">{errors.expiredDate}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-xs uppercase tracking-[0.2em] text-[#7b6aa8]">Country</label>
+                    <select
+                      multiple
+                      value={values.country}
+                      onChange={(e) =>
+                        setFieldValue(
+                          "country",
+                          Array.from(e.target.selectedOptions, (opt) => opt.value)
+                        )
+                      }
+                      className="mt-2 w-full rounded-xl border border-[#E1D7FF] bg-white px-3 py-2.5 text-sm focus:border-[#592EA9] focus:ring-2 focus:ring-[#592EA9]/20"
+                    >
+                      {countries.map((c) => (
+                        <option key={c._id} value={c.country_name}>
+                          {c.country_name}
+                        </option>
+                      ))}
+                    </select>
+                    {touched.country && errors.country && (
+                      <p className="text-red-500 text-xs mt-1">{errors.country}</p>
+                    )}
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full rounded-2xl bg-[#592EA9] px-6 py-3 text-white font-semibold tracking-wide hover:bg-[#4b1f86] transition disabled:opacity-70"
                 >
-                  {countries.map((c) => (
-                    <option key={c._id} value={c.country_name}>
-                      {c.country_name}
-                    </option>
-                  ))}
-                </select>
-                {touched.country && errors.country && (
-                  <p className="text-red-500 text-sm">{errors.country}</p>
-                )}
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="bg-[#592EA9] text-white px-6 py-2 rounded-md hover:bg-[#4b1f86] cursor-pointer"
-            >
-              {isSubmitting ? "Submitting..." : "Submit Coupon"}
-            </button>
-          </Form>
-        )}
-      </Formik>
+                  {isSubmitting ? "Submitting..." : "Submit Coupon"}
+                </button>
+              </Form>
+            )}
+          </Formik>
+        </div>
+      </div>
     </div>
   );
 }

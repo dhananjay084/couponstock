@@ -10,7 +10,7 @@ import {
   updateBlog,
   deleteBlog,
 } from "../../redux/blog/blogSlice"; // adjust path for App Router
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { slugify } from "../../lib/slugify";
 import { uploadImage } from "../../lib/uploadImage";
@@ -99,7 +99,6 @@ export default function AddBlogPage() {
 
   return (
     <div className="p-6 max-w-7xl mx-auto flex flex-col min-h-screen">
-      <ToastContainer />
       <h1 className="text-2xl font-bold mb-6">Manage Blogs</h1>
 
       <form

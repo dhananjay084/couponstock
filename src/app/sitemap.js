@@ -13,8 +13,14 @@ const staticRoutes = [
   "/store",
   "/category",
   "/deal",
+  "/deals",
   "/privacy",
   "/terms",
+  "/submit-coupon",
+  "/login",
+  "/signup",
+  "/profilep",
+  "/payment",
 ];
 
 async function getJson(path) {
@@ -33,11 +39,12 @@ function safeDate(value) {
 }
 
 export default async function sitemap() {
-  const [stores, deals, categories, blogs] = await Promise.all([
+  const [stores, deals, categories, blogs, countries] = await Promise.all([
     getJson("/api/stores"),
     getJson("/api/deals"),
     getJson("/api/categories"),
     getJson("/api/blogs"),
+    getJson("/api/countries"),
   ]);
 
   const staticEntries = staticRoutes.map((route) => ({
@@ -94,11 +101,29 @@ export default async function sitemap() {
       priority: 0.7,
     }));
 
+  const countryEntries = countries
+    .map((c) => (c?.country_name || c?.name || "").toString().trim())
+    .filter(Boolean)
+    .map((name) => ({
+      url: `${SITE_URL}/country/${encodeURIComponent(
+        name
+          .toLowerCase()
+          .replace(/[^\w\s-]/g, "")
+          .trim()
+          .replace(/\s+/g, "-")
+          .replace(/-+/g, "-")
+      )}`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.6,
+    }));
+
   return [
     ...staticEntries,
     ...storeEntries,
     ...dealEntries,
     ...categoryEntries,
     ...blogEntries,
+    ...countryEntries,
   ];
 }

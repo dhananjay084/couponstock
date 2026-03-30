@@ -6,8 +6,7 @@ import NewsletterImg from "../../assets/NewsLetter.png";
 import { Typography, TextField, Button, Box } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { subscribeUser, resetSubscriberState } from "../../redux/newletter/newsletterSlice";
-import { toast, ToastContainer } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css'; // Import the styles
+import { toast } from "react-toastify";
 
 const NewsLetter = () => {
   const dispatch = useDispatch();
@@ -34,19 +33,6 @@ const NewsLetter = () => {
 
   return (
     <div className="mt-8">
-      {/* Toast container (put it anywhere inside JSX tree) */}
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-      />
-
       <div className="mx-auto relative w-[300px] h-[150px] sm:w-[400px] sm:h-[200px]">
         <Image src={NewsletterImg} alt="Newsletter" fill style={{ objectFit: "contain" }} />
       </div>

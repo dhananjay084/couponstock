@@ -25,7 +25,7 @@ gtag('js', new Date());
 gtag('config', 'G-GNT9Z6HJXS');`}
         </Script>
       </head>
-      <body>
+      <body suppressHydrationWarning>
         <Providers>
           <Suspense fallback={<div className="p-4">Loading...</div>}>
             <ClientLayout>{children}</ClientLayout>

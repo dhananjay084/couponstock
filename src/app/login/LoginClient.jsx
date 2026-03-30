@@ -22,9 +22,9 @@ const LoginComponent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const { loading, isAuthenticated } = useSelector((state) => state.auth);
+  const { loading } = useSelector((state) => state.auth);
   const oauthHandledRef = useRef(false);
-  const loginHandledRef = useRef(false);
+  const redirectTimerRef = useRef(null);
   const [showPassword, setShowPassword] = useState(false);
   const redirectPath = searchParams?.get("redirect");
 
@@ -75,23 +75,26 @@ const LoginComponent = () => {
     }
   }, [searchParams, dispatch, router, redirectPath]);
 
-  useEffect(() => {
-    if (!loginHandledRef.current && isAuthenticated && !loading) {
-      loginHandledRef.current = true;
-      router.replace("/");
-    }
-  }, [isAuthenticated, loading, router]);
-
   const handleEmailLogin = async (values, { setSubmitting }) => {
     dispatch(clearAuthMessage());
     try {
       const loginPayload = await dispatch(loginUser(values)).unwrap();
-      const user = loginPayload?.user || loginPayload || {};
-      toast.success(`Login successful${user?.name ? `, ${user.name}` : ""}!`);
-      loginHandledRef.current = true;
-      router.replace(getPostLoginPath(user));
-      router.refresh?.();
-      dispatch(checkCurrentUser());
+      const loginUserInfo = loginPayload?.user || loginPayload || {};
+      toast.success(
+        `Login successful${loginUserInfo?.name ? `, ${loginUserInfo.name}` : ""}!`
+      );
+      let resolvedUser = loginUserInfo;
+      try {
+        resolvedUser = await dispatch(checkCurrentUser()).unwrap();
+      } catch {
+        // If session check fails, still proceed with the login payload.
+      }
+      const targetPath = getPostLoginPath(resolvedUser || loginUserInfo);
+      if (redirectTimerRef.current) clearTimeout(redirectTimerRef.current);
+      redirectTimerRef.current = setTimeout(() => {
+        router.replace(targetPath);
+        router.refresh?.();
+      }, 600);
     } catch (err) {
       const messageText =
         typeof err === "string"

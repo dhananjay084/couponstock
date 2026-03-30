@@ -5,7 +5,7 @@ import { Formik, Form, Field, FieldArray, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
 import { addDeal, getDeals, deleteDeal, updateDeal } from "../../redux/deal/dealSlice";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { getCategories } from "../../redux/category/categorySlice";
 import { getStores } from "../../redux/store/storeSlice";
 import { fetchCountries, addCountry } from "../../redux/country/countrySlice";
@@ -85,6 +85,7 @@ const DealsPage = () => {
   const gridRef = useRef();
   const formTopRef = useRef(null);
   const [searchText, setSearchText] = useState("");
+  const [expiryFilter, setExpiryFilter] = useState("all");
 
   useEffect(() => {
     dispatch(getDeals());
@@ -216,29 +217,52 @@ const DealsPage = () => {
     }
   };
   
+  const isExpired = (deal) => {
+    if (!deal?.expiredDate) return false;
+    const exp = new Date(deal.expiredDate);
+    if (Number.isNaN(exp.getTime())) return false;
+    const endOfDay = new Date(exp);
+    endOfDay.setHours(23, 59, 59, 999);
+    return endOfDay < new Date();
+  };
+
+  const filteredDeals = deals.filter((deal) => {
+    if (expiryFilter === "expired") return isExpired(deal);
+    if (expiryFilter === "active") return !isExpired(deal);
+    return true;
+  });
+
   return (
     <div className="p-8 max-w-7xl mx-auto">
-      <ToastContainer />
       <h1 className="text-2xl font-bold mb-6">Deals/Coupons Upload</h1>
 
-      <div className="mb-4">
+      <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center">
         <input
           type="text"
           placeholder="Search deals..."
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
           onKeyUp={onFilterTextBoxChanged}
-          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full md:flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
+        <select
+          value={expiryFilter}
+          onChange={(e) => setExpiryFilter(e.target.value)}
+          className="w-full md:w-56 px-4 py-2 border border-gray-300 rounded-md bg-white"
+        >
+          <option value="all">All Deals</option>
+          <option value="active">Active Deals</option>
+          <option value="expired">Expired Deals</option>
+        </select>
       </div>
 
       {loading ? (
         <div className="text-center py-8">Loading Deals...</div>
-      ) : deals?.length > 0 ? (
+      ) : filteredDeals?.length > 0 ? (
         <div className="ag-theme-alpine" style={{ height: 500, width: "100%" }}>
           <AgGridReact
             ref={gridRef}
-            rowData={deals}
+            rowData={filteredDeals}
             columnDefs={columnDefs}
             defaultColDef={defaultColDef}
             onGridReady={onGridReady}

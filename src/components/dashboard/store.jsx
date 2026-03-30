@@ -12,7 +12,7 @@ import {
   searchStores,
 } from "../../redux/store/storeSlice";
 import { fetchCountries } from "../../redux/country/countrySlice";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { uploadImage } from "../../lib/uploadImage";
 import { isValidUrl } from "../../lib/validation";
@@ -139,7 +139,6 @@ console.log("stores",stores)
 console.log("dataToDisplay",dataToDisplay)
   return (
     <div className="p-8 max-w-7xl mx-auto flex flex-col min-h-screen">
-      <ToastContainer />
       <h1 className="text-2xl font-bold mb-6">Manage Stores</h1>
 
       <div className="mb-4">

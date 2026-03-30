@@ -11,7 +11,7 @@ import {
   deleteCategory,
   searchCategories,
 } from "../../redux/category/categorySlice";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { uploadImage } from "../../lib/uploadImage";
 import { isValidUrl } from "../../lib/validation";
@@ -83,7 +83,6 @@ export default function CategoriesPage() {
 
   return (
     <div className="p-8 max-w-7xl mx-auto flex flex-col min-h-screen">
-      <ToastContainer />
       <h1 className="text-2xl font-bold mb-6">Categories</h1>
 
       {/* Search Input */}

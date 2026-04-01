@@ -98,6 +98,7 @@ const Footer = () => {
           <div>
             <h3 className="text-white font-semibold mb-4">GLOBAL COUPONS</h3>
             <ul className="space-y-2">
+              <li><Link href="/country/global">Global Coupons</Link></li>
               <li><Link href="/country/india">India Coupons</Link></li>
               <li><Link href="/country/usa">USA Coupons</Link></li>
               <li><Link href="/country/uk">UK Coupons</Link></li>

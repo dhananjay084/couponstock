@@ -1,5 +1,6 @@
 const COUNTRY_CODE_REGEX = /^[a-z]{2}$/i;
-export const ALLOWED_COUNTRY_CODES = ["in", "us", "uk", "es", "de", "fr", "pt"];
+export const ALLOWED_COUNTRY_CODES = ["in", "us", "uk", "es", "de", "fr", "pt", "gl"];
+const NO_COUNTRY_PREFIX_PATHS = ["/about", "/contact", "/blogs", "/blog", "/privacy", "/terms"];
 const COUNTRY_NAME_ALIASES = {
   "united states of america": "us",
   "united states": "us",
@@ -20,6 +21,7 @@ const COUNTRY_NAME_ALIASES = {
   "germany": "de",
   "france": "fr",
   "portugal": "pt",
+  "global": "gl",
 };
 
 let nameToCodeCache = null;
@@ -95,8 +97,14 @@ export const addCountryPrefix = (pathname = "/", countryName = "") => {
   const code = getCountryCodeFromName(countryName);
   if (!code) return pathname || "/";
   const { basePath, countryCode } = splitCountryPrefix(pathname);
+  const cleanBase = basePath || "/";
+  const isNoPrefixPath = NO_COUNTRY_PREFIX_PATHS.some(
+    (route) => cleanBase === route || cleanBase.startsWith(`${route}/`)
+  );
+  if (isNoPrefixPath) return cleanBase || "/";
+  if (code === "in") return cleanBase || "/";
   if (countryCode === code) return pathname || "/";
-  const base = basePath === "/" ? "" : basePath;
+  const base = cleanBase === "/" ? "" : cleanBase;
   return `/${code}${base}` || `/${code}`;
 };
 

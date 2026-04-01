@@ -36,6 +36,7 @@ import { fetchCountries, setSelectedCountry } from "../redux/country/countrySlic
 import { toast } from "react-toastify";
 import { addCountryPrefix, getCountryCodeFromName, isAllowedCountryCode } from "../lib/countryPath";
 import { titleize } from "../lib/slugify";
+import globeImage from "../assets/globe.png";
 
 const baseNavLinks = [
   { name: "All Offers", href: "/deals" },
@@ -307,6 +308,27 @@ const NavBar = () => {
     const flagCode = code === "uk" ? "gb" : code;
     return flagCode ? `https://flagcdn.com/w20/${flagCode}.png` : "";
   };
+  const isGlobalCode = (code) => String(code || "").toLowerCase() === "gl";
+  const renderCountryIcon = (code, altText) => {
+    if (isGlobalCode(code)) {
+      return (
+        <Box
+          component="img"
+          src={globeImage?.src || globeImage}
+          alt="Global"
+          sx={{ width: 18, height: 18, borderRadius: "50%" }}
+        />
+      );
+    }
+    return (
+      <Box
+        component="img"
+        src={getFlagUrl(code)}
+        alt={altText}
+        sx={{ width: 18, height: 12, borderRadius: "2px" }}
+      />
+    );
+  };
 
   const withCountry = (href) => {
     if (!href) return href;
@@ -461,14 +483,11 @@ const NavBar = () => {
                   }}
                 >
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    {selectedFlagCode && (
-                      <Box
-                        component="img"
-                        src={getFlagUrl(selectedFlagCode)}
-                        alt={`${selectedCountry || "Country"} flag`}
-                        sx={{ width: 18, height: 12, borderRadius: "2px" }}
-                      />
-                    )}
+                    {selectedCode &&
+                      renderCountryIcon(
+                        selectedFlagCode,
+                        `${selectedCountry || "Country"} flag`
+                      )}
                     <span>{selectedCountry || "Select Country"}</span>
                   </Box>
                   <span style={{ fontSize: "0.75rem", color: "#592EA9" }}>▼</span>
@@ -505,14 +524,8 @@ const NavBar = () => {
                           gap: 1,
                         }}
                       >
-                        {c.code && (
-                          <Box
-                            component="img"
-                            src={getFlagUrl(c.code)}
-                            alt={`${c.country_name} flag`}
-                            sx={{ width: 18, height: 12, borderRadius: "2px" }}
-                          />
-                        )}
+                        {c.code &&
+                          renderCountryIcon(c.code, `${c.country_name} flag`)}
                         {c.country_name}
                       </Box>
                     ))}
@@ -714,14 +727,11 @@ const NavBar = () => {
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          {selectedFlagCode && (
-            <Box
-              component="img"
-              src={getFlagUrl(selectedFlagCode)}
-              alt={`${selectedCountry || "Country"} flag`}
-              sx={{ width: 18, height: 12, borderRadius: "2px" }}
-            />
-          )}
+          {selectedCode &&
+            renderCountryIcon(
+              selectedFlagCode,
+              `${selectedCountry || "Country"} flag`
+            )}
           <span>{selectedCountry || "Select Country"}</span>
         </Box>
         <span style={{ fontSize: "0.75rem", color: "#592EA9" }}>▼</span>
@@ -757,14 +767,7 @@ const NavBar = () => {
                 gap: 1,
               }}
             >
-              {c.code && (
-                <Box
-                  component="img"
-                  src={getFlagUrl(c.code)}
-                  alt={`${c.country_name} flag`}
-                  sx={{ width: 18, height: 12, borderRadius: "2px" }}
-                />
-              )}
+              {c.code && renderCountryIcon(c.code, `${c.country_name} flag`)}
               {c.country_name}
             </Box>
           ))}

@@ -166,17 +166,33 @@ const NavBar = () => {
 
   const searchBarRef = useRef();
   const countryRef = useRef();
+  const scrollRafRef = useRef(null);
 
   // Scroll handler for background + scrolled state
   useEffect(() => {
+    const SCROLL_ON = 12;
+    const SCROLL_OFF = 4;
     const handleScroll = () => {
-      const isScrolled = window.scrollY > 5;
-      // Only update state if it actually changed
-      setScrolled((prev) => (prev !== isScrolled ? isScrolled : prev));
+      if (scrollRafRef.current) return;
+      scrollRafRef.current = requestAnimationFrame(() => {
+        const y = window.scrollY || 0;
+        setScrolled((prev) => {
+          if (prev && y <= SCROLL_OFF) return false;
+          if (!prev && y >= SCROLL_ON) return true;
+          return prev;
+        });
+        scrollRafRef.current = null;
+      });
     };
   
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (scrollRafRef.current) {
+        cancelAnimationFrame(scrollRafRef.current);
+        scrollRafRef.current = null;
+      }
+    };
   }, []);
 
   useEffect(() => {

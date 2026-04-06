@@ -485,6 +485,23 @@ import PriceLineMobile from "../assets/PricelineMobile.png"
       </div>
 
       <FAQ data={data.faqs} imageUrl={data.faqImage} />
+
+      {(data.homeFooterTitle || data.homeFooterDescription) && (
+        <div className="mx-auto max-w-6xl px-4 pb-10 pt-4">
+          <div className="rounded-xl border border-gray-200 bg-white px-6 py-5 shadow-[0_6px_18px_rgba(0,0,0,0.12)]">
+            {data.homeFooterTitle && (
+              <div className="text-lg font-extrabold text-gray-900">
+                {data.homeFooterTitle}
+              </div>
+            )}
+            {data.homeFooterDescription && (
+              <div className="mt-1 text-[15px] font-medium text-gray-900">
+                {data.homeFooterDescription}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     
     </>
   );

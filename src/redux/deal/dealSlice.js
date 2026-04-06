@@ -6,6 +6,7 @@ import {
   deleteDealById,
   updateDealById,
   getDealById,
+  bulkCreateDeals,
   searchDeals as searchDealsApi // Renamed to avoid conflict with thunk name
 } from './dealAPI'; // Import the new searchDeals API function
 
@@ -22,6 +23,14 @@ export const getDeals = createAsyncThunk('deal/getDeals', async (country, thunkA
 export const addDeal = createAsyncThunk('deal/addDeal', async (deal, thunkAPI) => {
   try {
     return await createDeal(deal);
+  } catch (err) {
+    return thunkAPI.rejectWithValue(err.response?.data?.message || err.message);
+  }
+});
+
+export const bulkAddDeals = createAsyncThunk('deal/bulkAddDeals', async (deals, thunkAPI) => {
+  try {
+    return await bulkCreateDeals(deals);
   } catch (err) {
     return thunkAPI.rejectWithValue(err.response?.data?.message || err.message);
   }
@@ -104,6 +113,11 @@ const dealSlice = createSlice({
       })
       .addCase(addDeal.rejected, (state, action) => {
         toast.error(`Add deal failed: ${action.payload}`);
+      })
+
+      // Handle bulkAddDeals
+      .addCase(bulkAddDeals.rejected, (state, action) => {
+        toast.error(`Bulk upload failed: ${action.payload}`);
       })
 
       // Handle deleteDeal

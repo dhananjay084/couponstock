@@ -66,6 +66,8 @@ const HomeAdminPage = () => {
       storePageBannerDeals: [],
       categoryPageBannerDeals: [],
       faqs: [{ question: "", answer: "" }],
+      homeFooterTitle: "",
+      homeFooterDescription: "",
     },
 
     validationSchema: Yup.object({
@@ -160,7 +162,12 @@ console.log("values",values)
         }
       } catch (err) {
         console.error("HomeAdmin submit error:", err);
-        toast.error(err?.message || err?.error || "Failed to save. Please try again.");
+        const apiError =
+          err?.response?.data?.error ||
+          err?.response?.data?.message ||
+          err?.error ||
+          err?.message;
+        toast.error(apiError || "Failed to save. Please try again.");
       } finally {
         setSubmitting(false);
       }
@@ -230,6 +237,8 @@ console.log("values",values)
       storePageBannerDeals: storePageBannerDealsIds,
       categoryPageBannerDeals: categoryPageBannerDealsIds,
       faqs: Array.isArray(entry.faqs) && entry.faqs.length ? entry.faqs : [{ question: "", answer: "" }],
+      homeFooterTitle: entry.homeFooterTitle || "",
+      homeFooterDescription: entry.homeFooterDescription || "",
     });
   };
 
@@ -513,6 +522,8 @@ console.log("values",values)
           { label: "All Stores Description", name: "allStoresAboutDescription" },
           { label: "All Categories Heading", name: "allCategoriesAboutHeading" },
           { label: "All Categories Description", name: "allCategoriesAboutDescription" },
+          { label: "Home Footer Title", name: "homeFooterTitle" },
+          { label: "Home Footer Description", name: "homeFooterDescription" },
         ].map(({ label, name }) => (
           <div key={name}>
             <label className="block font-medium mb-1">{label}</label>

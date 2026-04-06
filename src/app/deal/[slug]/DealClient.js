@@ -172,57 +172,185 @@ const DealDetailsContent = ({ initialDeal }) => {
     }
   };
 
+  const isStructured = dealDetails.layoutFormat === "structured";
+  const formatDate = (value) => {
+    if (!value) return "";
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return "";
+    return d.toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" });
+  };
+
   return (
     <>
-      <h1 className="px-4 pt-2 text-2xl font-bold text-[#592EA9]">
-        {dealDetails.dealTitle}
-      </h1>
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={3}
-        flexWrap="wrap"
-        gap={2}
-        maxWidth='95%'
-        marginX='auto'
-        marginTop={2}
-      >
-        <Typography variant="h5" sx={{ fontSize: '20px', color: "#592EA9", fontWeight: "600" }}>
-          {dealDetails.homePageTitle}
-        </Typography>
+      {!isStructured && (
+        <>
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            mb={3}
+            flexWrap="wrap"
+            gap={2}
+            maxWidth='95%'
+            marginX='auto'
+            marginTop={2}
+          >
+            <Typography variant="h4" sx={{ fontSize: '22px', color: "#592EA9", fontWeight: "700" }}>
+              {dealDetails.dealTitle}
+            </Typography>
 
-        <Button
-          variant="contained"
-          sx={{
-            backgroundColor: "#592EA9",
-            borderRadius: "10px",
-            padding: "10px 24px",
-            textTransform: "none",
-            "&:hover": { backgroundColor: "#4a2380" },
-          }}
-          onClick={handleShopNow}
-        >
-          Shop Now
-        </Button>
-      </Box>
+            <Button
+              variant="contained"
+              sx={{
+                backgroundColor: "#592EA9",
+                borderRadius: "10px",
+                padding: "10px 24px",
+                textTransform: "none",
+                "&:hover": { backgroundColor: "#4a2380" },
+              }}
+              onClick={handleShopNow}
+            >
+              Shop Now
+            </Button>
+          </Box>
 
-      <Typography
-        variant="h4"
-        fontWeight="bold"
-        mb={2}
-        sx={{ color: "#333", fontSize: '18px' }}
-        maxWidth='95%'
-        marginX='auto'
-      >
-        {dealDetails.dealTitle}
-      </Typography>
+          {dealDetails.homePageTitle && (
+            <Typography variant="h5" sx={{ fontSize: '18px', color: "#592EA9", fontWeight: "600" }} maxWidth='95%' marginX='auto'>
+              {dealDetails.homePageTitle}
+            </Typography>
+          )}
 
-      <HeadingText
-        title="Deal Details"
-        isHtml={true}
-        content={dealDetails.details}
-      />
+          <HeadingText
+            title="Deal Details"
+            isHtml={true}
+            content={dealDetails.details}
+          />
+        </>
+      )}
+
+      {isStructured && (
+        <div className="mx-auto max-w-6xl p-6">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <h1 className="text-2xl font-bold text-gray-800">
+              {dealDetails.dealTitle}
+            </h1>
+            <Button
+              variant="contained"
+              sx={{
+                backgroundColor: "#592EA9",
+                borderRadius: "10px",
+                padding: "10px 24px",
+                textTransform: "none",
+                "&:hover": { backgroundColor: "#4a2380" },
+              }}
+              onClick={handleShopNow}
+            >
+              Shop Now
+            </Button>
+          </div>
+          <div className="grid grid-cols-1 gap-8 rounded-2xl bg-white p-8 shadow-sm lg:grid-cols-2">
+            <div className="flex items-center justify-center">
+              {(dealDetails.descriptionImage || dealDetails.dealImage) && (
+                <img
+                  src={dealDetails.descriptionImage || dealDetails.dealImage}
+                  alt={dealDetails.dealTitle || "Deal"}
+                  className="max-h-80 w-full object-contain"
+                />
+              )}
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex flex-wrap gap-2">
+                {dealDetails.tagPrimary && (
+                  <span className="rounded-full bg-purple-100 px-3 py-1 text-xs font-semibold text-purple-700">
+                    {dealDetails.tagPrimary}
+                  </span>
+                )}
+                {dealDetails.tagSecondary && (
+                  <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
+                    {dealDetails.tagSecondary}
+                  </span>
+                )}
+              </div>
+
+              {dealDetails.headline && (
+                <h2 className="text-xl font-semibold text-gray-800">
+                  {dealDetails.headline}
+                </h2>
+              )}
+
+              {(dealDetails.usedTodayText || dealDetails.successRateText) && (
+                <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
+                  {dealDetails.usedTodayText && (
+                    <span>🔥 {dealDetails.usedTodayText}</span>
+                  )}
+                  {dealDetails.successRateText && (
+                    <span>✅ {dealDetails.successRateText}</span>
+                  )}
+                </div>
+              )}
+
+              {dealDetails.dealDescription && (
+                <p className="text-gray-700">{dealDetails.dealDescription}</p>
+              )}
+
+              {dealDetails.couponCode && (
+                <div className="flex items-center justify-between gap-3 rounded-lg border border-dashed border-purple-400 bg-purple-50 px-4 py-3">
+                  <span className="font-semibold text-gray-700">{dealDetails.couponCode}</span>
+                  <Button
+                    variant="contained"
+                    sx={{
+                      backgroundColor: "#592EA9",
+                      borderRadius: "10px",
+                      textTransform: "none",
+                      "&:hover": { backgroundColor: "#4a2380" },
+                    }}
+                    onClick={() => navigator.clipboard.writeText(dealDetails.couponCode)}
+                  >
+                    Copy
+                  </Button>
+                </div>
+              )}
+
+              {dealDetails.endingSoonText && (
+                <div className="text-sm font-medium text-red-500">⏳ {dealDetails.endingSoonText}</div>
+              )}
+
+              <div className="space-y-2 text-sm text-gray-700">
+                {dealDetails.store && (
+                  <div><span className="font-semibold">Brand:</span> {dealDetails.store}</div>
+                )}
+                {dealDetails.discount && (
+                  <div><span className="font-semibold">Discount:</span> {dealDetails.discount}</div>
+                )}
+                {dealDetails.userTypeText && (
+                  <div><span className="font-semibold">Users:</span> {dealDetails.userTypeText}</div>
+                )}
+                {dealDetails.expiredDate && (
+                  <div><span className="font-semibold">Expiry:</span> {formatDate(dealDetails.expiredDate)}</div>
+                )}
+                {Array.isArray(dealDetails.country) && dealDetails.country.length > 0 && (
+                  <div><span className="font-semibold">Country:</span> {dealDetails.country.join(", ")}</div>
+                )}
+              </div>
+
+              <Button
+                variant="contained"
+                sx={{
+                  backgroundColor: "#592EA9",
+                  borderRadius: "999px",
+                  padding: "12px 28px",
+                  textTransform: "none",
+                  "&:hover": { backgroundColor: "#4a2380" },
+                }}
+                onClick={handleShopNow}
+              >
+                Activate Deal →
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Typography
         variant="h4"
@@ -249,11 +377,13 @@ const DealDetailsContent = ({ initialDeal }) => {
           ))}
       </div>
 
-      <HeadingText
-        title={dealDetails.dealTitle}
-        isHtml={true}
-        content={dealDetails.dealDescription}
-      />
+      {!isStructured && (
+        <HeadingText
+          title={dealDetails.dealTitle}
+          isHtml={true}
+          content={dealDetails.dealDescription}
+        />
+      )}
 
       <TextLink text="User" colorText="Reviews" link="" linkText="" />
 

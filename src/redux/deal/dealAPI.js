@@ -13,6 +13,11 @@ export const createDeal = async (deal) => {
   return response.data;
 };
 
+export const bulkCreateDeals = async (deals) => {
+  const response = await axios.post(`${BASE_URL}/bulk`, { deals });
+  return response.data;
+};
+
 export const deleteDealById = async (id) => {
   const response = await axios.delete(`${BASE_URL}/${id}`);
   return response.data;

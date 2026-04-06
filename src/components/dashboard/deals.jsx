@@ -4,7 +4,7 @@ import React, { useEffect, useState, useRef, useCallback } from "react";
 import { Formik, Form, Field, FieldArray, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
-import { addDeal, getDeals, deleteDeal, updateDeal } from "../../redux/deal/dealSlice";
+import { addDeal, getDeals, deleteDeal, updateDeal, bulkAddDeals } from "../../redux/deal/dealSlice";
 import { toast } from "react-toastify";
 import { getCategories } from "../../redux/category/categorySlice";
 import { getStores } from "../../redux/store/storeSlice";
@@ -18,6 +18,7 @@ import "ag-grid-community/styles/ag-theme-alpine.css";
 import clsx from "clsx";
 import { getCountryCodeFromName, isAllowedCountryCode } from "../../lib/countryPath";
 import { titleize } from "../../lib/slugify";
+import * as XLSX from "xlsx";
 
 // AG Grid modules
 import { ModuleRegistry, AllCommunityModule } from "ag-grid-community";
@@ -35,7 +36,23 @@ const DealSchema = Yup.object().shape({
       dealType: Yup.string().required("Deal type is required"),
       dealCategory: Yup.string().oneOf(["coupon", "deal"], "Invalid category").required("Category is required"),
       showOnHomepage: Yup.boolean(),
-      details: Yup.string().required("Details are required"),
+      layoutFormat: Yup.string().oneOf(["custom", "structured"]).default("custom"),
+      details: Yup.string().when("layoutFormat", {
+        is: "custom",
+        then: (schema) => schema.required("Details are required"),
+        otherwise: (schema) => schema.notRequired(),
+      }),
+      descriptionImage: Yup.string().test("is-url", "Enter a valid image URL", (val) => {
+        if (!val) return true;
+        return isValidUrl(val);
+      }),
+      tagPrimary: Yup.string(),
+      tagSecondary: Yup.string(),
+      headline: Yup.string(),
+      usedTodayText: Yup.string(),
+      successRateText: Yup.string(),
+      endingSoonText: Yup.string(),
+      userTypeText: Yup.string(),
       categorySelect: Yup.string().required("Please select a category"),
       store: Yup.string().required("Store is required"),
       expiredDate: Yup.date().required("Expiration date is required"),
@@ -86,6 +103,7 @@ const DealsPage = () => {
   const formTopRef = useRef(null);
   const [searchText, setSearchText] = useState("");
   const [expiryFilter, setExpiryFilter] = useState("all");
+  const [bulkUploading, setBulkUploading] = useState(false);
 
   useEffect(() => {
     dispatch(getDeals());
@@ -94,6 +112,150 @@ const DealsPage = () => {
     dispatch(fetchCountries()); 
 
   }, [dispatch]);
+
+  const BULK_HEADERS = [
+    "dealTitle",
+    "dealDescription",
+    "dealImage",
+    "homePageTitle",
+    "dealType",
+    "dealCategory",
+    "showOnHomepage",
+    "layoutFormat",
+    "details",
+    "descriptionImage",
+    "tagPrimary",
+    "tagSecondary",
+    "headline",
+    "usedTodayText",
+    "successRateText",
+    "endingSoonText",
+    "userTypeText",
+    "categorySelect",
+    "store",
+    "couponCode",
+    "discount",
+    "expiredDate",
+    "redirectionLink",
+    "country",
+    "metaTitle",
+    "metaDescription",
+    "metaKeywords",
+  ];
+
+  const downloadBulkTemplate = () => {
+    const sheet = XLSX.utils.aoa_to_sheet([BULK_HEADERS]);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, sheet, "Deals");
+    XLSX.writeFile(wb, "deals-bulk-template.xlsx");
+  };
+
+  const normalizeHeader = (header) =>
+    String(header || "")
+      .trim()
+      .replace(/\s+/g, "")
+      .toLowerCase();
+
+  const toBoolean = (val) => {
+    if (typeof val === "boolean") return val;
+    const text = String(val || "").trim().toLowerCase();
+    return ["true", "yes", "1"].includes(text);
+  };
+
+  const parseCountry = (val) => {
+    if (Array.isArray(val)) return val.filter(Boolean);
+    return String(val || "")
+      .split(",")
+      .map((c) => c.trim())
+      .filter(Boolean);
+  };
+
+  const parseBulkFile = async (file) => {
+    const buffer = await file.arrayBuffer();
+    const workbook = XLSX.read(buffer, { type: "array" });
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+    const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+    if (!rows.length) return [];
+
+    const headerMap = {};
+    Object.keys(rows[0]).forEach((key) => {
+      headerMap[normalizeHeader(key)] = key;
+    });
+
+    return rows.map((row, idx) => {
+      const get = (name) => row[headerMap[normalizeHeader(name)]] ?? "";
+      const layoutFormat = String(get("layoutFormat") || "custom").toLowerCase() === "structured"
+        ? "structured"
+        : "custom";
+
+      return {
+        __row: idx + 2,
+        dealTitle: get("dealTitle"),
+        dealDescription: get("dealDescription"),
+        dealImage: get("dealImage"),
+        homePageTitle: get("homePageTitle"),
+        dealType: get("dealType"),
+        dealCategory: get("dealCategory") || "deal",
+        showOnHomepage: toBoolean(get("showOnHomepage")),
+        layoutFormat,
+        details: get("details"),
+        descriptionImage: get("descriptionImage"),
+        tagPrimary: get("tagPrimary"),
+        tagSecondary: get("tagSecondary"),
+        headline: get("headline"),
+        usedTodayText: get("usedTodayText"),
+        successRateText: get("successRateText"),
+        endingSoonText: get("endingSoonText"),
+        userTypeText: get("userTypeText"),
+        categorySelect: get("categorySelect"),
+        store: get("store"),
+        couponCode: get("couponCode"),
+        discount: get("discount"),
+        expiredDate: get("expiredDate"),
+        redirectionLink: get("redirectionLink"),
+        country: parseCountry(get("country")),
+        metaTitle: get("metaTitle"),
+        metaDescription: get("metaDescription"),
+        metaKeywords: get("metaKeywords"),
+      };
+    });
+  };
+
+  const handleBulkUpload = async (file) => {
+    if (!file) return;
+    setBulkUploading(true);
+    try {
+      const dealsFromFile = await parseBulkFile(file);
+      if (!dealsFromFile.length) {
+        toast.error("No rows found in the file.");
+        return;
+      }
+
+      const payloadDeals = dealsFromFile.map((d) => {
+        const copy = { ...d };
+        delete copy.__row;
+        return copy;
+      });
+
+      const result = await dispatch(bulkAddDeals(payloadDeals)).unwrap();
+      const inserted = result?.insertedCount ?? 0;
+      const failed = result?.failedCount ?? 0;
+
+      if (inserted) {
+        toast.success(`${inserted} deal(s) uploaded successfully.`);
+        dispatch(getDeals());
+      }
+      if (failed) {
+        toast.error(`Some rows failed. Check console for details.`);
+        console.error("Bulk upload errors:", result?.errors || []);
+      }
+    } catch (err) {
+      toast.error(err?.message || "Failed to process file.");
+    } finally {
+      setBulkUploading(false);
+    }
+  };
 
   const columnDefs = [
     { headerName: "Title", field: "dealTitle", sortable: true, filter: true, flex: 1 },
@@ -236,6 +398,40 @@ const DealsPage = () => {
     <div className="p-8 max-w-7xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">Deals/Coupons Upload</h1>
 
+      <div className="mb-6 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <div className="text-lg font-semibold text-gray-800">Bulk Upload (Excel)</div>
+            <div className="text-sm text-gray-500">
+              Use the template headers exactly. Country can be comma-separated.
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={downloadBulkTemplate}
+              className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700"
+            >
+              Download Template
+            </button>
+            <label className="bg-gray-100 border border-gray-300 px-4 py-2 rounded-md cursor-pointer hover:bg-gray-200">
+              {bulkUploading ? "Uploading..." : "Upload Excel"}
+              <input
+                type="file"
+                accept=".xlsx,.xls,.csv"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  e.target.value = "";
+                  handleBulkUpload(file);
+                }}
+                disabled={bulkUploading}
+              />
+            </label>
+          </div>
+        </div>
+      </div>
+
       <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center">
         <input
           type="text"
@@ -314,7 +510,16 @@ const DealsPage = () => {
               dealType: editDeal.dealType || '',
               dealCategory: editDeal.dealCategory || 'coupon',
               showOnHomepage: editDeal.showOnHomepage ?? false,
+              layoutFormat: editDeal.layoutFormat || 'custom',
               details: editDeal.details || '',
+              descriptionImage: editDeal.descriptionImage || '',
+              tagPrimary: editDeal.tagPrimary || '',
+              tagSecondary: editDeal.tagSecondary || '',
+              headline: editDeal.headline || '',
+              usedTodayText: editDeal.usedTodayText || '',
+              successRateText: editDeal.successRateText || '',
+              endingSoonText: editDeal.endingSoonText || '',
+              userTypeText: editDeal.userTypeText || '',
               categorySelect: editDeal.categorySelect || '',
               store: editDeal.store || '',
               couponCode: editDeal.couponCode || '',
@@ -334,7 +539,16 @@ metaKeywords: editDeal?.metaKeywords || "",
               dealType: '',
               dealCategory: 'coupon',
               showOnHomepage: false,
+              layoutFormat: 'custom',
               details: '',
+              descriptionImage: '',
+              tagPrimary: '',
+              tagSecondary: '',
+              headline: '',
+              usedTodayText: '',
+              successRateText: '',
+              endingSoonText: '',
+              userTypeText: '',
               categorySelect: '',
               store: '',
               couponCode: '',
@@ -468,10 +682,98 @@ metaKeywords: editDeal?.metaKeywords || "",
                       </div>
 
                       <div className="mb-4">
-                        <label className="block mb-1 font-medium">Details (HTML Content)</label>
-                        <Field as="textarea" name={`deals[${index}].details`} className="w-full px-3 py-2 border rounded-md" />
-                        <ErrorMessage name={`deals[${index}].details`} component="div" className="text-red-500 text-sm mt-1" />
+                        <label className="block mb-1 font-medium">Deal Page Format</label>
+                        <div className="flex items-center gap-3">
+                          <label className="flex items-center gap-2 text-sm">
+                            <Field
+                              type="checkbox"
+                              name={`deals[${index}].layoutFormat`}
+                              checked={values.deals[index].layoutFormat === "structured"}
+                              onChange={(e) =>
+                                setFieldValue(
+                                  `deals[${index}].layoutFormat`,
+                                  e.target.checked ? "structured" : "custom"
+                                )
+                              }
+                            />
+                            Use Structured Format
+                          </label>
+                          <span className="text-xs text-gray-500">
+                            Unchecked uses Custom HTML (current behavior)
+                          </span>
+                        </div>
                       </div>
+
+                      {values.deals[index].layoutFormat === "custom" && (
+                        <div className="mb-4">
+                          <label className="block mb-1 font-medium">Details (HTML Content)</label>
+                          <Field as="textarea" name={`deals[${index}].details`} className="w-full px-3 py-2 border rounded-md" />
+                          <ErrorMessage name={`deals[${index}].details`} component="div" className="text-red-500 text-sm mt-1" />
+                        </div>
+                      )}
+
+                      {values.deals[index].layoutFormat === "structured" && (
+                        <div className="mb-6 border border-dashed border-gray-300 p-4 rounded-md bg-gray-50">
+                          <div className="mb-4">
+                            <label className="block mb-1 font-medium">Description Image URL</label>
+                            <Field name={`deals[${index}].descriptionImage`} className="w-full px-3 py-2 border rounded-md" />
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="mt-2"
+                              onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+                                try {
+                                  const url = await uploadImage(file);
+                                  setFieldValue(`deals[${index}].descriptionImage`, url);
+                                  toast.success("Image uploaded");
+                                } catch (err) {
+                                  toast.error(err.message || "Upload failed");
+                                } finally {
+                                  e.target.value = "";
+                                }
+                              }}
+                            />
+                            <ErrorMessage name={`deals[${index}].descriptionImage`} component="div" className="text-red-500 text-sm mt-1" />
+                          </div>
+
+                          <div className="mb-4">
+                            <label className="block mb-1 font-medium">Tag 1 (e.g., Fashion Deal)</label>
+                            <Field name={`deals[${index}].tagPrimary`} className="w-full px-3 py-2 border rounded-md" />
+                          </div>
+
+                          <div className="mb-4">
+                            <label className="block mb-1 font-medium">Tag 2 (e.g., Verified)</label>
+                            <Field name={`deals[${index}].tagSecondary`} className="w-full px-3 py-2 border rounded-md" />
+                          </div>
+
+                          <div className="mb-4">
+                            <label className="block mb-1 font-medium">Headline (Main Title)</label>
+                            <Field name={`deals[${index}].headline`} className="w-full px-3 py-2 border rounded-md" />
+                          </div>
+
+                          <div className="mb-4">
+                            <label className="block mb-1 font-medium">Used Today Text (e.g., 99+ used today)</label>
+                            <Field name={`deals[${index}].usedTodayText`} className="w-full px-3 py-2 border rounded-md" />
+                          </div>
+
+                          <div className="mb-4">
+                            <label className="block mb-1 font-medium">Success Rate Text (e.g., 92% success)</label>
+                            <Field name={`deals[${index}].successRateText`} className="w-full px-3 py-2 border rounded-md" />
+                          </div>
+
+                          <div className="mb-4">
+                            <label className="block mb-1 font-medium">Ending Soon Text</label>
+                            <Field name={`deals[${index}].endingSoonText`} className="w-full px-3 py-2 border rounded-md" />
+                          </div>
+
+                          <div className="mb-2">
+                            <label className="block mb-1 font-medium">User Type Text (e.g., First-time)</label>
+                            <Field name={`deals[${index}].userTypeText`} className="w-full px-3 py-2 border rounded-md" />
+                          </div>
+                        </div>
+                      )}
 
                       <div className="mb-4">
                         <label className="block mb-1 font-medium">Select Category</label>

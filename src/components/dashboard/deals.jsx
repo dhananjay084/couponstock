@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { Formik, Form, Field, FieldArray, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
@@ -104,6 +104,7 @@ const DealsPage = () => {
   const [searchText, setSearchText] = useState("");
   const [expiryFilter, setExpiryFilter] = useState("all");
   const [bulkUploading, setBulkUploading] = useState(false);
+  const [bulkErrors, setBulkErrors] = useState([]);
 
   useEffect(() => {
     dispatch(getDeals());
@@ -170,6 +171,88 @@ const DealsPage = () => {
       .filter(Boolean);
   };
 
+  const normalizeText = (val) => String(val ?? "").trim();
+
+  const normalizeDealCategory = (val) => {
+    const text = normalizeText(val).toLowerCase();
+    if (text === "coupon" || text === "coupons") return "coupon";
+    if (text === "deal" || text === "deals") return "deal";
+    return text || "deal";
+  };
+
+  const normalizeDateValue = (val) => {
+    if (val === null || val === undefined || val === "") return "";
+
+    if (typeof val === "number") {
+      const parsed = XLSX.SSF.parse_date_code(val);
+      if (parsed?.y && parsed?.m && parsed?.d) {
+        const mm = String(parsed.m).padStart(2, "0");
+        const dd = String(parsed.d).padStart(2, "0");
+        return `${parsed.y}-${mm}-${dd}`;
+      }
+      return "";
+    }
+
+    if (val instanceof Date && !Number.isNaN(val.getTime())) {
+      return val.toISOString().slice(0, 10);
+    }
+
+    const raw = normalizeText(val);
+    if (!raw) return "";
+
+    const slash = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (slash) {
+      const dd = slash[1].padStart(2, "0");
+      const mm = slash[2].padStart(2, "0");
+      const yyyy = slash[3];
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    const dash = raw.match(/^(\d{1,2})-(\d{1,2})-(\d{4})$/);
+    if (dash) {
+      const dd = dash[1].padStart(2, "0");
+      const mm = dash[2].padStart(2, "0");
+      const yyyy = dash[3];
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    const parsed = new Date(raw);
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed.toISOString().slice(0, 10);
+    }
+
+    return "";
+  };
+
+  const normalizeLayoutFormat = (val) => {
+    if (typeof val === "boolean") {
+      return val ? "structured" : "custom";
+    }
+    if (typeof val === "number") {
+      return val === 1 ? "structured" : "custom";
+    }
+
+    const text = normalizeText(val).toLowerCase();
+    if (!text) return "custom";
+    if (text === "structured") return "structured";
+    if (text === "custom") return "custom";
+    if (["true", "yes", "y", "1"].includes(text)) return "structured";
+    if (["false", "no", "n", "0"].includes(text)) return "custom";
+    return "custom";
+  };
+
+  const toDisplayString = useCallback((value) => {
+    if (Array.isArray(value)) return value.join(", ");
+    if (value && typeof value === "object") {
+      try {
+        return JSON.stringify(value);
+      } catch (err) {
+        return String(value);
+      }
+    }
+    return value ?? "";
+  }, []);
+
   const parseBulkFile = async (file) => {
     const buffer = await file.arrayBuffer();
     const workbook = XLSX.read(buffer, { type: "array" });
@@ -185,39 +268,42 @@ const DealsPage = () => {
 
     return rows.map((row, idx) => {
       const get = (name) => row[headerMap[normalizeHeader(name)]] ?? "";
-      const layoutFormat = String(get("layoutFormat") || "custom").toLowerCase() === "structured"
-        ? "structured"
-        : "custom";
+      const layoutFormat = normalizeLayoutFormat(get("layoutFormat"));
+
+      const dealDescription = normalizeText(get("dealDescription"));
+      const details = normalizeText(get("details"));
+      const homePageTitle = normalizeText(get("homePageTitle"));
 
       return {
         __row: idx + 2,
-        dealTitle: get("dealTitle"),
-        dealDescription: get("dealDescription"),
-        dealImage: get("dealImage"),
-        homePageTitle: get("homePageTitle"),
-        dealType: get("dealType"),
-        dealCategory: get("dealCategory") || "deal",
+        dealTitle: normalizeText(get("dealTitle")),
+        dealDescription,
+        dealImage: normalizeText(get("dealImage")),
+        homePageTitle,
+        dealType: normalizeText(get("dealType")),
+        dealCategory: normalizeDealCategory(get("dealCategory")),
         showOnHomepage: toBoolean(get("showOnHomepage")),
         layoutFormat,
-        details: get("details"),
-        descriptionImage: get("descriptionImage"),
-        tagPrimary: get("tagPrimary"),
-        tagSecondary: get("tagSecondary"),
-        headline: get("headline"),
-        usedTodayText: get("usedTodayText"),
-        successRateText: get("successRateText"),
-        endingSoonText: get("endingSoonText"),
-        userTypeText: get("userTypeText"),
-        categorySelect: get("categorySelect"),
-        store: get("store"),
-        couponCode: get("couponCode"),
-        discount: get("discount"),
-        expiredDate: get("expiredDate"),
-        redirectionLink: get("redirectionLink"),
+        // Backend requires details when format=custom; fallback prevents silent row failure.
+        details: layoutFormat === "custom" ? (details || dealDescription || homePageTitle) : details,
+        descriptionImage: normalizeText(get("descriptionImage")),
+        tagPrimary: normalizeText(get("tagPrimary")),
+        tagSecondary: normalizeText(get("tagSecondary")),
+        headline: normalizeText(get("headline")),
+        usedTodayText: normalizeText(get("usedTodayText")),
+        successRateText: normalizeText(get("successRateText")),
+        endingSoonText: normalizeText(get("endingSoonText")),
+        userTypeText: normalizeText(get("userTypeText")),
+        categorySelect: normalizeText(get("categorySelect")),
+        store: normalizeText(get("store")),
+        couponCode: normalizeText(get("couponCode")),
+        discount: normalizeText(get("discount")),
+        expiredDate: normalizeDateValue(get("expiredDate")),
+        redirectionLink: normalizeText(get("redirectionLink")),
         country: parseCountry(get("country")),
-        metaTitle: get("metaTitle"),
-        metaDescription: get("metaDescription"),
-        metaKeywords: get("metaKeywords"),
+        metaTitle: normalizeText(get("metaTitle")),
+        metaDescription: normalizeText(get("metaDescription")),
+        metaKeywords: normalizeText(get("metaKeywords")),
       };
     });
   };
@@ -227,6 +313,7 @@ const DealsPage = () => {
     setBulkUploading(true);
     try {
       const dealsFromFile = await parseBulkFile(file);
+      setBulkErrors([]);
       if (!dealsFromFile.length) {
         toast.error("No rows found in the file.");
         return;
@@ -247,11 +334,32 @@ const DealsPage = () => {
         dispatch(getDeals());
       }
       if (failed) {
-        toast.error(`Some rows failed. Check console for details.`);
-        console.error("Bulk upload errors:", result?.errors || []);
+        const mappedErrors = (result?.errors || []).map((err) => {
+          const sheetRow = typeof err?.index === "number"
+            ? (dealsFromFile[err.index]?.__row ?? err.index + 2)
+            : null;
+          return {
+            row: sheetRow,
+            message: err?.message || "Failed to save deal",
+            missingFields: Array.isArray(err?.missingFields) ? err.missingFields : [],
+          };
+        });
+        setBulkErrors(mappedErrors);
+        toast.error(`Some rows failed. See Bulk Upload Errors below.`);
+        console.warn("Bulk upload errors:", result?.errors || []);
+      }
+      if (!failed) {
+        setBulkErrors([]);
       }
     } catch (err) {
       toast.error(err?.message || "Failed to process file.");
+      setBulkErrors([
+        {
+          row: null,
+          message: err?.message || "Failed to process file.",
+          missingFields: [],
+        },
+      ]);
     } finally {
       setBulkUploading(false);
     }
@@ -265,10 +373,11 @@ const DealsPage = () => {
       sortable: true,
       filter: true,
       flex: 1,
+      valueFormatter: (params) => toDisplayString(params.value),
       cellRenderer: (params) =>
         Array.isArray(params.value)
           ? params.value.join(", ")
-          : params.value || "—",
+          : toDisplayString(params.value) || "—",
     },
     
     { headerName: "Description", field: "dealDescription", sortable: true, filter: true, flex: 1 },
@@ -329,7 +438,15 @@ const DealsPage = () => {
     },
   ];
 
-  const defaultColDef = useCallback(() => ({ flex: 1, minWidth: 100, resizable: true }), []);
+  const defaultColDef = useMemo(
+    () => ({
+      flex: 1,
+      minWidth: 100,
+      resizable: true,
+      valueFormatter: (params) => toDisplayString(params.value),
+    }),
+    [toDisplayString]
+  );
   const onGridReady = useCallback((params) => params.api.sizeColumnsToFit(), []);
   const onFilterTextBoxChanged = useCallback(() => {
     gridRef.current.api.setQuickFilter(searchText);
@@ -432,6 +549,25 @@ const DealsPage = () => {
         </div>
       </div>
 
+      {bulkErrors.length > 0 && (
+        <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4">
+          <div className="text-sm font-semibold text-red-800 mb-2">Bulk Upload Errors</div>
+          <div className="max-h-56 overflow-auto space-y-2">
+            {bulkErrors.map((err, idx) => (
+              <div key={`${err.row || "na"}-${idx}`} className="text-sm text-red-900">
+                <span className="font-medium">
+                  {err.row ? `Row ${err.row}` : "Row unknown"}:
+                </span>{" "}
+                <span>{err.message}</span>
+                {err.missingFields.length > 0 && (
+                  <span> ({err.missingFields.join(", ")})</span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center">
         <input
           type="text"
@@ -463,8 +599,10 @@ const DealsPage = () => {
             defaultColDef={defaultColDef}
             onGridReady={onGridReady}
             quickFilterText={searchText}
+            theme="legacy"
             pagination
             paginationPageSize={10}
+            paginationPageSizeSelector={[10, 20, 50, 100]}
             domLayout="autoHeight"
           />
         </div>

@@ -11,6 +11,51 @@ import { toast } from "react-toastify";
 import { uploadImage } from "../../lib/uploadImage";
 import { isValidUrl } from "../../lib/validation";
 
+const HtmlField = React.memo(function HtmlField({
+  label,
+  name,
+  value,
+  error,
+  setFieldValue,
+  setFieldTouched,
+}) {
+  const ref = useRef(null);
+  const [focused, setFocused] = useState(false);
+
+  useEffect(() => {
+    if (focused) return;
+    if (!ref.current) return;
+    const next = value || "";
+    if (ref.current.innerHTML !== next) {
+      ref.current.innerHTML = next;
+    }
+  }, [value, focused]);
+
+  return (
+    <div>
+      <label className="block font-medium mb-1">{label}</label>
+      <div
+        ref={ref}
+        className="w-full min-h-[120px] border rounded p-2 bg-white"
+        dir="ltr"
+        lang="en"
+        spellCheck
+        style={{ direction: "ltr", unicodeBidi: "embed", textAlign: "left" }}
+        contentEditable
+        suppressContentEditableWarning
+        onFocus={() => setFocused(true)}
+        onBlur={(e) => {
+          setFocused(false);
+          setFieldTouched(name, true, false);
+          setFieldValue(name, e.currentTarget.innerHTML);
+        }}
+      />
+      <p className="text-xs text-gray-500 mt-1">Type normally. HTML is saved and rendered on homepage.</p>
+      {error && <p className="text-red-600 text-sm mt-1">{error}</p>}
+    </div>
+  );
+});
+
 const HomeAdminPage = () => {
   const dispatch = useDispatch();
   const { deals = [] } = useSelector((state) => state.deal || {});
@@ -68,6 +113,8 @@ const HomeAdminPage = () => {
       faqs: [{ question: "", answer: "" }],
       homeFooterTitle: "",
       homeFooterDescription: "",
+      homeMetaTitle: "",
+      homeMetaDescription: "",
     },
 
     validationSchema: Yup.object({
@@ -142,11 +189,17 @@ const HomeAdminPage = () => {
     onSubmit: async (values, { setSubmitting }) => {
       // read current editing entry from ref to avoid stale closures
       const currentEdit = editingEntryRef.current;
-console.log("values",values)
+      const payload = {
+        ...values,
+        homeMetaTitle: (values.homeMetaTitle || "").trim(),
+        homeMetaDescription: (values.homeMetaDescription || "").trim(),
+        homeFooterTitle: values.homeFooterTitle || "",
+        homeFooterDescription: values.homeFooterDescription || "",
+      };
       try {
         if (currentEdit && currentEdit._id) {
           // update
-          await dispatch(updateHomeAdmin({ id: currentEdit._id, data: values })).unwrap();
+          await dispatch(updateHomeAdmin({ id: currentEdit._id, data: payload })).unwrap();
           toast.success("Updated successfully");
           setEditingEntry(null);
           formik.resetForm();
@@ -154,7 +207,7 @@ console.log("values",values)
           dispatch(getHomeAdminData());
         } else {
           // create
-          await dispatch(createHomeAdmin(values)).unwrap();
+          await dispatch(createHomeAdmin(payload)).unwrap();
           toast.success("Created successfully");
           formik.resetForm();
           // refresh entries
@@ -239,6 +292,8 @@ console.log("values",values)
       faqs: Array.isArray(entry.faqs) && entry.faqs.length ? entry.faqs : [{ question: "", answer: "" }],
       homeFooterTitle: entry.homeFooterTitle || "",
       homeFooterDescription: entry.homeFooterDescription || "",
+      homeMetaTitle: entry.homeMetaTitle || "",
+      homeMetaDescription: entry.homeMetaDescription || "",
     });
   };
 
@@ -522,8 +577,42 @@ console.log("values",values)
           { label: "All Stores Description", name: "allStoresAboutDescription" },
           { label: "All Categories Heading", name: "allCategoriesAboutHeading" },
           { label: "All Categories Description", name: "allCategoriesAboutDescription" },
-          { label: "Home Footer Title", name: "homeFooterTitle" },
-          { label: "Home Footer Description", name: "homeFooterDescription" },
+        ].map(({ label, name }) => (
+          <div key={name}>
+            <label className="block font-medium mb-1">{label}</label>
+            <textarea
+              name={name}
+              value={formik.values[name]}
+              onChange={formik.handleChange}
+              className="w-full border rounded p-2"
+              rows={2}
+            />
+            {formik.touched[name] && formik.errors[name] && (
+              <p className="text-red-600 text-sm mt-1">{formik.errors[name]}</p>
+            )}
+          </div>
+        ))}
+
+        {/* Home Footer HTML fields */}
+        {[
+          { label: "Home Footer Title (HTML)", name: "homeFooterTitle" },
+          { label: "Home Footer Description (HTML)", name: "homeFooterDescription" },
+        ].map(({ label, name }) => (
+          <HtmlField
+            key={name}
+            label={label}
+            name={name}
+            value={formik.values[name]}
+            error={formik.touched[name] && formik.errors[name]}
+            setFieldValue={formik.setFieldValue}
+            setFieldTouched={formik.setFieldTouched}
+          />
+        ))}
+
+        {/* Home Meta fields */}
+        {[
+          { label: "Home Meta Title", name: "homeMetaTitle" },
+          { label: "Home Meta Description", name: "homeMetaDescription" },
         ].map(({ label, name }) => (
           <div key={name}>
             <label className="block font-medium mb-1">{label}</label>

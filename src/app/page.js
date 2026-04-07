@@ -53,6 +53,34 @@ import PriceLineMobile from "../assets/PricelineMobile.png"
   const [showNewsletterPopup, setShowNewsletterPopup] = useState(false);
   const featuredPrevRef = useRef(null);
   const featuredNextRef = useRef(null);
+  const metaTitle = data.homeMetaTitle?.trim();
+  const metaDescription = data.homeMetaDescription?.trim();
+  const decodeHtmlEntities = (value = "") => {
+    if (!value || typeof window === "undefined") return value || "";
+    const textarea = document.createElement("textarea");
+    let decoded = value;
+    for (let i = 0; i < 2; i += 1) {
+      textarea.innerHTML = decoded;
+      const next = textarea.value;
+      if (next === decoded) break;
+      decoded = next;
+    }
+    return decoded;
+  };
+  const normalizeFooterHtml = (value = "") => {
+    const decoded = decodeHtmlEntities(value).trim();
+    if (!decoded) return "";
+    const hasHtmlTags = /<\/?[a-z][\s\S]*>/i.test(decoded);
+    if (hasHtmlTags) return decoded;
+    return decoded
+      .split(/\n+/)
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((line) => `<p>${line}</p>`)
+      .join("");
+  };
+  const footerTitleHtml = normalizeFooterHtml(data.homeFooterTitle);
+  const footerDescriptionHtml = normalizeFooterHtml(data.homeFooterDescription);
 
   useEffect(() => {
     if (!selectedCountry) return;
@@ -124,6 +152,24 @@ import PriceLineMobile from "../assets/PricelineMobile.png"
       ],
     },
   ];
+
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+
+    if (metaTitle) {
+      document.title = metaTitle;
+    }
+
+    if (metaDescription) {
+      let metaTag = document.querySelector('meta[name="description"]');
+      if (!metaTag) {
+        metaTag = document.createElement("meta");
+        metaTag.setAttribute("name", "description");
+        document.head.appendChild(metaTag);
+      }
+      metaTag.setAttribute("content", metaDescription);
+    }
+  }, [metaTitle, metaDescription]);
 
   return (
     <>
@@ -486,18 +532,20 @@ import PriceLineMobile from "../assets/PricelineMobile.png"
 
       <FAQ data={data.faqs} imageUrl={data.faqImage} />
 
-      {(data.homeFooterTitle || data.homeFooterDescription) && (
+      {(footerTitleHtml || footerDescriptionHtml) && (
         <div className="mx-auto max-w-6xl px-4 pb-10 pt-4">
           <div className="rounded-xl border border-gray-200 bg-white px-6 py-5 shadow-[0_6px_18px_rgba(0,0,0,0.12)]">
-            {data.homeFooterTitle && (
-              <div className="text-lg font-extrabold text-gray-900">
-                {data.homeFooterTitle}
-              </div>
+            {footerTitleHtml && (
+              <div
+                className="text-lg font-extrabold text-gray-900 [&_a]:text-blue-700 [&_a]:underline"
+                dangerouslySetInnerHTML={{ __html: footerTitleHtml }}
+              />
             )}
-            {data.homeFooterDescription && (
-              <div className="mt-1 text-[15px] font-medium text-gray-900">
-                {data.homeFooterDescription}
-              </div>
+            {footerDescriptionHtml && (
+              <div
+                className="mt-1 text-[15px] font-medium text-gray-900 leading-7 [&_h1]:text-2xl [&_h1]:font-bold [&_h2]:text-xl [&_h2]:font-bold [&_h3]:text-lg [&_h3]:font-semibold [&_p]:mb-3 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_a]:text-blue-700 [&_a]:underline"
+                dangerouslySetInnerHTML={{ __html: footerDescriptionHtml }}
+              />
             )}
           </div>
         </div>

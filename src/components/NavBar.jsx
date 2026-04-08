@@ -30,7 +30,10 @@ import { styled } from "@mui/material/styles";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import { searchDeals, clearSearchResults } from "../redux/deal/dealSlice";
+import {
+  searchStores,
+  clearSearchResults as clearStoreSearchResults,
+} from "../redux/store/storeSlice";
 import { logoutUser, checkCurrentUser } from "../redux/auth/authApi";
 import { fetchCountries, setSelectedCountry } from "../redux/country/countrySlice";
 import { toast } from "react-toastify";
@@ -112,31 +115,67 @@ const SearchResultsContainer = styled(Box)(() => ({
   top: "calc(100% + 5px)",
   left: 0,
   right: 0,
-  backgroundColor: "#fff",
-  border: "1px solid #c9c9c9",
-  borderRadius: "8px",
-  boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.12)",
-  maxHeight: "300px",
+  background: "linear-gradient(180deg, #FFFFFF 0%, #FCFAFF 100%)",
+  border: "1px solid #E9DFFF",
+  borderRadius: "14px",
+  boxShadow: "0 14px 30px rgba(89, 46, 169, 0.16)",
+  maxHeight: "420px",
   overflowY: "auto",
   zIndex: 9999,
 }));
 
+const SearchResultsGrid = styled(Box)(() => ({
+  display: "grid",
+  gridTemplateColumns: "1fr",
+  "@media (min-width: 900px)": {
+    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+  },
+}));
+
 const SearchResultItem = styled(Box)(() => ({
-  padding: "10px 15px",
-  borderBottom: "1px solid #eee",
+  padding: "12px",
+  borderBottom: "1px solid #EEE8FA",
   cursor: "pointer",
+  background: "transparent",
+  transition: "background 0.2s ease, transform 0.2s ease",
   "&:hover": {
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#F8F3FF",
+    transform: "translateY(-1px)",
   },
   "&:last-child": {
     borderBottom: "none",
   },
 }));
 
+const SearchResultsHeader = styled(Box)(() => ({
+  position: "sticky",
+  top: 0,
+  zIndex: 1,
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  padding: "10px 12px",
+  borderBottom: "1px solid #EEE8FA",
+  background: "rgba(255,255,255,0.96)",
+  backdropFilter: "blur(6px)",
+}));
+
+const ResultChip = styled(Box)(() => ({
+  fontSize: "0.7rem",
+  fontWeight: 600,
+  color: "#5F3F9A",
+  background: "#F1E8FF",
+  border: "1px solid #E2D0FF",
+  borderRadius: "999px",
+  padding: "2px 8px",
+  lineHeight: 1.4,
+  whiteSpace: "nowrap",
+}));
+
 const NavBar = () => {
   const dispatch = useDispatch();
   const router = useRouter();
-  const { searchResults, loading } = useSelector((state) => state.deal);
+  const { searchResults, loading } = useSelector((state) => state.store || {});
   // const { isAuthenticated } = useSelector((state) => state.auth);
   const { isAuthenticated, user } = useSelector((state) => state.auth);
   const { countries = [], selectedCountry } = useSelector((state) => state.country || {});
@@ -167,6 +206,7 @@ const NavBar = () => {
   const searchBarRef = useRef();
   const countryRef = useRef();
   const scrollRafRef = useRef(null);
+  const lastSearchKeyRef = useRef("");
 
   // Scroll handler for background + scrolled state
   useEffect(() => {
@@ -223,16 +263,29 @@ const NavBar = () => {
     return () => clearTimeout(handler);
   }, [searchTerm]);
 
-  // Dispatch search with debounced term
+  // Dispatch store search only for new typed queries (debounced).
   useEffect(() => {
-    if (debouncedSearchTerm.length > 0) {
-      dispatch(searchDeals({ searchTerm: debouncedSearchTerm, country: selectedCountry || undefined }));
+    const query = debouncedSearchTerm.trim();
+    if (!query) {
+      if (lastSearchKeyRef.current) {
+        dispatch(clearStoreSearchResults());
+        lastSearchKeyRef.current = "";
+      }
       return;
     }
-    if (searchResults.length) {
-      dispatch(clearSearchResults());
+
+    const key = `${selectedCountry || "all"}::${query.toLowerCase()}`;
+    if (lastSearchKeyRef.current === key) {
+      return;
     }
-  }, [debouncedSearchTerm, dispatch, searchResults.length, selectedCountry]);
+    lastSearchKeyRef.current = key;
+    dispatch(
+      searchStores({
+        searchTerm: query,
+        country: selectedCountry || undefined,
+      })
+    );
+  }, [debouncedSearchTerm, dispatch, selectedCountry]);
 
   // Close search results when clicking outside
   useEffect(() => {
@@ -251,12 +304,125 @@ const NavBar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showResults]);
 
-  const handleResultClick = (deal) => {
-    router.push(`/deal/${deal._id}?category=${deal.categorySelect}`);
+  const handleResultClick = (store) => {
+    if (!store?.slug) {
+      toast.error("Store not found");
+      return;
+    }
+    router.push(withCountry(`/store/${encodeURIComponent(store.slug)}`));
     setShowResults(false);
     setSearchTerm("");
-    dispatch(clearSearchResults());
+    dispatch(clearStoreSearchResults());
   };
+
+  const clipText = (value, max = 68) => {
+    const text = String(value || "").trim();
+    if (!text) return "";
+    return text.length > max ? `${text.slice(0, max)}...` : text;
+  };
+
+  const countryLabel = (countryValue) => {
+    if (Array.isArray(countryValue) && countryValue.length > 0) {
+      const firstTwo = countryValue.filter(Boolean).slice(0, 2);
+      return firstTwo.join(", ");
+    }
+    if (typeof countryValue === "string" && countryValue.trim()) {
+      return countryValue.trim();
+    }
+    return selectedCountry || "Global";
+  };
+
+  const renderResultsHeader = () => (
+    <SearchResultsHeader>
+      <Typography sx={{ fontSize: "0.78rem", fontWeight: 700, color: "#3D2869" }}>
+        Matching Stores
+      </Typography>
+      <Typography sx={{ fontSize: "0.72rem", color: "#7D68A8", fontWeight: 600 }}>
+        {searchResults.length} result{searchResults.length === 1 ? "" : "s"}
+      </Typography>
+    </SearchResultsHeader>
+  );
+
+  const renderStoreCard = (store, onClick, compact = false) => (
+    <SearchResultItem key={store._id} onClick={onClick}>
+      <Box display="flex" alignItems="center" justifyContent="space-between" gap={1}>
+        <Box display="flex" alignItems="center" gap={1.2} minWidth={0}>
+          <Box
+            component="img"
+            src={store.storeImage || "/default-store.jpg"}
+            alt={store.storeName || "Store"}
+            sx={{
+              width: compact ? 34 : 40,
+              height: compact ? 34 : 40,
+              borderRadius: "10px",
+              objectFit: "cover",
+              border: "1px solid #E7DBFF",
+              flexShrink: 0,
+              background: "#fff",
+            }}
+          />
+          <Box minWidth={0}>
+            <Typography
+              variant="body2"
+              fontWeight={700}
+              sx={{
+                color: "#2E1B59",
+                lineHeight: 1.2,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {store.storeName || "Store"}
+            </Typography>
+            <Typography
+              variant="caption"
+              sx={{
+                color: "#7E6AAB",
+                lineHeight: 1.2,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                display: "block",
+                mt: 0.2,
+              }}
+            >
+              {clipText(store.homePageTitle || store.storeDescription || "Explore store offers", 44)}
+            </Typography>
+          </Box>
+        </Box>
+        {typeof store.discountPercentage === "number" && (
+          <ResultChip>{store.discountPercentage}% OFF</ResultChip>
+        )}
+      </Box>
+
+      <Typography
+        sx={{
+          mt: 0.8,
+          ml: compact ? "46px" : "52px",
+          fontSize: "0.74rem",
+          color: "#5F4A87",
+          lineHeight: 1.35,
+          display: compact ? "none" : "block",
+        }}
+      >
+        {clipText(store.storeDescription || "Top coupons and offers available.", 84)}
+      </Typography>
+
+      <Box
+        sx={{
+          mt: compact ? 0.7 : 0.9,
+          ml: compact ? "46px" : "52px",
+          display: "flex",
+          gap: 0.8,
+          flexWrap: "wrap",
+        }}
+      >
+        {store.storeType && <ResultChip>{store.storeType}</ResultChip>}
+        <ResultChip>{countryLabel(store.country)}</ResultChip>
+      </Box>
+    </SearchResultItem>
+  );
 
   const handleCountryChange = (e) => {
     const value = e.target.value;
@@ -429,7 +595,7 @@ const NavBar = () => {
                 </SearchIconWrapper>
                 <StyledInputBase
                   scrolled={scrolled}
-                  placeholder="Search for deals"
+                  placeholder="Search stores"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   onFocus={() => setShowResults(true)}
@@ -438,27 +604,29 @@ const NavBar = () => {
                 {showResults && searchTerm && (
                   <SearchResultsContainer>
                     {loading ? (
-                      <SearchResultItem>Loading...</SearchResultItem>
+                      <SearchResultItem>
+                        <Typography variant="body2" sx={{ color: "#5F4A87", fontWeight: 600 }}>
+                          Searching stores...
+                        </Typography>
+                      </SearchResultItem>
                     ) : searchResults.length > 0 ? (
-                      searchResults.map((deal) => (
-                        <SearchResultItem
-                          key={deal._id}
-                          onClick={() => handleResultClick(deal)}
-                        >
-                          <Typography
-                            variant="body2"
-                            fontWeight="bold"
-                            color="textSecondary"
-                          >
-                            {deal.dealTitle}
-                          </Typography>
-                          <Typography variant="caption" color="textSecondary">
-                            {deal.store}
-                          </Typography>
-                        </SearchResultItem>
-                      ))
+                      <>
+                        {renderResultsHeader()}
+                        <SearchResultsGrid>
+                          {searchResults.map((store) =>
+                            renderStoreCard(store, () => handleResultClick(store), false)
+                          )}
+                        </SearchResultsGrid>
+                      </>
                     ) : (
-                      <SearchResultItem>No deals found.</SearchResultItem>
+                      <SearchResultItem>
+                        <Typography variant="body2" sx={{ color: "#5F4A87", fontWeight: 600 }}>
+                          No stores found.
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: "#8E7AAE" }}>
+                          Try a different keyword like brand name or category.
+                        </Typography>
+                      </SearchResultItem>
                     )}
                   </SearchResultsContainer>
                 )}
@@ -652,7 +820,7 @@ const NavBar = () => {
       </SearchIconWrapper>
       <StyledInputBase
         scrolled={scrolled}
-        placeholder="Search for deals"
+        placeholder="Search stores"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         onFocus={() => setShowResults(true)}
@@ -661,23 +829,29 @@ const NavBar = () => {
       {showResults && searchTerm && (
         <SearchResultsContainer>
           {loading ? (
-            <SearchResultItem>Loading...</SearchResultItem>
+            <SearchResultItem>
+              <Typography variant="body2" sx={{ color: "#5F4A87", fontWeight: 600 }}>
+                Searching stores...
+              </Typography>
+            </SearchResultItem>
           ) : searchResults.length > 0 ? (
-            searchResults.map((deal) => (
-              <SearchResultItem
-                key={deal._id}
-                onClick={() => handleResultClick(deal)}
-              >
-                <Typography variant="body2" fontWeight="bold" color="textSecondary">
-                  {deal.dealTitle}
-                </Typography>
-                <Typography variant="caption" color="textSecondary">
-                  {deal.store}
-                </Typography>
-              </SearchResultItem>
-            ))
+            <>
+              {renderResultsHeader()}
+              <SearchResultsGrid>
+                {searchResults.map((store) =>
+                  renderStoreCard(store, () => handleResultClick(store), false)
+                )}
+              </SearchResultsGrid>
+            </>
           ) : (
-            <SearchResultItem>No deals found.</SearchResultItem>
+            <SearchResultItem>
+              <Typography variant="body2" sx={{ color: "#5F4A87", fontWeight: 600 }}>
+                No stores found.
+              </Typography>
+              <Typography variant="caption" sx={{ color: "#8E7AAE" }}>
+                Try a different keyword like brand name or category.
+              </Typography>
+            </SearchResultItem>
           )}
         </SearchResultsContainer>
       )}
@@ -810,7 +984,7 @@ const NavBar = () => {
         </SearchIconWrapper>
         <StyledInputBase
           scrolled={false}
-          placeholder="Search for deals"
+          placeholder="Search stores"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           onFocus={() => setShowResults(true)}
@@ -819,30 +993,34 @@ const NavBar = () => {
         {showResults && searchTerm && (
           <SearchResultsContainer>
             {loading ? (
-              <SearchResultItem>Loading...</SearchResultItem>
+              <SearchResultItem>
+                <Typography variant="body2" sx={{ color: "#5F4A87", fontWeight: 600 }}>
+                  Searching stores...
+                </Typography>
+              </SearchResultItem>
             ) : searchResults.length > 0 ? (
-              searchResults.map((deal) => (
-                <SearchResultItem
-                  key={deal._id}
-                  onClick={() => {
-                    handleResultClick(deal);
-                    setDrawerOpen(false); // close drawer on click
-                  }}
-                >
-                  <Typography
-                    variant="body2"
-                    fontWeight="bold"
-                    color="textSecondary"
-                  >
-                    {deal.dealTitle}
-                  </Typography>
-                  <Typography variant="caption" color="textSecondary">
-                    {deal.store}
-                  </Typography>
-                </SearchResultItem>
-              ))
+              <>
+                {renderResultsHeader()}
+                {searchResults.map((store) =>
+                  renderStoreCard(
+                    store,
+                    () => {
+                      handleResultClick(store);
+                      setDrawerOpen(false);
+                    },
+                    true
+                  )
+                )}
+              </>
             ) : (
-              <SearchResultItem>No deals found.</SearchResultItem>
+              <SearchResultItem>
+                <Typography variant="body2" sx={{ color: "#5F4A87", fontWeight: 600 }}>
+                  No stores found.
+                </Typography>
+                <Typography variant="caption" sx={{ color: "#8E7AAE" }}>
+                  Try a different keyword.
+                </Typography>
+              </SearchResultItem>
             )}
           </SearchResultsContainer>
         )}

@@ -12,7 +12,7 @@ const NewsLetter = () => {
   const dispatch = useDispatch();
   const { loading, success, error } = useSelector((state) => state.newsletter);
 
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState("") ;
 
   const handleSubmit = (e) => {
     e.preventDefault();

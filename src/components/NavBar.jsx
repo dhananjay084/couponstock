@@ -595,7 +595,7 @@ const NavBar = () => {
                 </SearchIconWrapper>
                 <StyledInputBase
                   scrolled={scrolled}
-                  placeholder="Search stores"
+                  placeholder="Search for stores"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   onFocus={() => setShowResults(true)}

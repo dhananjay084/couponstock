@@ -103,20 +103,37 @@ const IndividualStore = () => {
 
   const description = storeFromList.storeDescription || "";
   const shouldTruncate = description.length > 140;
+  const topCodes = deals.filter(
+    (deal) => deal.store === storeFromList.storeName && deal.dealCategory === "coupon"
+  );
+  const topDeals = deals.filter(
+    (deal) => deal.store === storeFromList.storeName && deal.dealCategory === "deal"
+  );
+  const popularStores = stores.filter((store) => store.popularStore);
+  const hasHtmlContent = Boolean(storeFromList.storeHtmlContent);
+  const hasReviews = reviews.length > 0;
+  const totalOffers = topCodes.length + topDeals.length;
 
   return (
     <div>
-      <h1 className="px-4 pt-2 text-2xl font-bold text-[#592EA9]">
-        {storeFromList.storeName}
-      </h1>
-      <TextLink
-        text={storeFromList.storeName}
-        colorText="Offers"
-        link=""
-        linkText=""
-      />
+      <section className="mx-6 mt-2 overflow-hidden rounded-[26px] border border-[#E3D9FF] bg-[linear-gradient(120deg,#231147_0%,#3A1D78_45%,#5D31BD_100%)] px-5 py-6 text-white shadow-[0_20px_45px_rgba(36,16,82,0.3)] sm:px-8">
+        <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
+          {storeFromList.storeName} Deals & Coupon Codes
+        </h1>
+        <p className="mt-2 max-w-2xl text-sm text-white/85">
+          Explore the latest verified offers from {storeFromList.storeName}.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <span className="rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold">
+            {totalOffers} Active Offers
+          </span>
+          <span className="rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold">
+            {hasReviews ? reviews.length : 0} Reviews
+          </span>
+        </div>
+      </section>
 
-      <div className="border-b pb-2 mb-4 px-4 flex flex-row gap-4 items-start text-left md:items-start">
+      <div className="mt-6 border-b pb-2 mb-4 px-4 flex flex-row gap-4 items-start text-left md:items-start">
         <img
           src={storeFromList.storeImage}
           alt="store"
@@ -149,41 +166,35 @@ const IndividualStore = () => {
         </div>
       </div>
 
-      <TextLink text="Top Codes" colorText="" link="" linkText="" />
-      <div className="space-y-4 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:justify-around">
-        {deals.length === 0 ? (
-          <GridSkeleton count={3} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" itemClassName="h-36 rounded-lg bg-gray-200" />
-        ) : deals
-          .filter(
-            (deal) =>
-              deal.store === storeFromList.storeName &&
-              deal.dealCategory === "coupon"
-          )
-          .map((deal) => (
-            <Coupons_Deals key={deal._id} data={deal} border={true} />
-          ))}
-      </div>
+      {topCodes.length > 0 && (
+        <>
+          <TextLink text="Top Codes" colorText="" link="" linkText="" />
+          <div className="space-y-4 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:justify-around">
+            {topCodes.map((deal) => (
+              <Coupons_Deals key={deal._id} data={deal} border={true} />
+            ))}
+          </div>
+        </>
+      )}
 
-      <TextLink text="Top" colorText="Deals" link="/deal" linkText="View All" />
-      <div className="flex overflow-x-scroll">
-        {deals.length === 0 ? (
-          <RowSkeleton count={3} />
-        ) : deals
-          .filter(
-            (deal) =>
-              deal.store === storeFromList.storeName &&
-              deal.dealCategory === "deal"
-          )
-          .map((deal) => (
-            <DealCard key={deal._id} data={deal} />
-          ))}
-      </div>
+      {topDeals.length > 0 && (
+        <>
+          <TextLink text="Top" colorText="Deals" link="/deal" linkText="View All" />
+          <div className="flex overflow-x-scroll">
+            {topDeals.map((deal) => (
+              <DealCard key={deal._id} data={deal} />
+            ))}
+          </div>
+        </>
+      )}
 
-      <HeadingText
-        title={storeFromList.storeName}
-        isHtml={true}
-        content={storeFromList.storeHtmlContent}
-      />
+      {hasHtmlContent && (
+        <HeadingText
+          title={`About ${storeFromList.storeName}`}
+          isHtml={true}
+          content={storeFromList.storeHtmlContent}
+        />
+      )}
 
       {/* <BarChartCard
         data={chartData}
@@ -240,27 +251,25 @@ const IndividualStore = () => {
         </div>
       </div> */}
 
-      <div className="bg-[#592EA9] text-white my-4">
-        <p className="px-4 py-2">Popular Stores</p>
-        <div className="flex overflow-x-auto space-x-4 p-4 scrollbar-hide">
-          {stores.length === 0 ? (
-            <RowSkeleton count={3} />
-          ) : stores
-            .filter((store) => store.popularStore)
-            .map((store) => (
+      {popularStores.length > 0 && (
+        <div className="bg-[#592EA9] text-white my-4">
+          <p className="px-4 py-2">Popular Stores</p>
+          <div className="flex overflow-x-auto space-x-4 p-4 scrollbar-hide">
+            {popularStores.map((store) => (
               <PopularBrandCard key={store._id} data={store} />
             ))}
+          </div>
         </div>
-      </div>
+      )}
 
-      <TextLink text="User" colorText="Reviews" link="" linkText="" />
-      <div className="px-4 flex gap-4 overflow-x-scroll">
-        {reviews.length > 0 ? (
-          reviews.map((review) => <ReviewCard key={review._id} data={review} />)
-        ) : (
-          <RowSkeleton count={2} />
-        )}
-      </div>
+      {hasReviews && (
+        <>
+          <TextLink text="User" colorText="Reviews" link="" linkText="" />
+          <div className="px-4 flex gap-4 overflow-x-scroll">
+            {reviews.map((review) => <ReviewCard key={review._id} data={review} />)}
+          </div>
+        </>
+      )}
 
       <FAQAccordion />
 

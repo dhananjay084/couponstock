@@ -1,22 +1,14 @@
 "use client";
 
 import React from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { toast } from "react-toastify";
 
 const PopularBrandCard = ({ data }) => {
   if (!data) return null;
 
-  const router = useRouter();
   const { storeImage, storeName, slug } = data;
-
-  const handleCardClick = () => {
-    if (!slug) {
-      toast.error("Store slug not found!");
-      return;
-    }
-    router.push(`/store/${slug}`);
-  };
+  const storeHref = slug ? `/store/${slug}` : "#";
 
   return (
     <div className="flex flex-col w-full mx-auto">
@@ -27,12 +19,19 @@ const PopularBrandCard = ({ data }) => {
           alt={storeName || "Brand"}
         />
         <div className="absolute bottom-3 right-5 z-10">
-          <button
+          <Link
+            href={storeHref}
+            prefetch
             className="bg-[#E9E4F4] rounded-lg px-4 py-2 text-[#592EA9] shadow-lg cursor-pointer"
-            onClick={handleCardClick}
+            onClick={(e) => {
+              if (!slug) {
+                e.preventDefault();
+                toast.error("Store slug not found!");
+              }
+            }}
           >
             View
-          </button>
+          </Link>
         </div>
       </div>
       <div className="my-2 text-[#592EA9] px-2">

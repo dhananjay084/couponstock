@@ -21,10 +21,10 @@ const DealOfWeek = ({ data }) => {
 
   return (
     <div
-      className="text-xs space-y-1 w-[15%] min-w-[125px] cursor-pointer"
+      className="w-[15%] min-w-[125px] cursor-pointer space-y-1 text-xs"
       onClick={handleCardClick}
     >
-      <div className="relative w-full aspect-square bg-white rounded-lg shadow-[0px_2px_10.3px_0px_rgba(0,0,0,0.25)] overflow-hidden">
+      <div className="pro-card relative aspect-square w-full overflow-hidden rounded-xl">
         <Image
           src={dealImage || "/default-deal.jpg"}
           alt={homePageTitle || "Deal Image"}
@@ -32,7 +32,7 @@ const DealOfWeek = ({ data }) => {
           className="object-cover"
         />
       </div>
-      <Typography color="#592ea9" className="truncate">
+      <Typography color="#4B3A80" className="truncate text-[11px] font-semibold">
         {homePageTitle}
       </Typography>
     </div>

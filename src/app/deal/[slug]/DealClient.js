@@ -6,7 +6,6 @@ import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import {
   Typography,
-  Box,
   Button,
 } from "@mui/material";
 import HeadingText from "../../../components/Minor/HeadingText";
@@ -179,75 +178,86 @@ const DealDetailsContent = ({ initialDeal }) => {
     if (Number.isNaN(d.getTime())) return "";
     return d.toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" });
   };
+  const normalizeText = (value = "") =>
+    String(value).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().toLowerCase();
+  const detailsText = normalizeText(dealDetails.details || "");
+  const descriptionText = normalizeText(dealDetails.dealDescription || "");
+  const hasDetails = Boolean(detailsText);
+  const hasDescription = Boolean(descriptionText);
+  const showDescriptionSection = hasDescription && descriptionText !== detailsText;
+  const normalizedTitle = normalizeText(dealDetails.dealTitle || "");
+  const normalizedHeadline = normalizeText(dealDetails.headline || "");
+  const showHeadline = Boolean(normalizedHeadline) && normalizedHeadline !== normalizedTitle;
+  const relatedDeals = deals.filter(
+    (deal) =>
+      deal.categorySelect === category &&
+      deal._id !== dealDetails._id &&
+      deal.dealCategory === "deal"
+  );
+  const hasRelatedDeals = relatedDeals.length > 0;
+  const hasReviews = reviews.length > 0;
+  const summaryText =
+    dealDetails.dealDescription ||
+    dealDetails.homePageTitle ||
+    "Explore this offer and activate it before it expires.";
 
   return (
     <>
+      <section className="mx-4 mt-4 overflow-hidden rounded-[26px] border border-[#E3D9FF] bg-[linear-gradient(120deg,#231147_0%,#3A1D78_45%,#5D31BD_100%)] px-5 py-6 text-white shadow-[0_20px_45px_rgba(36,16,82,0.3)] sm:px-8">
+        <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
+          {dealDetails.dealTitle}
+        </h1>
+        <p className="mt-2 max-w-2xl text-sm text-white/85">
+          {summaryText}
+        </p>
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          {dealDetails.store && (
+            <span className="rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold">
+              {dealDetails.store}
+            </span>
+          )}
+          {dealDetails.dealCategory && (
+            <span className="rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold capitalize">
+              {dealDetails.dealCategory}
+            </span>
+          )}
+          {dealDetails.expiredDate && (
+            <span className="rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold">
+              Expires {formatDate(dealDetails.expiredDate)}
+            </span>
+          )}
+          <Button
+            variant="contained"
+            sx={{
+              backgroundColor: "#ffffff",
+              color: "#3A1D78",
+              borderRadius: "999px",
+              padding: "8px 20px",
+              textTransform: "none",
+              fontWeight: 700,
+              "&:hover": { backgroundColor: "#f3ecff" },
+            }}
+            onClick={handleShopNow}
+          >
+            Shop Now
+          </Button>
+        </div>
+      </section>
+
       {!isStructured && (
         <>
-          <Box
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-            mb={3}
-            flexWrap="wrap"
-            gap={2}
-            maxWidth='95%'
-            marginX='auto'
-            marginTop={2}
-          >
-            <Typography variant="h4" sx={{ fontSize: '22px', color: "#592EA9", fontWeight: "700" }}>
-              {dealDetails.dealTitle}
-            </Typography>
-
-            <Button
-              variant="contained"
-              sx={{
-                backgroundColor: "#592EA9",
-                borderRadius: "10px",
-                padding: "10px 24px",
-                textTransform: "none",
-                "&:hover": { backgroundColor: "#4a2380" },
-              }}
-              onClick={handleShopNow}
-            >
-              Shop Now
-            </Button>
-          </Box>
-
-          {dealDetails.homePageTitle && (
-            <Typography variant="h5" sx={{ fontSize: '18px', color: "#592EA9", fontWeight: "600" }} maxWidth='95%' marginX='auto'>
-              {dealDetails.homePageTitle}
-            </Typography>
+          {hasDetails && (
+            <HeadingText
+              title="Deal Details"
+              isHtml={true}
+              content={dealDetails.details}
+            />
           )}
-
-          <HeadingText
-            title="Deal Details"
-            isHtml={true}
-            content={dealDetails.details}
-          />
         </>
       )}
 
       {isStructured && (
         <div className="mx-auto max-w-6xl p-6">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <h1 className="text-2xl font-bold text-gray-800">
-              {dealDetails.dealTitle}
-            </h1>
-            <Button
-              variant="contained"
-              sx={{
-                backgroundColor: "#592EA9",
-                borderRadius: "10px",
-                padding: "10px 24px",
-                textTransform: "none",
-                "&:hover": { backgroundColor: "#4a2380" },
-              }}
-              onClick={handleShopNow}
-            >
-              Shop Now
-            </Button>
-          </div>
           <div className="grid grid-cols-1 gap-8 rounded-2xl bg-white p-8 shadow-sm lg:grid-cols-2">
             <div className="flex items-center justify-center">
               {(dealDetails.descriptionImage || dealDetails.dealImage) && (
@@ -273,7 +283,7 @@ const DealDetailsContent = ({ initialDeal }) => {
                 )}
               </div>
 
-              {dealDetails.headline && (
+              {showHeadline && (
                 <h2 className="text-xl font-semibold text-gray-800">
                   {dealDetails.headline}
                 </h2>
@@ -352,50 +362,43 @@ const DealDetailsContent = ({ initialDeal }) => {
         </div>
       )}
 
-      <Typography
-        variant="h4"
-        fontWeight="bold"
-        sx={{ color: "#592EA9", fontSize: '18px' }}
-        maxWidth='95%'
-        marginX='auto'
-      >
-        Related Deals
-      </Typography>
-      
-      <div className="flex overflow-x-scroll gap-4 p-4">
-        {deals.length === 0 ? (
-          <RowSkeleton count={3} />
-        ) : deals
-          .filter(
-            (deal) =>
-              deal.categorySelect === category &&
-              deal._id !== dealDetails._id &&
-              deal.dealCategory === "deal"
-          )
-          .map((deal) => (
-            <DealCard key={deal._id} data={deal} />
-          ))}
-      </div>
+      {hasRelatedDeals && (
+        <>
+          <Typography
+            variant="h4"
+            fontWeight="bold"
+            sx={{ color: "#592EA9", fontSize: '18px' }}
+            maxWidth='95%'
+            marginX='auto'
+          >
+            Related Deals
+          </Typography>
+          <div className="flex overflow-x-scroll gap-4 p-4">
+            {relatedDeals.map((deal) => (
+              <DealCard key={deal._id} data={deal} />
+            ))}
+          </div>
+        </>
+      )}
 
-      {!isStructured && (
+      {!isStructured && showDescriptionSection && (
         <HeadingText
-          title={dealDetails.dealTitle}
+          title="About This Deal"
           isHtml={true}
           content={dealDetails.dealDescription}
         />
       )}
 
-      <TextLink text="User" colorText="Reviews" link="" linkText="" />
-
-      <div className="pt-0 p-4 flex gap-4 overflow-x-scroll">
-        {reviews.length > 0 ? (
-          reviews.map((review) => (
-            <ReviewCard key={review._id} data={review} />
-          ))
-        ) : (
-          <RowSkeleton count={2} />
-        )}
-      </div>
+      {hasReviews && (
+        <>
+          <TextLink text="User" colorText="Reviews" link="" linkText="" />
+          <div className="pt-0 p-4 flex gap-4 overflow-x-scroll">
+            {reviews.map((review) => (
+              <ReviewCard key={review._id} data={review} />
+            ))}
+          </div>
+        </>
+      )}
 
       <LoginModal
         isOpen={isModalOpen}

@@ -27,8 +27,11 @@ const BlogCard = ({
   headingClamp,
   descriptionClamp,
   fixedHeight,
+  showViewButton = false,
+  compact = false,
 }) => {
   const router = useRouter();
+  const detailUrl = `/blog/${slugWithId(blog?.heading, blog?._id)}`;
   const rawDescription = stripHTML(blog?.details);
   const description =
     typeof descriptionLimit === "number"
@@ -37,8 +40,8 @@ const BlogCard = ({
 
   return (
     <div
-      onClick={() => router.push(`/blog/${slugWithId(blog?.heading, blog?._id)}`)}
-      className={`cursor-pointer bg-white rounded-2xl shadow-md overflow-hidden 
+      onClick={() => router.push(detailUrl)}
+      className={`pro-card cursor-pointer overflow-hidden 
       transition hover:shadow-lg ${large ? "h-full" : ""} ${forceFullHeight ? "h-full flex flex-col" : ""} ${className}`}
       style={fixedHeight ? { height: fixedHeight } : undefined}
     >
@@ -46,14 +49,14 @@ const BlogCard = ({
       <img
         src={blog.image}
         alt={blog.heading}
-        className={`w-full object-cover ${large ? "h-80" : "h-48"}`}
+        className={`w-full object-cover ${large ? "h-80" : compact ? "h-36" : "h-48"}`}
       />
 
       {/* CONTENT */}
-      <div className={`p-6 ${forceFullHeight ? "flex-1 flex flex-col" : ""}`}>
+      <div className={`${compact ? "p-4 sm:p-5" : "p-6"} ${forceFullHeight ? "flex-1 flex flex-col" : ""}`}>
         {/* TITLE */}
         <h2
-          className="text-2xl font-semibold text-gray-800 mb-2 leading-snug"
+          className={`${compact ? "mb-2 text-lg" : "mb-2 text-xl"} font-bold leading-snug text-[#1A243B]`}
           style={
             headingClamp
               ? {
@@ -70,7 +73,7 @@ const BlogCard = ({
 
         {/* DESCRIPTION */}
         <p
-          className="text-gray-500 text-[15px] leading-relaxed"
+          className="text-[14px] leading-relaxed text-[#5D6780]"
           style={
             descriptionClamp
               ? {
@@ -85,16 +88,34 @@ const BlogCard = ({
           {description}
         </p>
 
-        {/* AUTHOR + DATE */}
-        <div className={`flex justify-between items-center mt-6 text-sm text-gray-400 ${forceFullHeight ? "mt-auto" : ""}`}>
-          <span>By {blog.author || "Admin"}</span>
-          <span>
-            {new Date(blog.updatedAt).toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })}
-          </span>
+        {/* AUTHOR + DATE + ACTION */}
+        <div
+          className={`mt-4 flex items-end justify-between gap-3 text-sm text-[#7B8498] ${
+            forceFullHeight ? "mt-auto" : ""
+          }`}
+        >
+          <div className="min-w-0">
+            <p className="truncate">By {blog.author || "Admin"}</p>
+            <p>
+              {new Date(blog.updatedAt).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </p>
+          </div>
+          {showViewButton && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                router.push(detailUrl);
+              }}
+              className="shrink-0 rounded-lg bg-[#5B3CC4] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#4A2FA8]"
+            >
+              View
+            </button>
+          )}
         </div>
       </div>
     </div>

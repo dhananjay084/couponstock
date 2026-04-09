@@ -10,7 +10,6 @@ import { slugWithId } from "../../lib/slugify";
 
 const FeaturedPost = ({ blog }) => {
   const router = useRouter();
-  console.log(blog)
   const getFirst200Words = (htmlString) => {
     // Strip HTML and get plain text
     const tempDiv = document.createElement("div");
@@ -33,7 +32,7 @@ const FeaturedPost = ({ blog }) => {
   };
 
   return (
-    <div className="p-4 border-2 border-[#f1f1f1] rounded-lg w-full">
+    <div className="pro-card w-full p-4">
       <div className="relative w-full h-[300px] mb-4">
         <Image
           src={blog.image || "/default-blog.jpg"}
@@ -44,12 +43,12 @@ const FeaturedPost = ({ blog }) => {
         />
       </div>
 
-      <span className="font-medium text-[15px] flex gap-1 items-center">
+      <span className="flex items-center gap-1 text-[14px] font-medium text-[#59637A]">
         <p>By</p>
-        <Typography color="#592ea9">{blog.author || "Author"}</Typography>
+        <Typography color="#5b3cc4" fontWeight={700}>{blog.author || "Author"}</Typography>
       </span>
 
-      <p className="font-medium text-[15px] mt-1">
+      <p className="mt-1 text-[13px] font-medium text-[#6F7890]">
         {new Date(blog.updatedAt).toLocaleDateString("en-US", {
           weekday: "long",
           day: "numeric",
@@ -57,9 +56,9 @@ const FeaturedPost = ({ blog }) => {
           year: "numeric",
         })}
       </p>
-<p className="font-blod text-xl">{blog.heading}</p>
+      <p className="line-clamp-2 text-xl font-bold text-[#1A243B]">{blog.heading}</p>
       <Typography
-        sx={{ fontSize: "13px", mt: 1 }}
+        sx={{ fontSize: "13px", mt: 1, color: "#59637A", lineHeight: 1.6 }}
         dangerouslySetInnerHTML={{ __html: getFirst200Words(blog.details) }}
       />
 
@@ -67,10 +66,10 @@ const FeaturedPost = ({ blog }) => {
         type="button"
         variant="contained"
         color="black"
-        sx={{ color: "#fff", borderRadius: "7px", mt: 2 ,background:'#282828' , cursor: "pointer"}}
+        sx={{ color: "#fff", borderRadius: "10px", mt: 2 ,background:'#5B3CC4' , cursor: "pointer", fontWeight: 700, px: 2.2 }}
         onClick={handleClick}
       >
-        View
+        Read Post
       </Button>
     </div>
   );

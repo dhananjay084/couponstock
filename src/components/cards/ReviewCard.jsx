@@ -7,11 +7,11 @@ const ReviewCard = ({ data }) => {
   const { name, designation, desc, image } = data || {};
 
   return (
-    <div className="shadow-2xl border border-[#f1f1f1] p-4 min-w-[350px] max-w-[350px] space-y-2">
+    <div className="pro-card min-w-[320px] max-w-[350px] space-y-3 p-4">
       <div className="flex justify-between items-center">
         <div>
-          <p className="font-semibold text-[12px]">{name || "Anonymous"}</p>
-          <p className="text-[7px]">{designation || "Designation"}</p>
+          <p className="text-[13px] font-semibold text-[#1A243B]">{name || "Anonymous"}</p>
+          <p className="text-[10px] text-[#67718A]">{designation || "Designation"}</p>
         </div>
         <div className="relative w-[50px] h-[50px] rounded-full overflow-hidden">
           <Image
@@ -23,7 +23,7 @@ const ReviewCard = ({ data }) => {
         </div>
       </div>
       <div>
-        <p className="text-[10px]">{desc || "No review available."}</p>
+        <p className="text-[12px] leading-5 text-[#4F5A74]">{desc || "No review available."}</p>
       </div>
     </div>
   );

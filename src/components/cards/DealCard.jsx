@@ -2,7 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { toast } from "react-toastify";
 
 const DealCard = ({ data }) => {
@@ -11,91 +11,68 @@ const DealCard = ({ data }) => {
     return null;
   }
 
-  const router = useRouter();
   const { dealDescription, dealImage, homePageTitle, store, categorySelect, _id, slug } = data;
+  const urlSlug = slug || _id;
+  const dealHref = `/deal/${urlSlug}${categorySelect ? `?category=${categorySelect}` : ""}`;
 
   const handleCardClick = () => {
     if (!_id) {
       toast.error("Deal ID is missing!");
       return;
     }
-    
-    // ✅ UPDATED: Use slug instead of _id with fallback
-    const urlSlug = slug || _id;
-    
-    // Build the URL with category parameter
-    const url = `/deal/${urlSlug}${categorySelect ? `?category=${categorySelect}` : ''}`;
-    
-    console.log("Navigating to:", url); // For debugging
-    router.push(url);
   };
 
   return (
     <div className="relative w-fit">
-      {/* ✅ STORE TAG */}
       {store && (
         <div
-          className="absolute bottom-0 right-4 
-          bg-[#592EA9] 
-          text-white text-xs font-semibold 
-          px-2 py-1
-          rounded-tl-lg rounded-br-lg 
-          shadow-sm z-10"
-          style={{ border: "1px solid #C7D7FF" }}
+          className="absolute right-6 top-2 z-10 rounded-full border border-[#CDBBFF] bg-[#5B3CC4] px-2.5 py-1 text-[10px] font-semibold text-white shadow"
         >
           {store}
         </div>
       )}
 
-      {/* MAIN CARD */}
-      <div 
-        className="flex mx-4 border border-[#cacaca] rounded-lg shadow-lg min-w-[277px] max-w-[450px] overflow-hidden bg-white cursor-pointer hover:shadow-xl transition-shadow duration-300"
-        onClick={handleCardClick}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            handleCardClick();
-          }
-        }}
+      <Link
+        href={dealHref}
+        prefetch
+        className="pro-card mx-4 flex min-w-[277px] max-w-[460px] cursor-pointer overflow-hidden"
       >
-        {/* Image Section */}
-        <div className="w-[110px] flex-shrink-0 bg-white flex items-center justify-center p-2">
+        <div className="flex w-[118px] flex-shrink-0 items-center justify-center bg-white p-2.5">
           <Image
             src={dealImage || "/default-deal.jpg"}
             alt={homePageTitle || "Deal Image"}
             width={100}
             height={100}
-            className="w-full h-full object-contain"
+            className="h-full w-full object-contain"
             unoptimized={dealImage?.includes('http')} // For external images
             priority={false}
           />
         </div>
 
-        {/* Text + Button Section */}
-        <div className="flex flex-col justify-between p-3 flex-1">
-          <div className="space-y-1">
-            <p className="text-sm font-semibold text-[#222] line-clamp-1">
+        <div className="flex flex-1 flex-col justify-between p-3.5">
+          <div className="space-y-1.5">
+            <p className="line-clamp-1 text-sm font-bold text-[#1E2635]">
               {homePageTitle || "Untitled Deal"}
             </p>
-            <p className="text-[11px] text-[#444] line-clamp-2">
+            <p className="line-clamp-2 text-[11px] text-[#5A667E]">
               {dealDescription || "No description available"}
             </p>
           </div>
 
           <button
-            className="bg-[#592EA921] text-[#592EA9] text-sm rounded-md px-4 py-1.5 shadow mt-2 self-start hover:bg-[#592EA935] transition-colors duration-200"
+            className="pro-btn-soft mt-2 self-start"
             onClick={(e) => {
-              e.stopPropagation(); // Prevent card click event
-              handleCardClick();
+              if (!_id) {
+                e.preventDefault();
+                toast.error("Deal ID is missing!");
+              }
             }}
             aria-label={`View ${homePageTitle || 'deal'}`}
           >
             View
           </button>
         </div>
-      </div>
+      </Link>
     </div>
   );
 };

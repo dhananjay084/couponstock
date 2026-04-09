@@ -1,41 +1,39 @@
 "use client";
 
 import React from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { toast } from "react-toastify";
 
 const CategoryCard = ({ data }) => {
   if (!data) return null;
 
-  const router = useRouter();
   const { image, name } = data;
-
-  const handleClick = () => {
-    if (!name) {
-      toast.error("Category not found!");
-      return;
-    }
-    router.push(`/category/${encodeURIComponent(name.toLowerCase())}`);
-  };
+  const categoryHref = name ? `/category/${encodeURIComponent(name.toLowerCase())}` : "#";
 
   return (
-    <div
+    <Link
+      href={categoryHref}
+      prefetch
       className="
-        text-xs text-center space-y-1 w-full cursor-pointer
-        transform transition-all duration-300
-        hover:-translate-y-2 
+        w-full cursor-pointer space-y-1 text-center text-xs
+        transition-all duration-300 hover:-translate-y-1.5
       "
-      onClick={handleClick}
+      onClick={(e) => {
+        if (!name) {
+          e.preventDefault();
+          toast.error("Category not found!");
+        }
+      }}
     >
-      <div className="p-1 rounded-2xl bg-white shadow-[0px_2px_10.3px_0px_rgba(0,0,0,0.25)] w-full aspect-square flex items-center justify-center overflow-hidden">
+      <div className="pro-card flex aspect-square w-full items-center justify-center overflow-hidden rounded-2xl p-1.5">
         <img
           src={image || "/default-category.jpg"}
-          className="w-full h-full rounded-2xl object-fill"
+          className="h-full w-full rounded-xl object-cover"
           alt={name || "Category"}
         />
       </div>
-      <p className="px-2 truncate">{name || "Unnamed"}</p>
-    </div>
+      <p className="truncate px-2 text-[11px] font-semibold text-[#39445A]">{name || "Unnamed"}</p>
+    </Link>
   );
 };
 

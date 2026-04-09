@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { toast } from "react-toastify";
 
 
@@ -12,40 +12,35 @@ const BannerCard = ({ data }) => {
     return null;
   }
 
-
-  const router = useRouter();
-
- const handleCardClick = () => {
-     console.log("clciked card")
-     if (!data?.slug) {
-       toast.error("Store slug not found!");
-       return;
-     }
-     router.push(`/store/${data.slug}`);
-   };
+  const storeHref = data?.slug ? `/store/${data.slug}` : "#";
 
   return (
-    <div className="bg-white rounded-2xl w-full max-w-sm overflow-hidden min-w-[322px]">
-      {/* Image */}
+    <div className="pro-card w-full min-w-[322px] max-w-sm overflow-hidden">
       <img
         src={data.storeImage}
         alt="Promotion"
-        className="w-full h-[250px] object-fill rounded-2xl"
+        className="h-[220px] w-full object-cover"
       />
 
-      {/* Content */}
-      <div className="p-2 flex justify-between items-center">
-        <span className="max-w-[60%]">
-          <p className="text-[#592EA9] font-semibold text-lg">
-            <span className="text-[#592EA9] font-bold">{data.storeName}</span>
+      <div className="flex items-center justify-between gap-3 p-3">
+        <span className="max-w-[62%]">
+          <p className="line-clamp-2 text-sm font-bold text-[#1A2440]">
+            <span>{data.storeName}</span>
           </p>
         </span>
-        <button
-          className="bg-[#E5DBF9] text-[#592EA9] px-6 py-2 text-sm rounded-full shadow-md hover:bg-[#d6c6f5] transition-all cursor-pointer"
-          onClick={handleCardClick}
+        <Link
+          href={storeHref}
+          prefetch
+          className="pro-btn-soft whitespace-nowrap"
+          onClick={(e) => {
+            if (!data?.slug) {
+              e.preventDefault();
+              toast.error("Store slug not found!");
+            }
+          }}
         >
           View
-        </button>
+        </Link>
       </div>
     </div>
   );

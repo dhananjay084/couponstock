@@ -18,7 +18,8 @@ import { fetchCountries, setSelectedCountry } from "../../redux/country/countryS
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
-import { Pagination, Autoplay } from "swiper/modules";
+import "swiper/css/navigation";
+import { Pagination, Autoplay, Navigation } from "swiper/modules";
 import BannerCard from "../../components/cards/BannerCards";
 import { GridSkeleton, RowSkeleton } from "../../components/skeletons/InlineSkeletons";
 import { useRouter } from "next/navigation";
@@ -106,21 +107,36 @@ useEffect(() => {
 
   return (
     <>
-      <div>
-      <h1 className="px-4 mt-3 text-2xl sm:text-3xl font-extrabold tracking-tight 
-text-[#592EA9] drop-shadow-sm flex items-center gap-2">
-  ALL DEALS 
-  <span className="text-[#222] font-semibold">& COUPON CODES</span>
-</h1>
+      <main className="site-shell px-2 pb-10">
+      <section className="mx-2 mt-4 overflow-hidden rounded-[26px] border border-[#E3D9FF] bg-[linear-gradient(120deg,#231147_0%,#3A1D78_45%,#5D31BD_100%)] px-5 py-6 text-white shadow-[0_20px_45px_rgba(36,16,82,0.3)] sm:px-8">
+        <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
+          All Deals & Coupon Codes
+        </h1>
+        <p className="mt-2 max-w-2xl text-sm text-white/85">
+          Browse active offers from verified stores and filter instantly by country, store, or category.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <span className="rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold">
+            {filteredActiveDeals.length} Active Offers
+          </span>
+          <span className="rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold">
+            {stores.length} Stores
+          </span>
+          <span className="rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold">
+            {categories.length} Categories
+          </span>
+        </div>
+      </section>
 
         {/* <Banner text="" colorText="" BgImage={AjioBanner} link= 'https://www.ajio.com/' /> */}
-        <div className="lg:hidden px-2 pb-4 mt-6">
+        <div className="mt-6 lg:hidden px-2 pb-4">
   {homeAdmin.loading ? (
     <RowSkeleton count={2} itemClassName="h-36 w-full rounded-lg bg-gray-200" />
   ) : Array.isArray(pageBannerDeals) && pageBannerDeals.length > 0 ? (
     <Swiper
-      modules={[Pagination, Autoplay]}
+      modules={[Pagination, Autoplay, Navigation]}
       pagination={{ clickable: true }}
+      navigation
       autoplay={{ delay: 2500, disableOnInteraction: false }}
       spaceBetween={10}
       loop
@@ -144,14 +160,15 @@ text-[#592EA9] drop-shadow-sm flex items-center gap-2">
 
 
       {/* Desktop Banner Cards */}
-      <div className="lg:flex flex-wrap gap-4 p-4 justify-center lg:justify-between hidden">
+      <div className="hidden flex-wrap justify-center gap-4 p-4 lg:flex lg:justify-between">
         {homeAdmin.loading ? (
           <GridSkeleton count={3} className="grid grid-cols-3 gap-4 w-full" itemClassName="h-40 rounded-lg bg-gray-200" />
         ) : Array.isArray(pageBannerDeals) && pageBannerDeals.length > 0 ? (
           pageBannerDeals.length > 3 ? (
             <Swiper
-              modules={[Pagination, Autoplay]}
+              modules={[Pagination, Autoplay, Navigation]}
               pagination={{ clickable: true }}
+              navigation
               autoplay={{ delay: 2500, disableOnInteraction: false }}
               spaceBetween={16}
               loop
@@ -177,8 +194,8 @@ text-[#592EA9] drop-shadow-sm flex items-center gap-2">
           <div className="text-center w-full">No deals available</div>
         )}
       </div>
-        <div className="w-full px-4 md:px-8 my-4">
-          <div className="flex flex-col gap-4 rounded-2xl border border-[#E4D8FF] bg-gradient-to-br from-[#F7F4FF] to-white p-5 shadow-sm">
+        <div className="my-4 w-full px-4 md:px-8">
+          <div className="pro-card flex flex-col gap-4 rounded-2xl border border-[#E4D8FF] bg-gradient-to-br from-[#F7F4FF] to-white p-5 shadow-sm">
             <div className="flex items-center justify-between flex-wrap gap-3">
               <TextLink text="All" colorText="Offers" link="" linkText="" />
               <span className="text-xs font-medium tracking-wide text-[#6B5B95]">
@@ -307,7 +324,7 @@ text-[#592EA9] drop-shadow-sm flex items-center gap-2">
           </div>
         </div>
 {/* Active Deals */}
-<div className=" mt-4 space-y-4 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:justify-around max-h-[500px] overflow-y-auto">
+<div className="mt-4 grid grid-cols-1 gap-4 px-2 sm:grid-cols-2 lg:grid-cols-3">
   {dealsLoading && filteredActiveDeals.length === 0 ? (
     <GridSkeleton count={6} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" itemClassName="h-40 rounded-lg bg-gray-200" />
   ) : filteredActiveDeals.length > 0 ? (
@@ -329,13 +346,13 @@ text-[#592EA9] drop-shadow-sm flex items-center gap-2">
             <p className="text-sm text-gray-500">No reviews found.</p>
           )}
         </div>
-      </div>
 
       <HeadingText
         title={data.allCouponsAboutHeading}
         content={data.allCouponsAboutDescription || ""}
         isHtml={true}
       />
+      </main>
     </>
   );
 };

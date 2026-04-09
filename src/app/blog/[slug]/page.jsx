@@ -42,8 +42,37 @@ const BlogDetails = () => {
   const blogDetails = currentBlog?.details || "";
   const isHTML = /<\/?[a-z][\s\S]*>/i.test(blogDetails); // simple HTML check
   const headingText = currentBlog?.heading || (slug ? titleize(slug.split("--")[0]) : "Blog");
+  const otherBlogs = blogs.filter((blog) => blog?._id !== currentBlog?._id);
+  const hasOtherBlogs = otherBlogs.length > 0;
+  const publishDate = currentBlog
+    ? new Date(currentBlog.createdAt || currentBlog.updatedAt || Date.now()).toLocaleDateString(undefined, {
+        weekday: "long",
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      })
+    : "";
  return (
   <div className="p-4">
+    {currentBlog && (
+      <section className="mx-2 mt-2 overflow-hidden rounded-[26px] border border-[#E3D9FF] bg-[linear-gradient(120deg,#231147_0%,#3A1D78_45%,#5D31BD_100%)] px-5 py-6 text-white shadow-[0_20px_45px_rgba(36,16,82,0.3)] sm:px-8">
+        <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
+          {headingText || "Untitled"}
+        </h1>
+        <p className="mt-2 max-w-2xl text-sm text-white/85">
+          Read this detailed post and explore more stories from our blog.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <span className="rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold">
+            {publishDate}
+          </span>
+          <span className="rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold">
+            {otherBlogs.length} More Blogs
+          </span>
+        </div>
+      </section>
+    )}
+
     {/* Banner */}
     {currentBlog?.image ? (
       <Banner
@@ -75,18 +104,8 @@ const BlogDetails = () => {
       ) : currentBlog ? (
         <>
           <p className="text-sm text-purple-600 font-semibold">
-            {new Date(
-              currentBlog.createdAt || currentBlog.updatedAt || Date.now()
-            ).toLocaleDateString(undefined, {
-              weekday: "long",
-              day: "numeric",
-              month: "short",
-              year: "numeric",
-            })}
+            {publishDate}
           </p>
-          <h1 className="text-xl font-bold text-gray-900 mt-2">
-            {headingText || "Untitled"}
-          </h1>
           <Typography
             sx={{ fontSize: "13px" }}
             {...(isHTML
@@ -100,14 +119,20 @@ const BlogDetails = () => {
     </div>
 
     {/* All Blogs Section */}
-    <h2 className="font-semibold text-2xl my-8">All Blogs</h2>
-    <div className="gap-4 overflow-x-auto flex">
-      {loading && blogs.length === 0 ? (
-        <RowSkeleton count={3} />
-      ) : blogs.map((blog) => (
-        <BlogCard key={blog._id} data={blog} border={true} />
-      ))}
-    </div>
+    {(loading || hasOtherBlogs) && (
+      <>
+        <h2 className="font-semibold text-2xl my-8">All Blogs</h2>
+        <div className="gap-4 overflow-x-auto flex">
+          {loading && blogs.length === 0 ? (
+            <RowSkeleton count={3} />
+          ) : (
+            otherBlogs.map((blog) => (
+              <BlogCard key={blog._id} data={blog} border={true} />
+            ))
+          )}
+        </div>
+      </>
+    )}
   </div>
 );
 

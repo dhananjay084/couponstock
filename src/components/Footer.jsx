@@ -13,7 +13,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { getStores } from "../redux/store/storeSlice";
 
 const toStoreSlug = (name) => slugify(name.replace(/&/g, "and"));
-const normalizeType = (value = "") => value.toString().trim().toLowerCase();
 
 const Footer = () => {
   const dispatch = useDispatch();
@@ -26,40 +25,26 @@ const Footer = () => {
   }, [dispatch, selectedCountry]);
 
   const grouped = useMemo(() => {
-    const matchesSection = (store, keywords) => {
-      const type = normalizeType(store.storeType);
-      return keywords.some((keyword) => type.includes(keyword));
-    };
-
-    const byKeywords = (keywords) =>
-      stores.filter((store) => matchesSection(store, keywords)).slice(0, 9);
-
-    const fashion = byKeywords(["fashion", "apparel", "clothing"]);
-    const beauty = byKeywords(["beauty", "cosmetic", "skincare", "makeup"]);
-    const travel = byKeywords(["travel", "flight", "hotel", "booking"]);
-    const food = byKeywords(["food", "restaurant", "grocery", "delivery"]);
-    const popular = stores.filter((store) => store.popularStore).slice(0, 8);
-
-    const fallback = stores.slice(0, 9);
-
+    const popular = stores.filter((store) => store.popularStore).slice(0, 12);
     return {
-      fashion: fashion.length ? fashion : fallback,
-      beauty: beauty.length ? beauty : fallback,
-      travel: travel.length ? travel : fallback,
-      food: food.length ? food : fallback,
-      popular: popular.length ? popular : stores.slice(0, 8),
+      popular: popular.length ? popular : stores.slice(0, 12),
     };
   }, [stores]);
 
   const renderStoreLinks = (items) => {
     if (!items.length) {
-      return <span className="text-gray-500">No stores for selected country.</span>;
+      return <span className="text-[#9FAAC0]">No stores for selected country.</span>;
     }
     return items.map((store) => {
       const name = store.storeName || "Store";
       const slug = store.slug || toStoreSlug(name);
       return (
-        <Link key={store._id || slug} href={`/store/${encodeURIComponent(slug)}`} className="hover:text-white">
+        <Link
+          key={store._id || slug}
+          href={`/store/${encodeURIComponent(slug)}`}
+          prefetch
+          className="rounded-full border border-[#263147] bg-[#111a2f] px-2 py-1 text-[11px] text-[#C9D5EF] transition hover:border-[#3B4B6B] hover:text-white"
+        >
           {name}
         </Link>
       );
@@ -67,13 +52,21 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-black text-gray-300 text-sm">
-      <div className="max-w-7xl mx-auto px-6 py-12 space-y-10">
-        {/* Top Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+    <footer className="mt-16 bg-[#0A1020] text-sm text-[#C8D0E2]">
+      <div className="border-b border-[#1B2741] bg-[radial-gradient(circle_at_top_right,rgba(91,60,196,0.3),transparent_45%),radial-gradient(circle_at_bottom_left,rgba(15,159,98,0.15),transparent_45%)]">
+        <div className="mx-auto max-w-7xl px-6 py-10">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#95A3C2]">MyCouponStock</p>
+          <h2 className="mt-2 max-w-3xl text-2xl font-extrabold leading-tight text-white sm:text-3xl">
+            Save smarter with verified coupons, handpicked deals and trusted store offers.
+          </h2>
+        </div>
+      </div>
+
+      <div className="mx-auto max-w-7xl space-y-10 px-6 py-12">
+        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div>
-            <h3 className="text-white font-semibold mb-4">ABOUT</h3>
-            <ul className="space-y-2">
+            <h3 className="mb-4 text-[12px] font-bold uppercase tracking-[0.2em] text-white">About</h3>
+            <ul className="space-y-2.5">
               <li><Link href="/about">About Us</Link></li>
               <li><Link href="/blogs">Blog</Link></li>
               <li><Link href="/contact">Contact</Link></li>
@@ -83,21 +76,19 @@ const Footer = () => {
           </div>
 
           <div>
-            <h3 className="text-white font-semibold mb-4">COUPON STOCK</h3>
-            <div className="text-white font-bold text-lg mb-3">MyCouponStock</div>
-            <ul className="space-y-2">
+            <h3 className="mb-4 text-[12px] font-bold uppercase tracking-[0.2em] text-white">Coupon Stock</h3>
+            <div className="mb-3 text-lg font-extrabold text-white">MyCouponStock</div>
+            <ul className="space-y-2.5">
               <li><Link href="/deals">All Coupons</Link></li>
-              <li><Link href="/store">All Stores</Link></li>
-              <li><Link href="/category">All Category</Link></li>
             </ul>
-            <p className="text-gray-400 mt-4">
+            <p className="mt-4 text-[#9EABC6]">
               Your Trusted Coupon Stock Partner for Daily Savings
             </p>
           </div>
 
           <div>
-            <h3 className="text-white font-semibold mb-4">GLOBAL COUPONS</h3>
-            <ul className="space-y-2">
+            <h3 className="mb-4 text-[12px] font-bold uppercase tracking-[0.2em] text-white">Global Coupons</h3>
+            <ul className="space-y-2.5">
               <li><Link href="/country/global">Global Coupons</Link></li>
               <li><Link href="/country/india">India Coupons</Link></li>
               <li><Link href="/country/usa">USA Coupons</Link></li>
@@ -110,62 +101,37 @@ const Footer = () => {
           </div>
 
           <div>
-            <h3 className="text-white font-semibold mb-4">SOCIAL MEDIA</h3>
+            <h3 className="mb-4 text-[12px] font-bold uppercase tracking-[0.2em] text-white">Social Media</h3>
             <div className="flex space-x-4">
-              <a href="https://www.facebook.com/mycouponstock/?_rdr" target="_blank" rel="noopener noreferrer" className="hover:text-white">
+              <a href="https://www.facebook.com/mycouponstock/?_rdr" target="_blank" rel="noopener noreferrer" className="rounded-full border border-[#2A3755] p-2 transition hover:border-[#425889] hover:text-white">
                 <FaFacebookF />
               </a>
-              <a href="https://x.com/mycouponstock" target="_blank" rel="noopener noreferrer" className="hover:text-white">
+              <a href="https://x.com/mycouponstock" target="_blank" rel="noopener noreferrer" className="rounded-full border border-[#2A3755] p-2 transition hover:border-[#425889] hover:text-white">
                 <FaTwitter />
               </a>
-              <a href="https://www.instagram.com/mycouponstock/" target="_blank" rel="noopener noreferrer" className="hover:text-white">
+              <a href="https://www.instagram.com/mycouponstock/" target="_blank" rel="noopener noreferrer" className="rounded-full border border-[#2A3755] p-2 transition hover:border-[#425889] hover:text-white">
                 <FaInstagram />
               </a>
-              <a href="https://www.linkedin.com/company/mycouponstock/" target="_blank" rel="noopener noreferrer" className="hover:text-white">
+              <a href="https://www.linkedin.com/company/mycouponstock/" target="_blank" rel="noopener noreferrer" className="rounded-full border border-[#2A3755] p-2 transition hover:border-[#425889] hover:text-white">
                 <FaLinkedinIn />
               </a>
             </div>
           </div>
         </div>
 
-        {/* Category Lists */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 text-gray-400">
+        <div className="grid grid-cols-1 gap-8 text-[#A7B3CC]">
           <div>
-            <h4 className="text-white font-semibold mb-2">Fashion</h4>
-            <div className="flex flex-wrap gap-x-2 gap-y-1">
-              {renderStoreLinks(grouped.fashion)}
-            </div>
-          </div>
-          <div>
-            <h4 className="text-white font-semibold mb-2">Beauty</h4>
-            <div className="flex flex-wrap gap-x-2 gap-y-1">
-              {renderStoreLinks(grouped.beauty)}
-            </div>
-          </div>
-          <div>
-            <h4 className="text-white font-semibold mb-2">Travel</h4>
-            <div className="flex flex-wrap gap-x-2 gap-y-1">
-              {renderStoreLinks(grouped.travel)}
-            </div>
-          </div>
-          <div>
-            <h4 className="text-white font-semibold mb-2">Food</h4>
-            <div className="flex flex-wrap gap-x-2 gap-y-1">
-              {renderStoreLinks(grouped.food)}
-            </div>
-          </div>
-          <div>
-            <h4 className="text-white font-semibold mb-2">Popular Stores</h4>
-            <div className="flex flex-wrap gap-x-2 gap-y-1">
+            <h4 className="mb-2 font-semibold text-white">Popular Stores</h4>
+            <div className="flex flex-wrap gap-2">
               {renderStoreLinks(grouped.popular)}
             </div>
           </div>
         </div>
       </div>
 
-      <div className="border-t border-gray-800"></div>
+      <div className="border-t border-[#1B2741]"></div>
 
-      <div className="max-w-7xl mx-auto px-6 py-6 text-gray-500 text-xs text-center">
+      <div className="mx-auto max-w-7xl px-6 py-6 text-center text-xs text-[#8D9AB6]">
         © 2026 MyCouponStock. All rights reserved.
       </div>
     </footer>

@@ -4,6 +4,13 @@ import ClientLayout from "./ClientLayout"; // move client logic here
 import "react-quill/dist/quill.snow.css";
 import Script from "next/script";
 import { Suspense } from "react";
+import { Plus_Jakarta_Sans } from "next/font/google";
+
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-jakarta",
+});
 
 // export const metadata = {
 //   title: "My Couponstock",
@@ -25,7 +32,7 @@ gtag('js', new Date());
 gtag('config', 'G-GNT9Z6HJXS');`}
         </Script>
       </head>
-      <body suppressHydrationWarning>
+      <body className={plusJakarta.variable} suppressHydrationWarning>
         <Providers>
           <Suspense fallback={<div className="p-4">Loading...</div>}>
             <ClientLayout>{children}</ClientLayout>

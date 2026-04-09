@@ -32,18 +32,18 @@ const NewsLetter = () => {
   }, [success, error, dispatch]);
 
   return (
-    <div className="mt-8">
-      <div className="mx-auto relative w-[300px] h-[150px] sm:w-[400px] sm:h-[200px]">
+    <div className="pro-card rounded-2xl border border-[#E3E8F2] bg-white p-4 sm:p-6">
+      <div className="relative mx-auto h-[150px] w-[300px] sm:h-[200px] sm:w-[400px]">
         <Image src={NewsletterImg} alt="Newsletter" fill style={{ objectFit: "contain" }} />
       </div>
 
-      <div className="max-w-[70%] mx-auto text-center mt-4">
-        <p className="font-medium text-[12px]">Get our weekly</p>
-        <p className="text-[20px] font-semibold">NEWSLETTER</p>
-        <p className="text-[12px]">
+      <div className="mx-auto mt-4 max-w-[80%] text-center sm:max-w-[70%]">
+        <p className="text-[12px] font-medium text-[#6D7790]">Get our weekly</p>
+        <p className="text-[24px] font-extrabold tracking-tight text-[#1A243B]">NEWSLETTER</p>
+        <p className="text-[12px] leading-5 text-[#5B667F]">
           Get weekly updates on the newest design stories, case studies and tips right in your mailbox.
         </p>
-        <Typography color="#592ea9" sx={{ fontSize: "12px" }}>
+        <Typography color="#5b3cc4" sx={{ fontSize: "12px", fontWeight: 700 }}>
           Subscribe now!
         </Typography>
 
@@ -54,11 +54,26 @@ const NewsLetter = () => {
             fullWidth
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "12px",
+                bgcolor: "#FAFBFF",
+              },
+            }}
           />
           <Button
             type="submit"
             variant="contained"
-            sx={{ color: "#fff", borderRadius: "7px", mt: 2, background: '#282828', cursor: "pointer" }}
+            sx={{
+              color: "#fff",
+              borderRadius: "10px",
+              mt: 2,
+              px: 3,
+              fontWeight: 700,
+              background: "#5B3CC4",
+              cursor: "pointer",
+              "&:hover": { background: "#4A30A9" },
+            }}
           >
             {loading ? "Submitting..." : "Submit"}
           </Button>

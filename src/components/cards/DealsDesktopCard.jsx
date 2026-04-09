@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import CouponModal from "../modals/couponModels";
 import { toast } from "react-toastify";
 
@@ -11,23 +11,9 @@ const BannerCard = ({ data }) => {
     return null;
   }
 
-  const router = useRouter();
   const [modalOpen, setModalOpen] = useState(false);
-
-  const handleCardClick = () => {
-    console.log("card clicked")
-    console.log(data)
-    if (!data?._id) {
-      toast.error("Deal ID is missing!");
-      return;
-    }
-    
-    // ✅ UPDATED: Use slug instead of _id
-    // Fallback to _id if slug doesn't exist yet
-    const urlSlug = data.slug || data._id;
-    
-    router.push(`/deal/${urlSlug}?category=${data.categorySelect}`);
-  };
+  const urlSlug = data?.slug || data?._id;
+  const dealHref = urlSlug ? `/deal/${urlSlug}?category=${data.categorySelect}` : "#";
 
   const handleModalClick = () => {
     if (!data) {
@@ -40,32 +26,37 @@ const BannerCard = ({ data }) => {
 
   return (
     <>
-      <div className="bg-white rounded-2xl w-full max-w-sm overflow-hidden min-w-[322px]">
-        {/* Image */}
+      <div className="pro-card w-full min-w-[322px] max-w-sm overflow-hidden">
         <img
           src={data.dealImage}
           alt="Promotion"
-          className="w-full h-[250px] object-fill rounded-2xl"
+          className="h-[220px] w-full object-cover"
         />
 
-        {/* Content */}
-        <div className="p-2 flex justify-between items-center">
-          <span className="max-w-[60%]">
-            <p className="text-[#592EA9] font-semibold text-lg">
-              <span className="text-[#592EA9] font-bold">{data.homePageTitle}</span>
+        <div className="flex items-center justify-between gap-3 p-3">
+          <span className="max-w-[62%]">
+            <p className="line-clamp-2 text-sm font-bold text-[#1A2440]">
+              <span>{data.homePageTitle}</span>
             </p>
           </span>
 
           {data.dealCategory === "deal" ? (
-            <button
-              className="bg-[#E5DBF9] text-[#592EA9] px-6 py-2 text-sm rounded-full shadow-md hover:bg-[#d6c6f5] transition-all cursor-pointer"
-              onClick={handleCardClick}
+            <Link
+              href={dealHref}
+              prefetch
+              className="pro-btn-soft whitespace-nowrap"
+              onClick={(e) => {
+                if (!data?._id) {
+                  e.preventDefault();
+                  toast.error("Deal ID is missing!");
+                }
+              }}
             >
               Shop Now
-            </button>
+            </Link>
           ) : (
             <button
-              className="bg-[#E5DBF9] text-[#592EA9] px-6 py-2 text-sm rounded-full shadow-md hover:bg-[#d6c6f5] transition-all cursor-pointer"
+              className="pro-btn-soft whitespace-nowrap"
               onClick={handleModalClick}
             >
               Show Code

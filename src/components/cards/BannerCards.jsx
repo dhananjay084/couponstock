@@ -46,35 +46,20 @@ const ProductCard = ({ data }) => {
         : `?user_id=${encodeURIComponent(trackedUserId)}`;
     }
   
-    console.log("Final Redirect URL:", finalUrl);
     window.open(finalUrl, "_blank"); // open in new tab
   };
   
 
   return (
     <div
-    className="relative bg-white rounded-2xl shadow-lg overflow-hidden w-full h-full cursor-pointer"
+    className="pro-card relative h-full w-full cursor-pointer overflow-hidden"
     onClick={handleRedirect}
   >
-    {/* Image */}
     <img
       src={data.dealImage}
       alt="Product Image"
-      className="w-full h-auto object-contain block"
+      className="block h-auto w-full object-cover"
     />
-  
-    {/* Button (on top of image, bottom-right) */}
-    {/* <div className="absolute bottom-4 right-4">
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          handleRedirect();
-        }}
-        className="bg-[#E5DBF9] text-[#592EA9] font-semibold px-6 py-2 rounded-full text-sm shadow-md hover:bg-[#d6c6f5] transition cursor-pointer"
-      >
-        Shop Now
-      </button>
-    </div> */}
   </div>
   
   );

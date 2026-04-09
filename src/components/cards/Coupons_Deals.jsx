@@ -2,14 +2,13 @@
 
 import React, { useState } from "react";
 import { Typography } from "@mui/material";
+import Link from "next/link";
 import CouponModal from "../modals/couponModels";
-import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
 const Coupons_Deals = ({ border, disabled, data }) => {
   if (!data) return null;
 
-  const router = useRouter();
   const { dealDescription, dealImage, homePageTitle, dealCategory } = data;
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -21,13 +20,7 @@ const Coupons_Deals = ({ border, disabled, data }) => {
     setModalOpen(true);
   };
 
-  const handleDealClick = () => {
-    if (!data?._id) {
-      toast.error("Deal ID missing!");
-      return;
-    }
-    router.push(`/deal/${data._id}?category=${data.categorySelect}`);
-  };
+  const dealHref = data?._id ? `/deal/${data._id}?category=${data.categorySelect}` : "#";
 
   return (
     <>
@@ -36,7 +29,7 @@ const Coupons_Deals = ({ border, disabled, data }) => {
         {/* MAIN CARD */}
         <div
           className={`flex items-center gap-4 px-4 py-4 mx-2 rounded-xl transition-all duration-200 
-            ${border ? "border-2 border-[#f1f1f1] shadow-[0px_2px_10px_rgba(202,202,202,1)]" : ""}
+            ${border ? "pro-card" : ""}
             ${disabled ? "opacity-70 cursor-not-allowed" : "cursor-pointer hover:shadow-md"}
           `}
         >
@@ -45,7 +38,7 @@ const Coupons_Deals = ({ border, disabled, data }) => {
             <img
               src={dealImage || "/default-deal.jpg"}
               alt="Deal"
-              className="w-full h-full"
+              className="w-full h-full object-cover"
             />
             {disabled && (
               <div className="absolute inset-0 bg-black bg-opacity-50 rounded-lg" />
@@ -82,20 +75,34 @@ const Coupons_Deals = ({ border, disabled, data }) => {
             </div>
 
             {/* Action Button */}
-            <button
-              onClick={
-                dealCategory === "coupon" ? handleCardClick : handleDealClick
-              }
-              disabled={disabled}
-              className={`
-                mt-3 self-start px-4 py-1.5 text-sm rounded-md shadow
-                ${disabled
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-[#E9E4F4] text-[#592EA9] hover:bg-[#dcd4ee]"}
-              `}
-            >
-              {dealCategory === "coupon" ? "Code" : "View"}
-            </button>
+            {dealCategory === "coupon" ? (
+              <button
+                onClick={handleCardClick}
+                disabled={disabled}
+                className={`
+                  mt-3 self-start px-4 py-1.5 text-sm rounded-md shadow
+                  ${disabled
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    : "bg-[#F2EBFF] text-[#5B3CC4] border border-[#DCCEFF] hover:bg-[#EADFFF]"}
+                `}
+              >
+                Code
+              </button>
+            ) : (
+              <Link
+                href={dealHref}
+                prefetch
+                onClick={(e) => {
+                  if (!data?._id) {
+                    e.preventDefault();
+                    toast.error("Deal ID missing!");
+                  }
+                }}
+                className="mt-3 self-start rounded-md border border-[#DCCEFF] bg-[#F2EBFF] px-4 py-1.5 text-sm text-[#5B3CC4] shadow hover:bg-[#EADFFF]"
+              >
+                View
+              </Link>
+            )}
           </div>
         </div>
 
@@ -103,14 +110,14 @@ const Coupons_Deals = ({ border, disabled, data }) => {
         {data?.store && (
           <div
             className="absolute bottom-0 right-2 
-            bg-[#592EA9] 
+            bg-[#5B3CC4] 
             text-[#fff] 
-            px-5 py-3 text-xs font-semibold
-            rounded-tl-lg
-            rounded-br-lg
+            px-4 py-2 text-[11px] font-semibold
+            rounded-tl-xl
+            rounded-br-xl
             shadow-sm"
             style={{
-              border: "1px solid #C7D7FF",
+              border: "1px solid #D7C8FF",
             }}
           >
             {data.store}

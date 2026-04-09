@@ -17,15 +17,16 @@ const FAQAccordion = ({ data, imageUrl }) => {
   };
 
   const displayFaqs = Array.isArray(data) ? data.slice(0, 8) : [];
+  const showTwoColumns = displayFaqs.length > 4;
 
   return (
-    <div className="max-w-2xl mx-auto py-10 px-4">
+    <div className="mx-auto max-w-5xl px-4 py-10">
       <h2 className="text-center text-2xl font-semibold text-gray-900 mb-6">
         Frequently Asked Questions
       </h2>
 
-      <div className="sm:grid sm:grid-cols-2 gap-4">
-        <div className="hidden sm:block relative w-full h-[400px]">
+      <div className="grid gap-5 sm:grid-cols-[0.95fr_1.35fr]">
+        <div className="relative hidden h-[420px] w-full sm:block">
           <Image
             src={imageUrl || FaqImage}
             alt="FAQ"
@@ -35,13 +36,13 @@ const FAQAccordion = ({ data, imageUrl }) => {
           />
         </div>
 
-        <div className="space-y-4">
+        <div className={`grid gap-4 ${showTwoColumns ? "md:grid-cols-2" : "grid-cols-1"}`}>
           {displayFaqs.map((faq, index) => (
             <Accordion
               key={index}
               expanded={expanded === index}
               onChange={handleChange(index)}
-              className={`rounded-lg shadow-lg  cursor-pointer ${
+              className={`h-full rounded-lg shadow-lg cursor-pointer ${
                 expanded === index ? "border border-gray-300" : ""
               }`}
               sx={{
@@ -60,12 +61,12 @@ const FAQAccordion = ({ data, imageUrl }) => {
                     <AddIcon className="text-[#592EA9]" />
                   )
                 }
-                className={`px-6 py-4 ${
+                className={`min-h-[74px] px-5 py-3 ${
                   expanded === index ? "border-b border-gray-200" : ""
                 }`}
               >
                 <Typography
-                  className={`font-semibold text-lg ${
+                  className={`font-semibold text-base leading-6 ${
                     expanded === index ? "text-[#592EA9]" : "text-gray-900"
                   }`}
                 >

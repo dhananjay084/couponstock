@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { toast } from "react-toastify";
 
 const PopularBrandCard = ({ data }) => {
@@ -10,37 +10,35 @@ const PopularBrandCard = ({ data }) => {
     return null;
   }
 
-  const router = useRouter();
   const { storeImage, storeName, slug } = data;
-
-  const handleCardClick = () => {
-    console.log("card clicked")
-    if (!slug) {
-      toast.error("Store slug not found!");
-      return;
-    }
-    router.push(`/store/${slug}`);
-  };
+  const storeHref = slug ? `/store/${slug}` : "#";
 
   return (
-    <div>
-      <div className="relative border border-[#cacaca] rounded-lg shadow-lg flex-shrink-0 w-[200px] md:w-[220px] lg:w-[250px] overflow-hidden">
+    <div className="w-[200px] flex-shrink-0 md:w-[220px] lg:w-[250px]">
+      <div className="pro-card relative overflow-hidden">
         <img
           src={storeImage || "/default-store.jpg"}
-          className="w-full h-[120px] md:h-[140px] lg:h-[160px] object-fill rounded-lg"
+          className="h-[130px] w-full object-cover md:h-[146px] lg:h-[164px]"
           alt={storeName || "Brand"}
         />
-        <div className="absolute bottom-3 right-5 z-10">
-          <button
-            className="bg-[#E9E4F4] rounded-lg px-4 py-2 text-[#592EA9] shadow-lg cursor-pointer"
-            onClick={handleCardClick}
+        <div className="absolute bottom-3 right-3 z-10">
+          <Link
+            href={storeHref}
+            prefetch
+            className="pro-btn-soft"
+            onClick={(e) => {
+              if (!slug) {
+                e.preventDefault();
+                toast.error("Store slug not found!");
+              }
+            }}
           >
             View
-          </button>
+          </Link>
         </div>
       </div>
-      <div className="my-2 text-[#592EA9]">
-        <p>{storeName}</p>
+      <div className="my-2">
+        <p className="truncate text-sm font-semibold text-[#33265a]">{storeName}</p>
       </div>
     </div>
   );

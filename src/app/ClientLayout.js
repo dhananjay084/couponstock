@@ -4,10 +4,11 @@ import NavBar from "../components/NavBar";
 import Footer from "../components/Footer";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Head from "next/head";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCountries, setSelectedCountry } from "../redux/country/countrySlice";
 import { addCountryPrefix, findCountryNameByCode, getCountryCodeFromName, isAllowedCountryCode, splitCountryPrefix } from "../lib/countryPath";
+import NewsLetter from "../components/Minor/NewsLetter";
 // import withSkeleton from "@/components/skeletons/WithSkeleton";
 
 
@@ -20,8 +21,13 @@ export default function ClientLayout({ children }) {
   const { countries = [], selectedCountry } = useSelector((state) => state.country || {});
   const { basePath: layoutBasePath } = splitCountryPrefix(pathname);
   const hideLayout = layoutBasePath === "/login" || layoutBasePath === "/signup" || layoutBasePath === "/payment";
+  const [showNewsletterPopup, setShowNewsletterPopup] = useState(false);
+  const hasNormalizedRootPath = useRef(false);
   const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://mycouponstock.com").replace(/\/$/, "");
   const canonicalUrl = `${baseUrl}${pathname || "/"}`;
+  const isAdminRoute = pathname.startsWith("/admin");
+  const isHomeRoute = layoutBasePath === "/";
+  const shouldUsePageShell = !hideLayout && !isAdminRoute && !isHomeRoute;
 
   useEffect(() => {
     if (!countries.length) dispatch(fetchCountries());
@@ -78,7 +84,7 @@ export default function ClientLayout({ children }) {
     return () => {
       cancelled = true;
     };
-  }, [countries, dispatch, pathname, selectedCountry]);
+  }, [countries, dispatch, selectedCountry]);
 
   useEffect(() => {
     if (!countries.length) return;
@@ -113,11 +119,19 @@ export default function ClientLayout({ children }) {
     if (hideLayout) return;
     if (pathname.startsWith("/admin")) return;
     if (pathname.startsWith("/country")) return;
+    if (hasNormalizedRootPath.current) return;
+
+    // Avoid double-hop navigation on every click.
+    // Only normalize the bare root path once so internal routing remains fast.
+    const { countryCode } = splitCountryPrefix(pathname);
+    if (countryCode) return;
+    if (pathname !== "/") return;
 
     const nextPath = addCountryPrefix(pathname, selectedCountry);
     if (nextPath === pathname) return;
     const query = searchParams.toString();
     const nextUrl = query ? `${nextPath}?${query}` : nextPath;
+    hasNormalizedRootPath.current = true;
     router.replace(nextUrl);
   }, [hideLayout, pathname, router, searchParams, selectedCountry]);
 
@@ -129,8 +143,32 @@ export default function ClientLayout({ children }) {
       <Head>
         <link rel="canonical" href={canonicalUrl} />
       </Head>
+      {showNewsletterPopup && (
+        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/45 px-4">
+          <div className="relative w-full max-w-md rounded-2xl border border-[#E4D8FF] bg-white p-4 shadow-xl">
+            <button
+              onClick={() => setShowNewsletterPopup(false)}
+              className="absolute right-3 top-2 cursor-pointer text-lg font-bold text-[#592EA9]"
+              aria-label="Close newsletter popup"
+            >
+              ×
+            </button>
+            <NewsLetter />
+          </div>
+        </div>
+      )}
       {!hideLayout && <NavBar />}
-       {children}
+      {!isAdminRoute && (
+        <button
+          type="button"
+          aria-label="Open newsletter popup"
+          onClick={() => setShowNewsletterPopup(true)}
+          className="fixed bottom-6 right-5 z-[80] flex h-12 w-12 items-center justify-center rounded-full bg-[#592EA9] text-white shadow-[0_14px_30px_rgba(89,46,169,0.36)] transition hover:bg-[#4B2295]"
+        >
+          ✉
+        </button>
+      )}
+      {shouldUsePageShell ? <div className="site-shell site-gutter py-3">{children}</div> : children}
       {!hideLayout && <Footer />}
     </>
   );

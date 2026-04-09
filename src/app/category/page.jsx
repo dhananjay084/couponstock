@@ -11,7 +11,8 @@ import { getHomeAdminData } from "../../redux/admin/homeAdminSlice";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
-import { Pagination, Autoplay } from "swiper/modules";
+import "swiper/css/navigation";
+import { Pagination, Autoplay, Navigation } from "swiper/modules";
 import BannerCard from "../../components/cards/BannerCards";
 import { GridSkeleton, RowSkeleton } from "../../components/skeletons/InlineSkeletons";
 
@@ -51,16 +52,22 @@ const AllCategories = () => {
 
   return (
     <div className="overflow-x-hidden">
-      <h1 className="px-4 pt-2 text-2xl font-bold text-[#592EA9]">
-        Categories
-      </h1>
+      <section className="mx-2 mt-4 overflow-hidden rounded-[26px] border border-[#E3D9FF] bg-[linear-gradient(120deg,#231147_0%,#3A1D78_45%,#5D31BD_100%)] px-5 py-6 text-white shadow-[0_20px_45px_rgba(36,16,82,0.3)] sm:px-8">
+        <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
+          All Categories
+        </h1>
+        <p className="mt-2 max-w-2xl text-sm text-white/85">
+          Browse coupon and deal categories to quickly discover offers for travel, fashion, food, tech, and more.
+        </p>
+      </section>
       <div className="lg:hidden px-2 pb-4 mt-6">
         {homeAdmin.loading ? (
           <RowSkeleton count={2} itemClassName="h-36 w-full rounded-lg bg-gray-200" />
         ) : Array.isArray(pageBannerDeals) && pageBannerDeals.length > 0 ? (
           <Swiper
-            modules={[Pagination, Autoplay]}
+            modules={[Pagination, Autoplay, Navigation]}
             pagination={{ clickable: true }}
+            navigation
             autoplay={{ delay: 2500, disableOnInteraction: false }}
             spaceBetween={10}
             loop
@@ -87,8 +94,9 @@ const AllCategories = () => {
         ) : Array.isArray(pageBannerDeals) && pageBannerDeals.length > 0 ? (
           pageBannerDeals.length > 3 ? (
             <Swiper
-              modules={[Pagination, Autoplay]}
+              modules={[Pagination, Autoplay, Navigation]}
               pagination={{ clickable: true }}
+              navigation
               autoplay={{ delay: 2500, disableOnInteraction: false }}
               spaceBetween={16}
               loop

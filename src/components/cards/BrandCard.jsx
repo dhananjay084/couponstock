@@ -1,60 +1,53 @@
 "use client";
 
 import React from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { toast } from "react-toastify";
 
 const DealCard = ({ data }) => {
-  const router = useRouter();
-
   if (!data) return null;
 
   const { storeDescription, storeImage, storeName } = data;
-
-  const handleCardClick = () => {
-    console.log("clciked card")
-    if (!data?.slug) {
-      toast.error("Store slug not found!");
-      return;
-    }
-    router.push(`/store/${data.slug}`);
-  };
+  const storeHref = data?.slug ? `/store/${data.slug}` : "#";
   
 
   return (
-    <div className="relative flex items-center mx-4 border border-[#cacaca] rounded-lg shadow-md min-w-[277px] max-w-[450px] bg-white overflow-hidden">
+    <div className="pro-card relative mx-4 flex min-w-[277px] max-w-[450px] items-center overflow-hidden">
 
-      {/* ⭐ STORE NAME BADGE */}
       {storeName && (
         <div
-          className="absolute bottom-0 right-0 bg-[#592EA9] text-white text-xs font-semibold px-3 py-1 
-          rounded-br-lg shadow-sm z-10"
+          className="absolute right-2 top-2 z-10 rounded-full border border-[#CDBBFF] bg-[#5B3CC4] px-2.5 py-1 text-[10px] font-semibold text-white shadow"
         >
           {storeName}
         </div>
       )}
 
-      {/* Image Section */}
-      <div className="w-[110px] h-[110px] flex-shrink-0 bg-white flex items-center justify-center p-2">
+      <div className="flex h-[112px] w-[112px] flex-shrink-0 items-center justify-center bg-white p-2.5">
         <img
           src={storeImage || "/default-store.jpg"}
           alt="Store"
-          className="w-full h-full rounded-md"
+          className="h-full w-full rounded-xl object-cover"
         />
       </div>
 
-      {/* Text and Button Section */}
-      <div className="flex flex-col justify-between p-3 flex-1">
-        <p className="text-xs text-[#222] line-clamp-3">
+      <div className="flex flex-1 flex-col justify-between p-3.5">
+        <p className="line-clamp-3 text-[11px] text-[#59637A]">
           {storeDescription || "No description available."}
         </p>
 
-        <button
-          onClick={handleCardClick}
-          className="bg-[#592EA921] text-[#592EA9] text-sm rounded-md px-4 py-1.5 shadow mt-3 self-start"
+        <Link
+          href={storeHref}
+          prefetch
+          className="pro-btn-soft mt-3 self-start"
+          onClick={(e) => {
+            if (!data?.slug) {
+              e.preventDefault();
+              toast.error("Store slug not found!");
+            }
+          }}
         >
           View
-        </button>
+        </Link>
       </div>
     </div>
   );

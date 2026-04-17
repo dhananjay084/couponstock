@@ -3,7 +3,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import { Dialog, DialogContent, Typography } from "@mui/material";
 import TextLink from "../../../components/Minor/TextLink";
 import Coupons_Deals from "../../../components/cards/Coupons_Deals";
 import PopularBrandCard from "../../../components/cards/PopularBrandWithText";
@@ -14,15 +13,13 @@ import { LiaPercentageSolid } from "react-icons/lia";
 import { FaTruck } from "react-icons/fa6";
 import { MdAssignmentReturned } from "react-icons/md";
 import { RiCoupon2Fill } from "react-icons/ri";
-import { RiCloseLine } from "react-icons/ri";
 import { FaCheckCircle } from "react-icons/fa";
-import ReviewCard from "../../../components/cards/ReviewCard";
 import FAQAccordion from "../../../components/Minor/Faq";
 import { GridSkeleton, RowSkeleton, TextSkeleton } from "../../../components/skeletons/InlineSkeletons";
+import ArrowScrollRow from "../../../components/Minor/ArrowScrollRow";
 
 import { getDeals } from "../../../redux/deal/dealSlice";
 import { getStores } from "../../../redux/store/storeSlice.js";
-import { fetchReviews } from "../../../redux/review/reviewSlice";
 // import { toast } from "react-toastify";
 
 
@@ -30,11 +27,10 @@ const IndividualStore = () => {
   const params = useParams();
   const { slug } = params;
   const dispatch = useDispatch();
-  const [isDescOpen, setIsDescOpen] = useState(false);
+  const [isDescExpanded, setIsDescExpanded] = useState(false);
 
   const { deals = [] } = useSelector((state) => state.deal);
   const { stores = [], loading, error } = useSelector((state) => state.store);
-  const { reviews = [] } = useSelector((state) => state.reviews);
   const { selectedCountry } = useSelector((state) => state.country || {});
 
   // const storeFromList = stores.find((store) => store._id === id);
@@ -45,7 +41,6 @@ const IndividualStore = () => {
     if (!selectedCountry) return;
     dispatch(getDeals(selectedCountry));
     dispatch(getStores(selectedCountry));
-    dispatch(fetchReviews());
   }, [dispatch, selectedCountry]);
 
   const { chartData, todayCount } = useMemo(() => {
@@ -111,60 +106,51 @@ const IndividualStore = () => {
   );
   const popularStores = stores.filter((store) => store.popularStore);
   const hasHtmlContent = Boolean(storeFromList.storeHtmlContent);
-  const hasReviews = reviews.length > 0;
   const totalOffers = topCodes.length + topDeals.length;
 
   return (
     <div>
       <section className="mx-6 mt-2 overflow-hidden rounded-[26px] border border-[#E3D9FF] bg-[linear-gradient(120deg,#231147_0%,#3A1D78_45%,#5D31BD_100%)] px-5 py-6 text-white shadow-[0_20px_45px_rgba(36,16,82,0.3)] sm:px-8">
-        <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
-          {storeFromList.storeName} Deals & Coupon Codes
-        </h1>
-        <p className="mt-2 max-w-2xl text-sm text-white/85">
-          Explore the latest verified offers from {storeFromList.storeName}.
-        </p>
-        <div className="mt-4 flex flex-wrap gap-2">
-          <span className="rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold">
-            {totalOffers} Active Offers
-          </span>
-          <span className="rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold">
-            {hasReviews ? reviews.length : 0} Reviews
-          </span>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+          <div className="h-16 w-16 flex-shrink-0 rounded-full bg-white/95 p-2 ring-2 ring-white/30 shadow sm:h-20 sm:w-20">
+            <img
+              src={storeFromList.storeImage}
+              alt={`${storeFromList.storeName} logo`}
+              className="h-full w-full rounded-full object-contain"
+              loading="lazy"
+            />
+          </div>
+
+          <div className="min-w-0">
+            <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
+              {storeFromList.storeName} Deals & Coupon Codes
+            </h1>
+            <div
+              className={`mt-2 max-w-3xl overflow-hidden text-sm leading-relaxed text-white/85 transition-all duration-300 ease-in-out ${
+                isDescExpanded ? "max-h-[26rem]" : "max-h-[4.5rem]"
+              }`}
+            >
+              {description || `Explore the latest verified offers from ${storeFromList.storeName}.`}
+            </div>
+            {shouldTruncate && description ? (
+              <button
+                type="button"
+                onClick={() => setIsDescExpanded((v) => !v)}
+                className="mt-2 text-xs font-semibold text-white/90 underline underline-offset-2 hover:text-white"
+                aria-expanded={isDescExpanded}
+              >
+                {isDescExpanded ? "Show less" : "Show more"}
+              </button>
+            ) : null}
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              <span className="rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold">
+                {totalOffers} Active Offers
+              </span>
+            </div>
+          </div>
         </div>
       </section>
-
-      <div className="mt-6 border-b pb-2 mb-4 px-4 flex flex-row gap-4 items-start text-left md:items-start">
-        <img
-          src={storeFromList.storeImage}
-          alt="store"
-          className="w-20 h-20 md:w-40 md:h-40 rounded-full object-fill border-4 border-[#592EA9] flex-shrink-0"
-        />
-
-        <div className="flex-1">
-          <Typography sx={{ fontSize: { xs: "12px", md: "13px" } }} className="text-gray-700">
-            <span
-              className="block"
-              style={{
-                display: "-webkit-box",
-                WebkitBoxOrient: "vertical",
-                WebkitLineClamp: 3,
-                overflow: "hidden",
-              }}
-            >
-              {description}
-            </span>
-          </Typography>
-          {shouldTruncate && (
-            <button
-              type="button"
-              onClick={() => setIsDescOpen(true)}
-              className="mt-1 text-xs font-semibold text-[#592EA9]"
-            >
-              ... show more
-            </button>
-          )}
-        </div>
-      </div>
 
       {topCodes.length > 0 && (
         <>
@@ -180,11 +166,11 @@ const IndividualStore = () => {
       {topDeals.length > 0 && (
         <>
           <TextLink text="Top" colorText="Deals" link="/deal" linkText="View All" />
-          <div className="flex overflow-x-scroll">
+          <ArrowScrollRow controlsClassName="px-4" scrollerClassName="flex overflow-x-scroll">
             {topDeals.map((deal) => (
               <DealCard key={deal._id} data={deal} />
             ))}
-          </div>
+          </ArrowScrollRow>
         </>
       )}
 
@@ -254,50 +240,15 @@ const IndividualStore = () => {
       {popularStores.length > 0 && (
         <div className="bg-[#592EA9] text-white my-4">
           <p className="px-4 py-2">Popular Stores</p>
-          <div className="flex overflow-x-auto space-x-4 p-4 scrollbar-hide">
+          <ArrowScrollRow controlsClassName="px-4" scrollerClassName="flex space-x-4 overflow-x-auto p-4 scrollbar-hide">
             {popularStores.map((store) => (
               <PopularBrandCard key={store._id} data={store} />
             ))}
-          </div>
+          </ArrowScrollRow>
         </div>
       )}
 
-      {hasReviews && (
-        <>
-          <TextLink text="User" colorText="Reviews" link="" linkText="" />
-          <div className="px-4 flex gap-4 overflow-x-scroll">
-            {reviews.map((review) => <ReviewCard key={review._id} data={review} />)}
-          </div>
-        </>
-      )}
-
       <FAQAccordion />
-
-      <Dialog
-        open={isDescOpen}
-        onClose={() => setIsDescOpen(false)}
-        fullWidth
-        maxWidth="sm"
-      >
-        <DialogContent>
-          <div className="relative flex flex-col items-center text-center gap-4">
-            <button
-              type="button"
-              onClick={() => setIsDescOpen(false)}
-              className="absolute right-0 top-0 text-[#592EA9] p-1"
-              aria-label="Close"
-            >
-              <RiCloseLine className="text-2xl" />
-            </button>
-            <img
-              src={storeFromList.storeImage}
-              alt={`${storeFromList.storeName} logo`}
-              className="w-20 h-20 rounded-full object-fill border-4 border-[#592EA9]"
-            />
-            <p className="text-sm text-gray-700 text-justify">{description}</p>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

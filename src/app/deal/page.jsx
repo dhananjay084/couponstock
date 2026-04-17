@@ -5,10 +5,8 @@ import { useSelector, useDispatch } from "react-redux";
 import Banner from "../../components/Minor/Banner";
 import TextLink from "../../components/Minor/TextLink";
 import Coupons_Deals from "../../components/cards/Coupons_Deals";
-import ReviewCard from "../../components/cards/ReviewCard";
 import HeadingText from "../../components/Minor/HeadingText";
 import { getDeals } from "../../redux/deal/dealSlice";
-import { fetchReviews } from "../../redux/review/reviewSlice";
 import { getHomeAdminData } from "../../redux/admin/homeAdminSlice";
 import { getStores } from "../../redux/store/storeSlice";
 import { getCategories } from "../../redux/category/categorySlice";
@@ -24,13 +22,13 @@ import BannerCard from "../../components/cards/BannerCards";
 import { GridSkeleton, RowSkeleton } from "../../components/skeletons/InlineSkeletons";
 import { useRouter } from "next/navigation";
 import { slugify } from "../../lib/slugify";
+import { addCountryPrefix } from "../../lib/countryPath";
 
 const AllCoupons = () => {
   const dispatch = useDispatch();
   const router = useRouter();
 
   const { deals = [], loading: dealsLoading } = useSelector((state) => state.deal || { deals: [], loading: false });
-  const { reviews = [], loading: reviewsLoading } = useSelector((state) => state.reviews || { reviews: [], loading: false });
   const homeAdmin = useSelector((state) => state.homeAdmin) || { data: [], loading: false };
   const data = homeAdmin.data?.[0] || {};
   const pageBannerDeals =
@@ -41,11 +39,21 @@ const AllCoupons = () => {
         : data.bannerDeals;
   const { countries = [], loading: countriesLoading } = useSelector((state) => state.country || { countries: [], loading: false });
   const { selectedCountry } = useSelector((state) => state.country || {});
+  const countryHeading = React.useMemo(() => {
+    if (!selectedCountry) return "";
+    const label = String(selectedCountry || "").trim();
+    if (!label) return "";
+    const needsApostropheOnly = /s$/i.test(label);
+    return needsApostropheOnly ? `${label}'` : `${label}'s`;
+  }, [selectedCountry]);
   const { stores = [] } = useSelector((state) => state.store || { stores: [] });
   const { categories = [] } = useSelector((state) => state.category || { categories: [] });
   const [selectedCountries, setSelectedCountries] = React.useState([]);
   const [searchTerm, setSearchTerm] = React.useState("");
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
+  const [offerTab, setOfferTab] = React.useState("all");
+  const ITEMS_PER_PAGE = 20;
+  const [currentPage, setCurrentPage] = React.useState(1);
   const dropdownRef = React.useRef();
   useEffect(() => {
   const fetchData = async () => {
@@ -55,7 +63,6 @@ const AllCoupons = () => {
       dispatch(getHomeAdminData(selectedCountry));
       dispatch(getStores(selectedCountry));
     }
-    dispatch(fetchReviews());
     dispatch(getCategories());
   };
 
@@ -84,13 +91,48 @@ const AllCoupons = () => {
 
   // Filter deals by selected countries
 // ✅ Works even if deal.country is an array
-const filteredActiveDeals = selectedCountries.length
-  ? activeDeals.filter((deal) =>
-      Array.isArray(deal.country)
-        ? deal.country.some((c) => selectedCountries.includes(c))
-        : selectedCountries.includes(deal.country)
-    )
-  : activeDeals;
+	const filteredActiveDeals = selectedCountries.length
+	  ? activeDeals.filter((deal) =>
+	      Array.isArray(deal.country)
+	        ? deal.country.some((c) => selectedCountries.includes(c))
+	        : selectedCountries.includes(deal.country)
+	    )
+	  : activeDeals;
+
+  const couponOffers = filteredActiveDeals.filter((deal) => deal?.dealCategory === "coupon");
+  const dealOffers = filteredActiveDeals.filter((deal) => deal?.dealCategory === "deal");
+  const tabbedOffers =
+    offerTab === "coupon" ? couponOffers : offerTab === "deal" ? dealOffers : filteredActiveDeals;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [offerTab, selectedCountries]);
+
+  const totalPages = React.useMemo(() => {
+    const next = Math.ceil(tabbedOffers.length / ITEMS_PER_PAGE);
+    return next > 0 ? next : 1;
+  }, [ITEMS_PER_PAGE, tabbedOffers.length]);
+
+  useEffect(() => {
+    setCurrentPage((prev) => (prev > totalPages ? totalPages : prev));
+  }, [totalPages]);
+
+  const pagedOffers = React.useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return tabbedOffers.slice(start, start + ITEMS_PER_PAGE);
+  }, [ITEMS_PER_PAGE, currentPage, tabbedOffers]);
+
+  const pageButtons = React.useMemo(() => {
+    if (totalPages <= 1) return [];
+    const pages = new Set([1, totalPages]);
+    for (let p = currentPage - 2; p <= currentPage + 2; p += 1) {
+      if (p >= 1 && p <= totalPages) pages.add(p);
+    }
+    return Array.from(pages).sort((a, b) => a - b);
+  }, [currentPage, totalPages]);
+
+  const showingFrom = tabbedOffers.length === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1;
+  const showingTo = Math.min(currentPage * ITEMS_PER_PAGE, tabbedOffers.length);
 
 
 
@@ -108,13 +150,13 @@ useEffect(() => {
   return (
     <>
       <main className="site-shell px-2 pb-10">
-      <section className="mx-2 mt-4 overflow-hidden rounded-[26px] border border-[#E3D9FF] bg-[linear-gradient(120deg,#231147_0%,#3A1D78_45%,#5D31BD_100%)] px-5 py-6 text-white shadow-[0_20px_45px_rgba(36,16,82,0.3)] sm:px-8">
-        <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
-          All Deals & Coupon Codes
-        </h1>
-        <p className="mt-2 max-w-2xl text-sm text-white/85">
-          Browse active offers from verified stores and filter instantly by country, store, or category.
-        </p>
+	      <section className="mx-2 mt-4 overflow-hidden rounded-[26px] border border-[#E3D9FF] bg-[linear-gradient(120deg,#231147_0%,#3A1D78_45%,#5D31BD_100%)] px-5 py-6 text-white shadow-[0_20px_45px_rgba(36,16,82,0.3)] sm:px-8">
+	        <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
+	          {countryHeading ? `${countryHeading} ` : ""}All Deals & Coupon Codes
+	        </h1>
+	        <p className="mt-2 max-w-2xl text-sm text-white/85">
+	          Browse active offers from verified stores and filter instantly by country, store, or category.
+	        </p>
         <div className="mt-4 flex flex-wrap gap-2">
           <span className="rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold">
             {filteredActiveDeals.length} Active Offers
@@ -194,14 +236,14 @@ useEffect(() => {
           <div className="text-center w-full">No deals available</div>
         )}
       </div>
-        <div className="my-4 w-full px-4 md:px-8">
-          <div className="pro-card flex flex-col gap-4 rounded-2xl border border-[#E4D8FF] bg-gradient-to-br from-[#F7F4FF] to-white p-5 shadow-sm">
-            <div className="flex items-center justify-between flex-wrap gap-3">
-              <TextLink text="All" colorText="Offers" link="" linkText="" />
-              <span className="text-xs font-medium tracking-wide text-[#6B5B95]">
-                Filter by store, category or country
-              </span>
-            </div>
+	        <div className="my-4 w-full px-4 md:px-8">
+	          <div className="pro-card flex flex-col gap-4 rounded-2xl border border-[#E4D8FF] bg-gradient-to-br from-[#F7F4FF] to-white p-5 shadow-sm">
+	            <div className="flex items-start justify-between flex-wrap gap-3">
+	              <TextLink text="All" colorText="Offers" link="" linkText="" noSectionWrap />
+	              <span className="text-xs font-medium tracking-wide text-[#6B5B95]">
+	                Filter by store, category or country
+	              </span>
+	            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               {/* Store Select Dropdown */}
@@ -211,7 +253,7 @@ useEffect(() => {
                   onChange={(e) => {
                     const value = e.target.value;
                     if (!value) return;
-                    router.push(`/deal/store/${encodeURIComponent(slugify(value))}`);
+                    router.push(addCountryPrefix(`/deal/store/${encodeURIComponent(slugify(value))}`, selectedCountry || ""));
                   }}
                   className="w-full border border-[#D9CCF5] rounded-lg px-3 py-2 bg-white text-sm text-[#2b1c4d] focus:outline-none focus:ring-2 focus:ring-[#592EA9]/30"
                   defaultValue=""
@@ -232,7 +274,7 @@ useEffect(() => {
                   onChange={(e) => {
                     const value = e.target.value;
                     if (!value) return;
-                    router.push(`/deal/category/${encodeURIComponent(slugify(value))}`);
+                    router.push(addCountryPrefix(`/deal/category/${encodeURIComponent(slugify(value))}`, selectedCountry || ""));
                   }}
                   className="w-full border border-[#D9CCF5] rounded-lg px-3 py-2 bg-white text-sm text-[#2b1c4d] focus:outline-none focus:ring-2 focus:ring-[#592EA9]/30"
                   defaultValue=""
@@ -320,32 +362,110 @@ useEffect(() => {
                   )}
                 </div>
               </label>
-            </div>
+	            </div>
+	          </div>
+	        </div>
+        <div className="w-full px-4 md:px-8">
+          <div className="inline-flex flex-wrap gap-2 rounded-full border border-[#E4D8FF] bg-white/70 p-1 shadow-sm">
+            {[
+              { key: "all", label: `All (${filteredActiveDeals.length})` },
+              { key: "coupon", label: `Coupons (${couponOffers.length})` },
+              { key: "deal", label: `Deals (${dealOffers.length})` },
+            ].map((tab) => (
+              <button
+                key={tab.key}
+                type="button"
+                onClick={() => setOfferTab(tab.key)}
+                className={`rounded-full px-4 py-2 text-xs font-semibold transition ${
+                  offerTab === tab.key
+                    ? "bg-[#5B3CC4] text-white shadow"
+                    : "text-[#4A3C6A] hover:bg-[#F2EBFF]"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
         </div>
 {/* Active Deals */}
 <div className="mt-4 grid grid-cols-1 gap-4 px-2 sm:grid-cols-2 lg:grid-cols-3">
   {dealsLoading && filteredActiveDeals.length === 0 ? (
     <GridSkeleton count={6} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" itemClassName="h-40 rounded-lg bg-gray-200" />
-  ) : filteredActiveDeals.length > 0 ? (
-    filteredActiveDeals.map((deal) => (
+  ) : pagedOffers.length > 0 ? (
+    pagedOffers.map((deal) => (
       <Coupons_Deals key={deal._id} data={deal} border={true} />
     ))
   ) : (
-    <p className="text-sm text-gray-500 px-4">No active coupons found.</p>
+    <p className="text-sm text-gray-500 px-4">
+      {offerTab === "coupon" ? "No active coupons found." : offerTab === "deal" ? "No active deals found." : "No active offers found."}
+    </p>
   )}
 </div>
 
-        <TextLink text="User" colorText="Review" link="" linkText="" />
-        <div className="p-4 flex gap-4 overflow-x-scroll">
-          {reviewsLoading && reviews.length === 0 ? (
-            <RowSkeleton count={3} />
-          ) : reviews.length > 0 ? (
-            reviews.map((review) => <ReviewCard key={review._id} data={review} />)
-          ) : (
-            <p className="text-sm text-gray-500">No reviews found.</p>
-          )}
-        </div>
+        {tabbedOffers.length > 0 && (
+          <div className="mt-6 px-4">
+            <div className="flex flex-col items-center justify-between gap-3 rounded-2xl border border-[#E4D8FF] bg-white/80 px-4 py-3 shadow-sm sm:flex-row">
+              <p className="text-xs font-semibold text-[#4A3C6A]">
+                Showing {showingFrom}-{showingTo} of {tabbedOffers.length}
+              </p>
+              {totalPages > 1 && (
+                <div className="flex flex-wrap items-center justify-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
+                      currentPage === 1
+                        ? "cursor-not-allowed border border-[#E4D8FF] bg-white text-[#9A8CC3]"
+                        : "border border-[#E4D8FF] bg-white text-[#4A3C6A] hover:bg-[#F2EBFF]"
+                    }`}
+                    aria-label="Previous page"
+                  >
+                    Prev
+                  </button>
+
+                  {pageButtons.map((p, idx) => {
+                    const prev = pageButtons[idx - 1];
+                    const needsDots = idx > 0 && prev && p - prev > 1;
+                    return (
+                      <React.Fragment key={p}>
+                        {needsDots ? (
+                          <span className="px-1 text-xs font-semibold text-[#9A8CC3]">…</span>
+                        ) : null}
+                        <button
+                          type="button"
+                          onClick={() => setCurrentPage(p)}
+                          className={`min-w-9 rounded-full px-3 py-1 text-xs font-semibold transition ${
+                            currentPage === p
+                              ? "bg-[#5B3CC4] text-white shadow"
+                              : "border border-[#E4D8FF] bg-white text-[#4A3C6A] hover:bg-[#F2EBFF]"
+                          }`}
+                          aria-current={currentPage === p ? "page" : undefined}
+                        >
+                          {p}
+                        </button>
+                      </React.Fragment>
+                    );
+                  })}
+
+                  <button
+                    type="button"
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
+                      currentPage === totalPages
+                        ? "cursor-not-allowed border border-[#E4D8FF] bg-white text-[#9A8CC3]"
+                        : "border border-[#E4D8FF] bg-white text-[#4A3C6A] hover:bg-[#F2EBFF]"
+                    }`}
+                    aria-label="Next page"
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
       <HeadingText
         title={data.allCouponsAboutHeading}

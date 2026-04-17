@@ -23,6 +23,13 @@ const AllCategories = () => {
   const homeAdmin = useSelector((state) => state.homeAdmin) || { data: [], loading: false };
   const { selectedCountry } = useSelector((state) => state.country || {});
   const data = (homeAdmin.data && homeAdmin.data[0]) || {};
+  const countryHeading = useMemo(() => {
+    if (!selectedCountry) return "";
+    const label = String(selectedCountry || "").trim();
+    if (!label) return "";
+    const needsApostropheOnly = /s$/i.test(label);
+    return needsApostropheOnly ? `${label}'` : `${label}'s`;
+  }, [selectedCountry]);
   const pageBannerDeals =
     Array.isArray(data.categoryPageBannerDeals) && data.categoryPageBannerDeals.length > 0
       ? data.categoryPageBannerDeals
@@ -54,7 +61,7 @@ const AllCategories = () => {
     <div className="overflow-x-hidden">
       <section className="mx-2 mt-4 overflow-hidden rounded-[26px] border border-[#E3D9FF] bg-[linear-gradient(120deg,#231147_0%,#3A1D78_45%,#5D31BD_100%)] px-5 py-6 text-white shadow-[0_20px_45px_rgba(36,16,82,0.3)] sm:px-8">
         <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
-          All Categories
+          {countryHeading ? `${countryHeading} ` : ""}All Categories
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-white/85">
           Browse coupon and deal categories to quickly discover offers for travel, fashion, food, tech, and more.

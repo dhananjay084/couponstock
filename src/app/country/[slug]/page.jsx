@@ -5,11 +5,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "next/navigation";
 import TextLink from "../../../components/Minor/TextLink";
 import Coupons_Deals from "../../../components/cards/Coupons_Deals";
-import ReviewCard from "../../../components/cards/ReviewCard";
 import HeadingText from "../../../components/Minor/HeadingText";
 import { getDeals } from "../../../redux/deal/dealSlice";
-import { fetchReviews } from "../../../redux/review/reviewSlice";
-import { GridSkeleton, RowSkeleton } from "../../../components/skeletons/InlineSkeletons";
+import { GridSkeleton } from "../../../components/skeletons/InlineSkeletons";
 import { titleize } from "../../../lib/slugify";
 import { setSelectedCountry } from "../../../redux/country/countrySlice";
 
@@ -20,14 +18,12 @@ const CountryDealsPage = () => {
   const countryName = titleize(countrySlug.replace(/-/g, " "));
 
   const { deals = [], loading: dealsLoading } = useSelector((state) => state.deal || { deals: [], loading: false });
-  const { reviews = [], loading: reviewsLoading } = useSelector((state) => state.reviews || { reviews: [], loading: false });
 
   useEffect(() => {
     if (countryName) {
       dispatch(setSelectedCountry(countryName));
     }
     dispatch(getDeals(countryName));
-    dispatch(fetchReviews());
   }, [dispatch, countryName]);
 
   const filteredDeals = deals.filter((deal) =>
@@ -53,17 +49,6 @@ const CountryDealsPage = () => {
           ))
         ) : (
           <p className="text-sm text-gray-500">No deals found for this country.</p>
-        )}
-      </div>
-
-      <TextLink text="User" colorText="Review" link="" linkText="" />
-      <div className="p-4 flex gap-4 overflow-x-scroll">
-        {reviewsLoading && reviews.length === 0 ? (
-          <RowSkeleton count={3} />
-        ) : reviews.length > 0 ? (
-          reviews.map((review) => <ReviewCard key={review._id} data={review} />)
-        ) : (
-          <p className="text-sm text-gray-500">No reviews found.</p>
         )}
       </div>
 

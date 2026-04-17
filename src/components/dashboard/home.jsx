@@ -94,7 +94,7 @@ const HomeAdminPage = () => {
     initialValues: {
       country: "",
       homepageBanner: "",
-      midHomepageBanners: [{ image: "", link: "" }],
+      midHomepageBanners: [{ image: "", imageMobile: "", link: "" }],
       allCouponsPageBanner: "",
       allCouponsAboutHeading: "",
       allCouponsAboutDescription: "",
@@ -115,6 +115,12 @@ const HomeAdminPage = () => {
       homeFooterDescription: "",
       homeMetaTitle: "",
       homeMetaDescription: "",
+      dealsMetaTitle: "",
+      dealsMetaDescription: "",
+      storeMetaTitle: "",
+      storeMetaDescription: "",
+      categoryMetaTitle: "",
+      categoryMetaDescription: "",
     },
 
     validationSchema: Yup.object({
@@ -144,6 +150,10 @@ const HomeAdminPage = () => {
             image: Yup.string()
               .test("is-url", "Enter a valid image URL", (val) => isValidUrl(val))
               .required("Required"),
+            imageMobile: Yup.string()
+              .test("is-url", "Enter a valid image URL", (val) => !val || isValidUrl(val))
+              .nullable()
+              .notRequired(),
             link: Yup.string()
               .test("is-url", "Must be a valid URL", (val) => !val || isValidUrl(val))
               .nullable()
@@ -193,6 +203,12 @@ const HomeAdminPage = () => {
         ...values,
         homeMetaTitle: (values.homeMetaTitle || "").trim(),
         homeMetaDescription: (values.homeMetaDescription || "").trim(),
+        dealsMetaTitle: (values.dealsMetaTitle || "").trim(),
+        dealsMetaDescription: (values.dealsMetaDescription || "").trim(),
+        storeMetaTitle: (values.storeMetaTitle || "").trim(),
+        storeMetaDescription: (values.storeMetaDescription || "").trim(),
+        categoryMetaTitle: (values.categoryMetaTitle || "").trim(),
+        categoryMetaDescription: (values.categoryMetaDescription || "").trim(),
         homeFooterTitle: values.homeFooterTitle || "",
         homeFooterDescription: values.homeFooterDescription || "",
       };
@@ -271,9 +287,11 @@ const HomeAdminPage = () => {
       homepageBanner: entry.homepageBanner || "",
       midHomepageBanners: Array.isArray(entry.midHomepageBanners) && entry.midHomepageBanners.length
         ? entry.midHomepageBanners.map((b) =>
-            typeof b === "string" ? { image: b, link: "" } : { image: b.image || "", link: b.link || "" }
+            typeof b === "string"
+              ? { image: b, imageMobile: "", link: "" }
+              : { image: b.image || "", imageMobile: b.imageMobile || "", link: b.link || "" }
           )
-        : [{ image: "", link: "" }],
+        : [{ image: "", imageMobile: "", link: "" }],
       allCouponsPageBanner: entry.allCouponsPageBanner || "",
       allCouponsAboutHeading: entry.allCouponsAboutHeading || "",
       allCouponsAboutDescription: entry.allCouponsAboutDescription || "",
@@ -294,6 +312,12 @@ const HomeAdminPage = () => {
       homeFooterDescription: entry.homeFooterDescription || "",
       homeMetaTitle: entry.homeMetaTitle || "",
       homeMetaDescription: entry.homeMetaDescription || "",
+      dealsMetaTitle: entry.dealsMetaTitle || "",
+      dealsMetaDescription: entry.dealsMetaDescription || "",
+      storeMetaTitle: entry.storeMetaTitle || "",
+      storeMetaDescription: entry.storeMetaDescription || "",
+      categoryMetaTitle: entry.categoryMetaTitle || "",
+      categoryMetaDescription: entry.categoryMetaDescription || "",
     });
   };
 
@@ -629,18 +653,43 @@ const HomeAdminPage = () => {
           </div>
         ))}
 
+        {/* Listing pages Meta fields */}
+        {[
+          { label: "Deals Page Meta Title (/deals)", name: "dealsMetaTitle" },
+          { label: "Deals Page Meta Description (/deals)", name: "dealsMetaDescription" },
+          { label: "Store Page Meta Title (/store)", name: "storeMetaTitle" },
+          { label: "Store Page Meta Description (/store)", name: "storeMetaDescription" },
+          { label: "Category Page Meta Title (/category)", name: "categoryMetaTitle" },
+          { label: "Category Page Meta Description (/category)", name: "categoryMetaDescription" },
+        ].map(({ label, name }) => (
+          <div key={name}>
+            <label className="block font-medium mb-1">{label}</label>
+            <textarea
+              name={name}
+              value={formik.values[name]}
+              onChange={formik.handleChange}
+              className="w-full border rounded p-2"
+              rows={2}
+            />
+            {formik.touched[name] && formik.errors[name] && (
+              <p className="text-red-600 text-sm mt-1">{formik.errors[name]}</p>
+            )}
+          </div>
+        ))}
+
         <FormikProvider value={formik}>
           <FieldArray name="midHomepageBanners">
             {({ push, remove }) => (
               <div className="space-y-2">
                 <h2 className="font-semibold">Mid Homepage Banners (3–4)</h2>
                 {formik.values.midHomepageBanners.map((val, i) => (
-                  <div key={i} className="flex items-center gap-2">
+                  <div key={i} className="grid grid-cols-1 gap-2 md:grid-cols-2">
+                    <div className="flex items-center gap-2">
                     <input
                       name={`midHomepageBanners[${i}].image`}
                       value={val?.image || ""}
                       onChange={formik.handleChange}
-                      placeholder="Banner image URL"
+                      placeholder="Desktop banner image URL"
                       className="w-full border rounded p-2"
                     />
                     <input
@@ -661,6 +710,35 @@ const HomeAdminPage = () => {
                         }
                       }}
                     />
+                    </div>
+                    <div className="flex items-center gap-2">
+                    <input
+                      name={`midHomepageBanners[${i}].imageMobile`}
+                      value={val?.imageMobile || ""}
+                      onChange={formik.handleChange}
+                      placeholder="Mobile banner image URL (optional)"
+                      className="w-full border rounded p-2"
+                    />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="w-full border rounded p-2"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        try {
+                          const url = await uploadImage(file);
+                          formik.setFieldValue(`midHomepageBanners[${i}].imageMobile`, url);
+                          toast.success("Image uploaded");
+                        } catch (err) {
+                          toast.error(err.message || "Upload failed");
+                        } finally {
+                          e.target.value = "";
+                        }
+                      }}
+                    />
+                    </div>
+                    <div className="md:col-span-2 flex items-center gap-2">
                     <input
                       name={`midHomepageBanners[${i}].link`}
                       value={val?.link || ""}
@@ -678,6 +756,7 @@ const HomeAdminPage = () => {
                       </button>
                     )}
                   </div>
+                  </div>
                 ))}
                 {formik.touched.midHomepageBanners && formik.errors.midHomepageBanners && (
                   <p className="text-red-600 text-sm mt-1">{formik.errors.midHomepageBanners}</p>
@@ -685,7 +764,7 @@ const HomeAdminPage = () => {
                 {formik.values.midHomepageBanners.length < 4 && (
                   <button
                     type="button"
-                    onClick={() => push({ image: "", link: "" })}
+                    onClick={() => push({ image: "", imageMobile: "", link: "" })}
                     className="bg-blue-500 text-white px-3 py-1 rounded cursor-pointer"
                   >
                     Add Banner

@@ -37,6 +37,18 @@ const BlogCard = ({
     typeof descriptionLimit === "number"
       ? trimText(rawDescription, descriptionLimit, descriptionSuffix)
       : rawDescription;
+  const headingClampValue = typeof headingClamp === "number" ? headingClamp : undefined;
+  const headingStyle =
+    headingClampValue === 1
+      ? { whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }
+      : headingClampValue
+        ? {
+            display: "-webkit-box",
+            WebkitBoxOrient: "vertical",
+            WebkitLineClamp: headingClampValue,
+            overflow: "hidden",
+          }
+        : undefined;
 
   return (
     <div
@@ -57,16 +69,7 @@ const BlogCard = ({
         {/* TITLE */}
         <h2
           className={`${compact ? "mb-2 text-lg" : "mb-2 text-xl"} font-bold leading-snug text-[#1A243B]`}
-          style={
-            headingClamp
-              ? {
-                  display: "-webkit-box",
-                  WebkitBoxOrient: "vertical",
-                  WebkitLineClamp: headingClamp,
-                  overflow: "hidden",
-                }
-              : undefined
-          }
+          style={headingStyle}
         >
           {blog.heading}
         </h2>

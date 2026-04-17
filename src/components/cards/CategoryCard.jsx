@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
 import { toast } from "react-toastify";
+import CountryLink from "../Minor/CountryLink";
 
 const CategoryCard = ({ data }) => {
   if (!data) return null;
@@ -11,7 +11,7 @@ const CategoryCard = ({ data }) => {
   const categoryHref = name ? `/category/${encodeURIComponent(name.toLowerCase())}` : "#";
 
   return (
-    <Link
+    <CountryLink
       href={categoryHref}
       prefetch
       className="
@@ -33,7 +33,7 @@ const CategoryCard = ({ data }) => {
         />
       </div>
       <p className="truncate px-2 text-[11px] font-semibold text-[#39445A]">{name || "Unnamed"}</p>
-    </Link>
+    </CountryLink>
   );
 };
 

@@ -11,6 +11,7 @@ import {
 import { slugify } from "../lib/slugify";
 import { useDispatch, useSelector } from "react-redux";
 import { getStores } from "../redux/store/storeSlice";
+import CountryLink from "./Minor/CountryLink";
 
 const toStoreSlug = (name) => slugify(name.replace(/&/g, "and"));
 
@@ -39,14 +40,14 @@ const Footer = () => {
       const name = store.storeName || "Store";
       const slug = store.slug || toStoreSlug(name);
       return (
-        <Link
+        <CountryLink
           key={store._id || slug}
           href={`/store/${encodeURIComponent(slug)}`}
           prefetch
           className="rounded-full border border-[#263147] bg-[#111a2f] px-2 py-1 text-[11px] text-[#C9D5EF] transition hover:border-[#3B4B6B] hover:text-white"
         >
           {name}
-        </Link>
+        </CountryLink>
       );
     });
   };
@@ -79,7 +80,7 @@ const Footer = () => {
             <h3 className="mb-4 text-[12px] font-bold uppercase tracking-[0.2em] text-white">Coupon Stock</h3>
             <div className="mb-3 text-lg font-extrabold text-white">MyCouponStock</div>
             <ul className="space-y-2.5">
-              <li><Link href="/deals">All Coupons</Link></li>
+              <li><CountryLink href="/deals">All Coupons</CountryLink></li>
             </ul>
             <p className="mt-4 text-[#9EABC6]">
               Your Trusted Coupon Stock Partner for Daily Savings

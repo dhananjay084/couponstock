@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
 import { toast } from "react-toastify";
+import CountryLink from "../Minor/CountryLink";
 
 
 const BannerCard = ({ data }) => {
@@ -28,7 +28,7 @@ const BannerCard = ({ data }) => {
             <span>{data.storeName}</span>
           </p>
         </span>
-        <Link
+        <CountryLink
           href={storeHref}
           prefetch
           className="pro-btn-soft whitespace-nowrap"
@@ -40,7 +40,7 @@ const BannerCard = ({ data }) => {
           }}
         >
           View
-        </Link>
+        </CountryLink>
       </div>
     </div>
   );

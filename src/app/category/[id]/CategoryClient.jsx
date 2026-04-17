@@ -8,13 +8,12 @@ import DealCard from "../../../components/cards/DealCard";
 import PopularBrandCard from "../../../components/cards/PopularBrandWithText";
 import Coupons_Deals from "../../../components/cards/Coupons_Deals";
 import DealOfWeek from "../../../components/cards/DealOfWeek";
-import ReviewCard from "../../../components/cards/ReviewCard";
-import { fetchReviews } from "../../../redux/review/reviewSlice";
 import { getDeals } from "../../../redux/deal/dealSlice";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams } from "next/navigation";
 import { titleize } from "../../../lib/slugify";
 import { GridSkeleton, RowSkeleton, TextSkeleton } from "../../../components/skeletons/InlineSkeletons";
+import ArrowScrollRow from "../../../components/Minor/ArrowScrollRow";
 
 // Loading fallback UI
 export async function generateMetadata({ params }) {
@@ -33,7 +32,6 @@ export async function generateMetadata({ params }) {
 }
 const SingleCategoryContent = () => {
   const dispatch = useDispatch();
-  const { reviews = [] } = useSelector((state) => state.reviews);
   const { deals = [] } = useSelector((state) => state.deal);
   const { selectedCountry } = useSelector((state) => state.country || {});
 
@@ -56,7 +54,6 @@ const SingleCategoryContent = () => {
   useEffect(() => {
     if (!selectedCountry) return;
     dispatch(getDeals(selectedCountry));
-    dispatch(fetchReviews());
   }, [dispatch, selectedCountry]);
 
   return (
@@ -100,7 +97,7 @@ const SingleCategoryContent = () => {
       <TextLink text={categoryDisplay} colorText="deals worth wearing" link="" linkText="" />
 
       {/* Deals */}
-      <Box className="flex overflow-x-scroll gap-4 px-4 scrollbar-hide" sx={{ py: 2 }}>
+      <ArrowScrollRow controlsClassName="px-4" scrollerClassName="flex gap-4 overflow-x-scroll px-4 py-2 scrollbar-hide">
         {filteredDeals.length === 0 ? (
           <RowSkeleton count={4} />
         ) : filteredDeals
@@ -108,14 +105,14 @@ const SingleCategoryContent = () => {
           .map((deal) => (
             <DealCard key={deal._id} data={deal} />
           ))}
-      </Box>
+      </ArrowScrollRow>
 
       {/* Coupons Section */}
       <Box className="bg-[#592EA9] text-white my-4">
         <Typography sx={{ px: 4, py: 2, fontWeight: "bold" }}>
           {categoryDisplay} Coupon
         </Typography>
-        <Box className="flex overflow-x-auto space-x-4 p-4 scrollbar-hide">
+        <ArrowScrollRow controlsClassName="px-4" scrollerClassName="flex space-x-4 overflow-x-auto p-4 scrollbar-hide">
           {filteredDeals.length === 0 ? (
             <RowSkeleton count={3} />
           ) : filteredDeals
@@ -123,7 +120,7 @@ const SingleCategoryContent = () => {
             .map((store) => (
               <PopularBrandCard key={store._id} data={store} />
             ))}
-        </Box>
+        </ArrowScrollRow>
       </Box>
 
       <TextLink text="Coupons" colorText="& Deals" link="" linkText="View All" />
@@ -139,7 +136,7 @@ const SingleCategoryContent = () => {
 
       {/* Deal of the Week */}
       <TextLink text="Deal of the " colorText="Week" link="" linkText="View All" />
-      <Box className="flex overflow-x-scroll gap-4 px-4 scrollbar-hide" sx={{ py: 2 }}>
+      <ArrowScrollRow controlsClassName="px-4" scrollerClassName="flex gap-4 overflow-x-scroll px-4 py-2 scrollbar-hide">
         {filteredDeals.length === 0 ? (
           <RowSkeleton count={4} />
         ) : filteredDeals
@@ -147,17 +144,8 @@ const SingleCategoryContent = () => {
           .map((deal) => (
             <DealOfWeek key={deal._id} data={deal} />
           ))}
-      </Box>
+      </ArrowScrollRow>
 
-      {/* Reviews */}
-      <TextLink text="Public" colorText="Reviews" link="" linkText="" />
-      <Box className="p-4 flex gap-4 overflow-x-scroll scrollbar-hide" sx={{ py: 2 }}>
-        {reviews.length > 0 ? (
-          reviews.map((review) => <ReviewCard key={review._id} data={review} />)
-        ) : (
-          <RowSkeleton count={2} />
-        )}
-      </Box>
     </Box>
   );
 };

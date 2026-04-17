@@ -22,7 +22,7 @@ export default function ClientLayout({ children }) {
   const { basePath: layoutBasePath } = splitCountryPrefix(pathname);
   const hideLayout = layoutBasePath === "/login" || layoutBasePath === "/signup" || layoutBasePath === "/payment";
   const [showNewsletterPopup, setShowNewsletterPopup] = useState(false);
-  const hasNormalizedRootPath = useRef(false);
+  const lastNormalizedUrlRef = useRef(null);
   const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://mycouponstock.com").replace(/\/$/, "");
   const canonicalUrl = `${baseUrl}${pathname || "/"}`;
   const isAdminRoute = pathname.startsWith("/admin");
@@ -89,7 +89,7 @@ export default function ClientLayout({ children }) {
   useEffect(() => {
     if (!countries.length) return;
     if (typeof window === "undefined") return;
-    const { countryCode } = splitCountryPrefix(window.location.pathname);
+    const { countryCode } = splitCountryPrefix(pathname);
     if (!countryCode) return;
     if (!isAllowedCountryCode(countryCode)) {
       const fallback = findCountryNameByCode(countries, "us");
@@ -99,7 +99,13 @@ export default function ClientLayout({ children }) {
       return;
     }
     const selectedCode = selectedCountry ? getCountryCodeFromName(selectedCountry) : "";
-    if (selectedCode) return;
+    if (
+      selectedCode &&
+      isAllowedCountryCode(selectedCode) &&
+      selectedCode !== countryCode
+    ) {
+      return;
+    }
     const match = findCountryNameByCode(countries, countryCode);
     if (match && match !== selectedCountry) {
       dispatch(setSelectedCountry(match));
@@ -119,19 +125,15 @@ export default function ClientLayout({ children }) {
     if (hideLayout) return;
     if (pathname.startsWith("/admin")) return;
     if (pathname.startsWith("/country")) return;
-    if (hasNormalizedRootPath.current) return;
 
-    // Avoid double-hop navigation on every click.
-    // Only normalize the bare root path once so internal routing remains fast.
-    const { countryCode } = splitCountryPrefix(pathname);
-    if (countryCode) return;
-    if (pathname !== "/") return;
-
-    const nextPath = addCountryPrefix(pathname, selectedCountry);
-    if (nextPath === pathname) return;
     const query = searchParams.toString();
+    const currentUrl = query ? `${pathname}?${query}` : pathname;
+    const nextPath = addCountryPrefix(pathname, selectedCountry);
     const nextUrl = query ? `${nextPath}?${query}` : nextPath;
-    hasNormalizedRootPath.current = true;
+    if (nextUrl === currentUrl) return;
+    if (lastNormalizedUrlRef.current === nextUrl) return;
+
+    lastNormalizedUrlRef.current = nextUrl;
     router.replace(nextUrl);
   }, [hideLayout, pathname, router, searchParams, selectedCountry]);
 
@@ -158,14 +160,31 @@ export default function ClientLayout({ children }) {
         </div>
       )}
       {!hideLayout && <NavBar />}
-      {!isAdminRoute && (
+      {!hideLayout && !isAdminRoute && (
         <button
           type="button"
-          aria-label="Open newsletter popup"
+          aria-label="Open newsletter signup"
           onClick={() => setShowNewsletterPopup(true)}
-          className="fixed bottom-6 right-5 z-[80] flex h-12 w-12 items-center justify-center rounded-full bg-[#592EA9] text-white shadow-[0_14px_30px_rgba(89,46,169,0.36)] transition hover:bg-[#4B2295]"
+          title="Newsletter"
+          style={{
+            bottom: "calc(1.5rem + env(safe-area-inset-bottom))",
+            right: "calc(1.25rem + env(safe-area-inset-right))",
+          }}
+          className="fixed z-[80] flex h-14 w-14 items-center justify-center rounded-full border border-white/15 bg-[linear-gradient(135deg,#592EA9_0%,#6E3EDC_100%)] text-white shadow-[0_18px_40px_rgba(89,46,169,0.42)] transition hover:brightness-[1.03] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70 active:scale-[0.98]"
         >
-          ✉
+          <svg
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            className="h-6 w-6"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M4 6h16v12H4z" />
+            <path d="m4 7 8 6 8-6" />
+          </svg>
         </button>
       )}
       {shouldUsePageShell ? <div className="site-shell site-gutter py-3">{children}</div> : children}

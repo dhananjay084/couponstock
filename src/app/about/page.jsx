@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React from "react";
 import Image from "next/image";
 import QuoteImage from "../../assets/aboutUspage.jpg"
 import UserImage from "../../assets/TeamMember1.webp";
@@ -8,31 +8,11 @@ import UserImage2 from "../../assets/TeamMember2.webp";
 import UserImage3 from "../../assets/TeamMember3.webp";
 
 import BannerImage from "../../assets/banner-image.webp";
-import TextLink from "../../components/Minor/TextLink";
-import ReviewCard from "../../components/cards/ReviewCard.jsx";
-import { fetchReviews } from "../../redux/review/reviewSlice";
-import { useSelector, useDispatch } from "react-redux";
-import { toast } from "react-toastify";
+import ArrowScrollRow from "../../components/Minor/ArrowScrollRow";
 
 const teamImages = [UserImage, UserImage2, UserImage3];
 
 const AboutUs = () => {
-  const dispatch = useDispatch();
-  const { reviews = [] ,  error: reviewError } = useSelector((state) => state.reviews);
-
-  useEffect(() => {
-    dispatch(fetchReviews());
-  }, [dispatch]);
-
-  useEffect(() => {
-  if (reviewError) {
-    toast.error("Failed to load reviews!");
-  } else if (reviews.length > 0) {
-    // toast.success("Reviews loaded!");
-  }
-}, [reviewError, reviews]);
-
-
   return (
     <>
       {/* Intro */}
@@ -103,7 +83,7 @@ For more details or further queries, you can visit our
           </div>
 
           {/* Mobile horizontal scroll */}
-          <div className="md:hidden flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory">
+          <ArrowScrollRow className="md:hidden" scrollerClassName="flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory">
             {teamImages.map((src, i) => (
               <div
                 key={i}
@@ -112,7 +92,7 @@ For more details or further queries, you can visit our
                 <Image src={src} alt={`Team member ${i + 1}`} fill style={{ objectFit: "cover" }} />
               </div>
             ))}
-          </div>
+          </ArrowScrollRow>
         </div>
 
         {/* Text */}
@@ -128,16 +108,6 @@ For more details or further queries, you can visit our
           </p>
         </div>
       </section>
-
-      {/* Reviews */}
-      <TextLink text="Public" colorText="Reviews" link="" linkText="" />
-      <div className="p-4 flex gap-4 overflow-x-scroll">
-        {reviews.length > 0 ? (
-          reviews.map((review) => <ReviewCard key={review._id} data={review} />)
-        ) : (
-          <p>No reviews found.</p>
-        )}
-      </div>
     </>
   );
 };

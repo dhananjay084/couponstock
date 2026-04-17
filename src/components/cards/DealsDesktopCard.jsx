@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
 import CouponModal from "../modals/couponModels";
 import { toast } from "react-toastify";
+import CountryLink from "../Minor/CountryLink";
 
 const BannerCard = ({ data }) => {
   if (!data) {
@@ -41,7 +41,7 @@ const BannerCard = ({ data }) => {
           </span>
 
           {data.dealCategory === "deal" ? (
-            <Link
+            <CountryLink
               href={dealHref}
               prefetch
               className="pro-btn-soft whitespace-nowrap"
@@ -53,7 +53,7 @@ const BannerCard = ({ data }) => {
               }}
             >
               Shop Now
-            </Link>
+            </CountryLink>
           ) : (
             <button
               className="pro-btn-soft whitespace-nowrap"

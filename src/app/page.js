@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import BannerCard from "../components/cards/BannerCards";
 import { getHomeAdminData } from "../redux/admin/homeAdminSlice";
 import { useSelector, useDispatch } from "react-redux";
 import TextLink from "../components/Minor/TextLink";
 import { getDeals } from "../redux/deal/dealSlice";
+import TopDealShowcaseCard from "../components/cards/TopDealShowcaseCard";
 import DealCard from "../components/cards/DealCard";
 import DesktopCard from "../components/cards/DealsDesktopCard";
 import { getStores } from "../redux/store/storeSlice";
@@ -25,6 +26,8 @@ import DealOfWeek from "../components/cards/DealOfWeek";
 import FAQ from '../components/Minor/Faq'
 import NumberStats from "../components/numbers/number";
 import { GridSkeleton, RowSkeleton } from "../components/skeletons/InlineSkeletons";
+import ArrowScrollRow from "../components/Minor/ArrowScrollRow";
+import CountryLink from "../components/Minor/CountryLink";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -52,6 +55,7 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
   const homeBannerDesktopPrevRef = useRef(null);
   const homeBannerDesktopNextRef = useRef(null);
   const [showFullHeroDescription, setShowFullHeroDescription] = useState(false);
+  const [isMobileViewport, setIsMobileViewport] = useState(false);
   const metaTitle = data.homeMetaTitle?.trim();
   const metaDescription = data.homeMetaDescription?.trim();
   const decodeHtmlEntities = (value = "") => {
@@ -87,6 +91,15 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
   };
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    const media = window.matchMedia("(max-width: 767px)");
+    const handle = () => setIsMobileViewport(media.matches);
+    handle();
+    media.addEventListener("change", handle);
+    return () => media.removeEventListener("change", handle);
+  }, []);
+
+  useEffect(() => {
     if (!selectedCountry) return;
     dispatch(getDeals(selectedCountry));
     dispatch(getStores(selectedCountry));
@@ -102,6 +115,15 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
     { number: "1M+", label: "Users" },
     { number: "60+", label: "Countries" },
   ];
+
+  const storesByName = useMemo(() => {
+    const map = new Map();
+    for (const store of stores || []) {
+      if (!store?.storeName) continue;
+      map.set(String(store.storeName).toLowerCase(), store);
+    }
+    return map;
+  }, [stores]);
 
   const topDeals = safeFilter(
     deals,
@@ -284,76 +306,83 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
         linkText="View All"
       />
 
-      <div className="md:flex overflow-x-scroll gap-4 px-4 hidden">
+      <div className="section-wrap px-4">
         {dealsLoading && deals.length === 0 ? (
-          <RowSkeleton count={4} />
-        ) : topDeals.map((deal) => (
-          <DesktopCard key={deal._id} data={deal} />
-        ))}
-      </div>
-
-      {/* Mobile Top Deals */}
-      <div className="flex overflow-x-scroll gap-4 md:hidden">
-        {dealsLoading && deals.length === 0 ? (
-          <RowSkeleton count={3} />
-        ) : topDeals.map((deal) => (
-          <DealCard key={deal._id} data={deal} />
-        ))}
+          <GridSkeleton
+            count={6}
+            className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+            itemClassName="h-40 rounded-2xl bg-gray-200"
+          />
+        ) : (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {topDeals.map((deal) => (
+              <TopDealShowcaseCard
+                key={deal._id}
+                deal={deal}
+                store={storesByName.get(String(deal?.store || "").toLowerCase())}
+              />
+            ))}
+          </div>
+        )}
       </div>
       <TextLink text="Brands" colorText="" link="/store" linkText="View All" />
-      <div className="flex overflow-x-scroll md:hidden">
+      <ArrowScrollRow className="md:hidden" controlsClassName="px-4" scrollerClassName="flex overflow-x-scroll">
         {storesLoading && stores.length === 0 ? (
           <RowSkeleton count={3} />
         ) : brandStores.map((store) => (
           <BrandCard key={store._id} data={store} />
         ))}
-      </div>
-      <div className="md:flex overflow-x-scroll hidden px-4 gap-4">
+      </ArrowScrollRow>
+      <ArrowScrollRow className="hidden md:block" controlsClassName="px-4" scrollerClassName="flex gap-4 overflow-x-scroll px-4">
         {storesLoading && stores.length === 0 ? (
           <RowSkeleton count={4} />
         ) : brandStores.map((store) => (
           <DesktopStoreCard key={store._id} data={store} />
         ))}
-      </div>
-      <TextLink
+      </ArrowScrollRow>
+<TextLink
   text="Popular Categories"
   colorText=""
   link="/category"
   linkText="View All"
 />
 
-<div className="px-4 mb-10 overflow-x-auto">
-  <div className="flex gap-4 w-max py-2">
-    {categoriesLoading && categories.length === 0 ? (
-      <GridSkeleton count={8} className="grid grid-cols-4 md:grid-cols-8 gap-3" itemClassName="h-24 rounded-lg bg-gray-200" />
-    ) : Array.isArray(categories) && categories.length > 0 ? (
-      homepageCategories.map((cat) => (
-        <div key={cat._id} className="w-28 flex-shrink-0"> {/* 👈 fixed card width */}
+<div className="mb-10 px-4">
+  {categoriesLoading && categories.length === 0 ? (
+    <GridSkeleton
+      count={8}
+      className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6"
+      itemClassName="h-24 rounded-lg bg-gray-200"
+    />
+  ) : Array.isArray(categories) && categories.length > 0 ? (
+    <div className="-mx-2 flex flex-wrap py-2">
+      {homepageCategories.map((cat) => (
+        <div key={cat._id} className="w-1/2 px-2 pb-4 sm:w-1/3 md:w-1/4 lg:w-1/6">
           <CategoryCard data={cat} />
         </div>
-      ))
-    ) : (
-      <p className="text-center w-full">No categories found.</p>
-    )}
-  </div>
+      ))}
+    </div>
+  ) : (
+    <p className="w-full text-center">No categories found.</p>
+  )}
 </div>
 
       {/* Popular Brands */}
       <TextLink text="Popular" colorText="Brands" link="/store" linkText="View All" />
-      <div className="flex overflow-x-auto space-x-4 p-4 pt-0 scrollbar-hide md:hidden">
+      <ArrowScrollRow className="md:hidden" controlsClassName="px-4" scrollerClassName="flex space-x-4 overflow-x-auto p-4 pt-0 scrollbar-hide">
         {storesLoading && stores.length === 0 ? (
           <RowSkeleton count={3} />
         ) : popularBrands.map((store) => (
           <PopularBrandCard key={store._id} data={store} />
         ))}
-      </div>
-      <div className="md:flex overflow-x-auto space-x-4 p-4 pt-0 scrollbar-hide hidden px-4">
+      </ArrowScrollRow>
+      <ArrowScrollRow className="hidden md:block" controlsClassName="px-4" scrollerClassName="flex space-x-4 overflow-x-auto p-4 pt-0 scrollbar-hide px-4">
         {storesLoading && stores.length === 0 ? (
           <RowSkeleton count={4} />
         ) : popularBrands.map((store) => (
           <DesktopStoreCard key={store._id} data={store} />
         ))}
-      </div>
+      </ArrowScrollRow>
 
       {/* Mid Homepage Banner Slider */}
       {Array.isArray(data.midHomepageBanners) && data.midHomepageBanners.length >= 3 && (
@@ -388,7 +417,12 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
             }}
           >
             {data.midHomepageBanners.map((banner, idx) => {
-              const image = typeof banner === "string" ? banner : banner?.image;
+              const image =
+                typeof banner === "string"
+                  ? banner
+                  : isMobileViewport && banner?.imageMobile
+                    ? banner.imageMobile
+                    : banner?.image;
               const link = typeof banner === "string" ? "" : banner?.link;
               return (
               <SwiperSlide key={`${banner}-${idx}`} className="flex justify-center items-center">
@@ -409,28 +443,28 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
 
       {/* Hot Deals */}
       <TextLink text="Hot" colorText="Deals" link="/deal" linkText="View All" />
-      <div className="flex overflow-x-scroll md:hidden">
+      <ArrowScrollRow className="md:hidden" controlsClassName="px-4" scrollerClassName="flex overflow-x-scroll">
         {dealsLoading && deals.length === 0 ? (
           <RowSkeleton count={3} />
         ) : hotDeals.map((deal) => (
           <DealCard key={deal._id} data={deal} />
         ))}
-      </div>
-      <div className="md:flex overflow-x-scroll gap-4 hidden px-4">
+      </ArrowScrollRow>
+      <ArrowScrollRow className="hidden md:block" controlsClassName="px-4" scrollerClassName="flex gap-4 overflow-x-scroll px-4">
         {dealsLoading && deals.length === 0 ? (
           <RowSkeleton count={4} />
         ) : hotDeals.map((deal) => (
           <DesktopCard key={deal._id} data={deal} />
         ))}
-      </div>
+      </ArrowScrollRow>
       <TextLink text="Popular" colorText="Stores" link="/store" linkText="View All" />
-      <div className="flex overflow-x-auto space-x-4 p-4 scrollbar-hide">
+      <ArrowScrollRow controlsClassName="px-4" scrollerClassName="flex space-x-4 overflow-x-auto p-4 scrollbar-hide">
         {storesLoading && stores.length === 0 ? (
           <RowSkeleton count={4} />
         ) : popularStores.map((store) => (
           <PopularStores key={store._id} data={store} />
         ))}
-      </div>
+      </ArrowScrollRow>
 
       <div className="flex flex-col items-center justify-center">
         <NumberStats stats={stats} />
@@ -503,7 +537,7 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
                     showViewButton
                     compact
                     fixedHeight="320px"
-                    headingClamp={2}
+                    headingClamp={1}
                     descriptionClamp={3}
                     descriptionLimit={120}
                     className="h-full"
@@ -519,7 +553,7 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
 
       {/* Reviews */}
       <TextLink text="Public" colorText="Reviews" link="" linkText="" />
-      <div className="p-4 flex gap-4 overflow-x-scroll">
+      <ArrowScrollRow controlsClassName="px-4" scrollerClassName="flex gap-4 overflow-x-scroll p-4">
         {reviewsLoading && reviews.length === 0 ? (
           <RowSkeleton count={3} />
         ) : Array.isArray(reviews) && reviews.length > 0 ? (
@@ -527,15 +561,15 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
         ) : (
           <p>No reviews found.</p>
         )}
-      </div>
+      </ArrowScrollRow>
       <TextLink text="Deal of the " colorText="Week" link="/deal" linkText="View All" />
-      <div className="flex overflow-x-scroll gap-4 px-4">
+      <ArrowScrollRow controlsClassName="px-4" scrollerClassName="flex gap-4 overflow-x-scroll px-4">
         {dealsLoading && deals.length === 0 ? (
           <RowSkeleton count={3} />
         ) : weeklyDeals.map((deal) => (
           <DealOfWeek key={deal._id} data={deal} />
         ))}
-      </div>
+      </ArrowScrollRow>
 
       <FAQ data={data.faqs} imageUrl={data.faqImage} />
 
@@ -563,26 +597,26 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
               </button>
             )}
             <div className="mt-5 flex flex-wrap gap-3">
-              <Link href="/deals" className="rounded-xl bg-white px-4 py-2 text-sm font-bold text-[#4722A5] transition hover:bg-[#F2EAFF]">
+              <CountryLink href="/deals" className="rounded-xl bg-white px-4 py-2 text-sm font-bold text-[#4722A5] transition hover:bg-[#F2EAFF]">
                 Explore Deals
-              </Link>
-              <Link href="/store" className="rounded-xl border border-white/40 bg-white/10 px-4 py-2 text-sm font-bold text-white transition hover:bg-white/20">
+              </CountryLink>
+              <CountryLink href="/store" className="rounded-xl border border-white/40 bg-white/10 px-4 py-2 text-sm font-bold text-white transition hover:bg-white/20">
                 Browse Stores
-              </Link>
+              </CountryLink>
             </div>
           </div>
           <div className="rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-sm">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/80">Popular Stores</p>
             <div className="mt-3 flex flex-wrap gap-2">
               {heroPopularStores.map((store) => (
-                <Link
+                <CountryLink
                   key={store._id}
                   href={`/store/${store.slug || ""}`}
                   prefetch
                   className="rounded-full border border-white/25 bg-white/12 px-3 py-1.5 text-[11px] font-semibold text-white/90 transition hover:bg-white/20"
                 >
                   {store.storeName || "Store"}
-                </Link>
+                </CountryLink>
               ))}
               {heroPopularStores.length === 0 && (
                 <span className="text-xs text-white/75">No stores available for selected country.</span>

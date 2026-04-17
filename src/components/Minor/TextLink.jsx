@@ -4,9 +4,9 @@ import React from "react";
 import Link from "next/link";
 import { Typography } from "@mui/material";
 
-const TextLink = ({ text, colorText, link, linkText }) => {
+const TextLink = ({ text, colorText, link, linkText, noSectionWrap = false }) => {
   return (
-    <div className="section-wrap section-block flex items-center justify-between gap-4">
+    <div className={`${noSectionWrap ? "" : "section-wrap section-block"} flex items-center justify-between gap-4`.trim()}>
       <span className="flex items-end gap-2">
         <Typography
           component="h2"
@@ -54,6 +54,7 @@ TextLink.defaultProps = {
   colorText: "",
   link: "",
   linkText: "",
+  noSectionWrap: false,
 };
 
 export default TextLink;

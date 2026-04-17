@@ -5,11 +5,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "next/navigation";
 import TextLink from "../../../../components/Minor/TextLink";
 import Coupons_Deals from "../../../../components/cards/Coupons_Deals";
-import ReviewCard from "../../../../components/cards/ReviewCard";
 import HeadingText from "../../../../components/Minor/HeadingText";
 import { getDeals } from "../../../../redux/deal/dealSlice";
-import { fetchReviews } from "../../../../redux/review/reviewSlice";
-import { GridSkeleton, RowSkeleton } from "../../../../components/skeletons/InlineSkeletons";
+import { GridSkeleton } from "../../../../components/skeletons/InlineSkeletons";
 import { slugify, titleize } from "../../../../lib/slugify";
 
 const CategoryDealsPage = () => {
@@ -19,18 +17,15 @@ const CategoryDealsPage = () => {
   const categoryName = titleize(categorySlug.replace(/-/g, " "));
 
   const { deals = [], loading: dealsLoading } = useSelector((state) => state.deal || { deals: [], loading: false });
-  const { reviews = [], loading: reviewsLoading } = useSelector((state) => state.reviews || { reviews: [], loading: false });
   const { selectedCountry } = useSelector((state) => state.country || {});
 
   useEffect(() => {
     if (!selectedCountry) return;
     dispatch(getDeals(selectedCountry));
-    dispatch(fetchReviews());
   }, [dispatch, selectedCountry]);
 
   const filteredDeals = deals.filter((deal) => slugify(deal.categorySelect || "") === categorySlug);
   const hasDeals = filteredDeals.length > 0;
-  const hasReviews = reviews.length > 0;
 
   return (
     <div className="site-shell p-4">
@@ -66,19 +61,6 @@ const CategoryDealsPage = () => {
           <p className="text-sm text-gray-500">No deals found for this category.</p>
         )}
       </div>
-
-      {(reviewsLoading || hasReviews) && (
-        <>
-          <TextLink text="User" colorText="Review" link="" linkText="" />
-          <div className="p-4 flex gap-4 overflow-x-scroll">
-            {reviewsLoading && !hasReviews ? (
-              <RowSkeleton count={3} />
-            ) : (
-              reviews.map((review) => <ReviewCard key={review._id} data={review} />)
-            )}
-          </div>
-        </>
-      )}
 
       {hasDeals && (
         <HeadingText

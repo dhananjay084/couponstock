@@ -184,6 +184,7 @@ const NavBar = () => {
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [showResults, setShowResults] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [mobileCountryAnchorEl, setMobileCountryAnchorEl] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [adminAnchorEl, setAdminAnchorEl] = useState(null);
@@ -202,6 +203,7 @@ const NavBar = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const open = Boolean(anchorEl);
+  const mobileCountryMenuOpen = Boolean(mobileCountryAnchorEl);
 
   const searchBarRef = useRef();
   const countryRef = useRef();
@@ -434,10 +436,14 @@ const NavBar = () => {
     if (!value) return;
     dispatch(setSelectedCountry(value));
     setCountryOpen(false);
+    setMobileCountryAnchorEl(null);
   };
 
   const handleMenuOpen = (e) => setAnchorEl(e.currentTarget);
   const handleMenuClose = () => setAnchorEl(null);
+
+  const handleMobileCountryMenuOpen = (e) => setMobileCountryAnchorEl(e.currentTarget);
+  const handleMobileCountryMenuClose = () => setMobileCountryAnchorEl(null);
 
   const handleProfile = () => {
     router.push("/profilep");
@@ -560,7 +566,8 @@ const NavBar = () => {
                 MY COUPON STOCK
               </Typography>
             </Link>
-            {selectedCountry && (
+            {/* Desktop: show selected country as text. Mobile: show a selector. */}
+            {selectedCountry && !isMobile && (
               <Typography
                 variant="caption"
                 sx={{
@@ -573,6 +580,80 @@ const NavBar = () => {
               >
                 {selectedCountry}
               </Typography>
+            )}
+
+            {isMobile && (
+              <>
+                <Box
+                  onClick={handleMobileCountryMenuOpen}
+                  role="button"
+                  aria-label="Select country"
+                  sx={{
+                    ml: 1,
+                    cursor: "pointer",
+                    border: scrolled
+                      ? "1px solid rgba(255,255,255,0.45)"
+                      : "1px solid #D9CCF5",
+                    borderRadius: "999px",
+                    px: 1.2,
+                    py: 0.5,
+                    fontSize: "0.72rem",
+                    background: scrolled ? "rgba(255,255,255,0.12)" : "#fff",
+                    color: scrolled ? "#fff" : "#2b1c4d",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 0.8,
+                    maxWidth: 150,
+                  }}
+                >
+                  {selectedCode &&
+                    renderCountryIcon(
+                      selectedFlagCode,
+                      `${selectedCountry || "Country"} flag`
+                    )}
+                  <span
+                    style={{
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {selectedCountry || "Select"}
+                  </span>
+                  <span style={{ fontSize: "0.7rem", opacity: 0.9 }}>▼</span>
+                </Box>
+
+                <Menu
+                  anchorEl={mobileCountryAnchorEl}
+                  open={mobileCountryMenuOpen}
+                  onClose={handleMobileCountryMenuClose}
+                  PaperProps={{
+                    sx: {
+                      mt: 1,
+                      borderRadius: "12px",
+                      border: "1px solid #E4D8FF",
+                      boxShadow: "0 12px 30px rgba(0,0,0,0.12)",
+                      maxHeight: 360,
+                    },
+                  }}
+                >
+                  {allowedCountries.map((c) => (
+                    <MenuItem
+                      key={c._id}
+                      onClick={() => selectCountry(c.country_name)}
+                      sx={{ gap: 1.2, fontSize: "0.9rem", color: "#2b1c4d" }}
+                    >
+                      {c.code && renderCountryIcon(c.code, `${c.country_name} flag`)}
+                      {c.country_name}
+                    </MenuItem>
+                  ))}
+                  {allowedCountries.length === 0 && (
+                    <MenuItem disabled sx={{ fontSize: "0.9rem" }}>
+                      No countries found
+                    </MenuItem>
+                  )}
+                </Menu>
+              </>
             )}
           </Box>
 

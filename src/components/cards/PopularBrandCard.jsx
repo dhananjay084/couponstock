@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
 import { toast } from "react-toastify";
+import CountryLink from "../Minor/CountryLink";
 
 const PopularBrandCard = ({ data }) => {
   if (!data) {
@@ -22,7 +22,7 @@ const PopularBrandCard = ({ data }) => {
           alt={storeName || "Brand"}
         />
         <div className="absolute bottom-3 right-3 z-10">
-          <Link
+          <CountryLink
             href={storeHref}
             prefetch
             className="pro-btn-soft"
@@ -34,7 +34,7 @@ const PopularBrandCard = ({ data }) => {
             }}
           >
             View
-          </Link>
+          </CountryLink>
         </div>
       </div>
       <div className="my-2">

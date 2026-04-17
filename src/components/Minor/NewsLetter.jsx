@@ -10,7 +10,9 @@ import { toast } from "react-toastify";
 
 const NewsLetter = () => {
   const dispatch = useDispatch();
-  const { loading, success, error } = useSelector((state) => state.newsletter);
+  const { loading, success, error, emailSent, mailConfigured } = useSelector(
+    (state) => state.newsletter
+  );
 
   const [inputValue, setInputValue] = useState("") ;
 
@@ -23,13 +25,21 @@ const NewsLetter = () => {
 
   useEffect(() => {
     if (success) {
-      toast.success("Thanks for subscribing!");
+      if (mailConfigured === false) {
+        toast.success("Subscribed! (Confirmation email is not configured yet)");
+      } else if (emailSent === false) {
+        toast.success("Subscribed! (Confirmation email could not be sent — check spam/promotions)");
+      } else {
+        toast.success("Thanks for subscribing!");
+      }
       setInputValue("");
       dispatch(resetSubscriberState());
     } else if (error) {
       toast.error(error);
+      // Prevent repeated toasts when the modal is reopened
+      dispatch(resetSubscriberState());
     }
-  }, [success, error, dispatch]);
+  }, [success, error, dispatch, emailSent, mailConfigured]);
 
   return (
     <div className="pro-card rounded-2xl border border-[#E3E8F2] bg-white p-4 sm:p-6">

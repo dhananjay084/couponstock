@@ -11,12 +11,13 @@ import {
 import HeadingText from "../../../components/Minor/HeadingText";
 import DealCard from "../../../components/cards/DealCard";
 import { getDeals } from "../../../redux/deal/dealSlice";
-import ReviewCard from "../../../components/cards/ReviewCard";
-import { fetchReviews } from "../../../redux/review/reviewSlice";
 import TextLink from "../../../components/Minor/TextLink";
 import LoginModal from "../../../components/modals/loginModal";
 import { useRouter } from "next/navigation";
 import { RowSkeleton, TextSkeleton } from "../../../components/skeletons/InlineSkeletons";
+import ArrowScrollRow from "../../../components/Minor/ArrowScrollRow";
+import CountryLink from "../../../components/Minor/CountryLink";
+import { slugify, titleize } from "../../../lib/slugify";
 export async function generateMetadata({ params }) {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_SERVER_URL}/api/deals/slug/${params.slug}`,
@@ -56,7 +57,6 @@ const DealDetailsContent = ({ initialDeal }) => {
   
   const category = searchParams?.get("category") || "";
   const { deals = [] } = useSelector((state) => state.deal);
-  const { reviews = [] } = useSelector((state) => state.reviews);
   const { selectedCountry } = useSelector((state) => state.country || {});
   const router = useRouter();
   const [userId, setUserId] = useState("");
@@ -124,7 +124,6 @@ const DealDetailsContent = ({ initialDeal }) => {
   useEffect(() => {
     if (!selectedCountry) return;
     dispatch(getDeals(selectedCountry));
-    dispatch(fetchReviews());
   }, [dispatch, selectedCountry]);
 
   if (loading) {
@@ -195,11 +194,15 @@ const DealDetailsContent = ({ initialDeal }) => {
       deal.dealCategory === "deal"
   );
   const hasRelatedDeals = relatedDeals.length > 0;
-  const hasReviews = reviews.length > 0;
-  const summaryText =
-    dealDetails.dealDescription ||
-    dealDetails.homePageTitle ||
-    "Explore this offer and activate it before it expires.";
+  const storeName = dealDetails.store ? String(dealDetails.store).trim() : "";
+  const storeSlug = storeName ? slugify(storeName) : "";
+  const storeHref = storeSlug ? `/deal/store/${encodeURIComponent(storeSlug)}` : "";
+  const categoryValue = String(category || dealDetails.categorySelect || "").trim();
+  const categorySlug = categoryValue ? slugify(categoryValue) : "";
+  const categoryHref = categorySlug
+    ? `/deal/category/${encodeURIComponent(categorySlug)}`
+    : "";
+  const categoryLabel = categorySlug ? titleize(categorySlug) : "";
 
   return (
     <>
@@ -207,20 +210,32 @@ const DealDetailsContent = ({ initialDeal }) => {
         <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
           {dealDetails.dealTitle}
         </h1>
-        <p className="mt-2 max-w-2xl text-sm text-white/85">
-          {summaryText}
-        </p>
         <div className="mt-4 flex flex-wrap items-center gap-2">
-          {dealDetails.store && (
-            <span className="rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold">
-              {dealDetails.store}
-            </span>
-          )}
+          {storeName && storeHref ? (
+            <CountryLink
+              href={storeHref}
+              prefetch
+              className="rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold hover:bg-white/15"
+              aria-label={`View all ${storeName} deals`}
+            >
+              {storeName}
+            </CountryLink>
+          ) : null}
           {dealDetails.dealCategory && (
             <span className="rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold capitalize">
               {dealDetails.dealCategory}
             </span>
           )}
+          {categoryLabel && categoryHref ? (
+            <CountryLink
+              href={categoryHref}
+              prefetch
+              className="rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold hover:bg-white/15"
+              aria-label={`View all ${categoryLabel} deals`}
+            >
+              {categoryLabel}
+            </CountryLink>
+          ) : null}
           {dealDetails.expiredDate && (
             <span className="rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold">
               Expires {formatDate(dealDetails.expiredDate)}
@@ -373,11 +388,11 @@ const DealDetailsContent = ({ initialDeal }) => {
           >
             Related Deals
           </Typography>
-          <div className="flex overflow-x-scroll gap-4 p-4">
+          <ArrowScrollRow controlsClassName="px-4" scrollerClassName="flex gap-4 overflow-x-scroll p-4">
             {relatedDeals.map((deal) => (
               <DealCard key={deal._id} data={deal} />
             ))}
-          </div>
+          </ArrowScrollRow>
         </>
       )}
 
@@ -387,17 +402,6 @@ const DealDetailsContent = ({ initialDeal }) => {
           isHtml={true}
           content={dealDetails.dealDescription}
         />
-      )}
-
-      {hasReviews && (
-        <>
-          <TextLink text="User" colorText="Reviews" link="" linkText="" />
-          <div className="pt-0 p-4 flex gap-4 overflow-x-scroll">
-            {reviews.map((review) => (
-              <ReviewCard key={review._id} data={review} />
-            ))}
-          </div>
-        </>
       )}
 
       <LoginModal

@@ -20,12 +20,16 @@ const newsletterSlice = createSlice({
     loading: false,
     success: false,
     error: null,
+    emailSent: null,
+    mailConfigured: null,
   },
   reducers: {
     resetSubscriberState: (state) => {
       state.loading = false;
       state.success = false;
       state.error = null;
+      state.emailSent = null;
+      state.mailConfigured = null;
     },
   },
   extraReducers: (builder) => {
@@ -34,10 +38,14 @@ const newsletterSlice = createSlice({
         state.loading = true;
         state.success = false;
         state.error = null;
+        state.emailSent = null;
+        state.mailConfigured = null;
       })
-      .addCase(subscribeUser.fulfilled, (state) => {
+      .addCase(subscribeUser.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
+        state.emailSent = action.payload?.emailSent ?? null;
+        state.mailConfigured = action.payload?.mailConfigured ?? null;
       })
       .addCase(subscribeUser.rejected, (state, action) => {
         state.loading = false;

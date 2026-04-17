@@ -11,6 +11,7 @@ import { useParams } from "next/navigation"; // to get dynamic param
 import { extractIdFromSlug, titleize } from "../../../lib/slugify";
 import { RowSkeleton, TextSkeleton } from "../../../components/skeletons/InlineSkeletons";
 import { toast } from "react-toastify";
+import ArrowScrollRow from "../../../components/Minor/ArrowScrollRow";
 
 const BlogDetails = () => {
   const params = useParams();
@@ -122,7 +123,7 @@ const BlogDetails = () => {
     {(loading || hasOtherBlogs) && (
       <>
         <h2 className="font-semibold text-2xl my-8">All Blogs</h2>
-        <div className="gap-4 overflow-x-auto flex">
+        <ArrowScrollRow controlsClassName="px-1" scrollerClassName="flex gap-4 overflow-x-auto">
           {loading && blogs.length === 0 ? (
             <RowSkeleton count={3} />
           ) : (
@@ -130,7 +131,7 @@ const BlogDetails = () => {
               <BlogCard key={blog._id} data={blog} border={true} />
             ))
           )}
-        </div>
+        </ArrowScrollRow>
       </>
     )}
   </div>

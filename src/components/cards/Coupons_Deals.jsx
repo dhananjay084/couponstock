@@ -2,9 +2,9 @@
 
 import React, { useState } from "react";
 import { Typography } from "@mui/material";
-import Link from "next/link";
 import CouponModal from "../modals/couponModels";
 import { toast } from "react-toastify";
+import CountryLink from "../Minor/CountryLink";
 
 const Coupons_Deals = ({ border, disabled, data }) => {
   if (!data) return null;
@@ -25,10 +25,9 @@ const Coupons_Deals = ({ border, disabled, data }) => {
   return (
     <>
       <div className="relative">
-
         {/* MAIN CARD */}
         <div
-          className={`flex items-center gap-4 px-4 py-4 mx-2 rounded-xl transition-all duration-200 
+          className={`relative mx-2 flex items-center gap-4 overflow-hidden rounded-xl px-4 py-4 transition-all duration-200 
             ${border ? "pro-card" : ""}
             ${disabled ? "opacity-70 cursor-not-allowed" : "cursor-pointer hover:shadow-md"}
           `}
@@ -44,6 +43,16 @@ const Coupons_Deals = ({ border, disabled, data }) => {
               <div className="absolute inset-0 bg-black bg-opacity-50 rounded-lg" />
             )}
           </div>
+
+          {/* Store Tag */}
+          {data?.store && (
+            <div
+              className="absolute bottom-2 right-2 z-10 max-w-[70%] truncate rounded-tl-xl rounded-br-xl bg-[#5B3CC4] px-4 py-2 text-[11px] font-semibold text-white shadow-sm"
+              style={{ border: "1px solid #D7C8FF" }}
+            >
+              {data.store}
+            </div>
+          )}
 
           {/* Text + Button */}
           <div className="flex flex-col justify-between h-full flex-1 overflow-hidden">
@@ -89,7 +98,7 @@ const Coupons_Deals = ({ border, disabled, data }) => {
                 Code
               </button>
             ) : (
-              <Link
+              <CountryLink
                 href={dealHref}
                 prefetch
                 onClick={(e) => {
@@ -101,28 +110,10 @@ const Coupons_Deals = ({ border, disabled, data }) => {
                 className="mt-3 self-start rounded-md border border-[#DCCEFF] bg-[#F2EBFF] px-4 py-1.5 text-sm text-[#5B3CC4] shadow hover:bg-[#EADFFF]"
               >
                 View
-              </Link>
+              </CountryLink>
             )}
           </div>
         </div>
-
-        {/* ✔ STORE TAG ON BOTTOM RIGHT – EXACT STYLE FROM IMAGE */}
-        {data?.store && (
-          <div
-            className="absolute bottom-0 right-2 
-            bg-[#5B3CC4] 
-            text-[#fff] 
-            px-4 py-2 text-[11px] font-semibold
-            rounded-tl-xl
-            rounded-br-xl
-            shadow-sm"
-            style={{
-              border: "1px solid #D7C8FF",
-            }}
-          >
-            {data.store}
-          </div>
-        )}
       </div>
 
       {/* Coupon Modal */}

@@ -3,14 +3,17 @@
 import React from "react";
 import { Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
+import { addCountryPrefix } from "../../lib/countryPath";
 
 const CouponModal = ({ open, onClose, data }) => {
   const router = useRouter();
+  const { selectedCountry } = useSelector((state) => state.country || {});
 
   if (!open) return null;
 
   const handleCardClick = () => {
-    router.push(`/deal/${data._id}?category=${data.categorySelect}`);
+    router.push(addCountryPrefix(`/deal/${data._id}?category=${data.categorySelect}`, selectedCountry || ""));
   };
 
   const handleCopyAndGo = async () => {

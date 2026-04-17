@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
 import { toast } from "react-toastify";
+import CountryLink from "../Minor/CountryLink";
 
 const DealCard = ({ data }) => {
   if (!data) return null;
@@ -16,7 +16,7 @@ const DealCard = ({ data }) => {
 
       {storeName && (
         <div
-          className="absolute right-2 top-2 z-10 rounded-full border border-[#CDBBFF] bg-[#5B3CC4] px-2.5 py-1 text-[10px] font-semibold text-white shadow"
+          className="absolute bottom-2 right-2 z-10 max-w-[70%] truncate rounded-full border border-[#CDBBFF] bg-[#5B3CC4] px-2.5 py-1 text-[10px] font-semibold text-white shadow"
         >
           {storeName}
         </div>
@@ -35,7 +35,7 @@ const DealCard = ({ data }) => {
           {storeDescription || "No description available."}
         </p>
 
-        <Link
+        <CountryLink
           href={storeHref}
           prefetch
           className="pro-btn-soft mt-3 self-start"
@@ -47,7 +47,7 @@ const DealCard = ({ data }) => {
           }}
         >
           View
-        </Link>
+        </CountryLink>
       </div>
     </div>
   );

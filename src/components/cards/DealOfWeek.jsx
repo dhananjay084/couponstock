@@ -4,7 +4,8 @@ import React from "react";
 import Image from "next/image";
 import { Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
+import { addCountryPrefix } from "../../lib/countryPath";
 
 const DealOfWeek = ({ data }) => {
   if (!data) {
@@ -13,10 +14,12 @@ const DealOfWeek = ({ data }) => {
   }
 
   const router = useRouter();
+  const { selectedCountry } = useSelector((state) => state.country || {});
   const { dealImage, homePageTitle } = data;
 
   const handleCardClick = () => {
-    router.push(`/deal/${data._id}?category=${data.categorySelect}`);
+    const href = `/deal/${data._id}?category=${data.categorySelect}`;
+    router.push(addCountryPrefix(href, selectedCountry || ""));
   };
 
   return (

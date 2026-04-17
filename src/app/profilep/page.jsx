@@ -9,9 +9,7 @@ import { toast } from "react-toastify";
 import ProfileImage from "../../assets/ProfileImage.jpg";
 import Banner from "../../components/Minor/Banner";
 import HeadingText from "../../components/Minor/HeadingText";
-import ReviewCard from "../../components/cards/ReviewCard";
-import TextLink from "../../components/Minor/TextLink";
-import { fetchReviews, addReview } from "../../redux/review/reviewSlice";
+import { addReview } from "../../redux/review/reviewSlice";
 import { fetchReferralLink,fetchMyReferrals } from "../../redux/referral/referralSlice";
 import Cookies from "js-cookie";
 
@@ -115,12 +113,6 @@ const [searchValue, setSearchValue] = useState("");
     }
   }, [router]);
 
-  // ✅ fetch reviews
-  const { reviews = [], loading } = useSelector((state) => state.reviews);
-  useEffect(() => {
-    dispatch(fetchReviews());
-  }, [dispatch]);
-
   // ✅ guard rendering until after mount
   if (!isMounted) {
     return <div className="p-8 text-center">Loading...</div>;
@@ -159,7 +151,6 @@ const [searchValue, setSearchValue] = useState("");
         toast.success("Review submitted successfully!");
         setSubmitted(true);
         setDesc("");
-        dispatch(fetchReviews());
       })
       .catch((err) => {
         console.error("Failed to submit review:", err);
@@ -384,18 +375,6 @@ const [searchValue, setSearchValue] = useState("");
         </table>
       </div>
     </div>
-        {/* Reviews Section */}
-        <TextLink text="Public" colorText="Reviews" link="" linkText="" />
-        <div className="p-4 flex gap-4 overflow-x-scroll">
-          {loading && <p>Loading reviews...</p>}
-          {!loading && reviews.length > 0 ? (
-            reviews.map((review) => (
-              <ReviewCard key={review._id} data={review} />
-            ))
-          ) : (
-            <p>No reviews found.</p>
-          )}
-        </div>
       </div>
 
       {/* Share Modal */}

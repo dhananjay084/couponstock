@@ -1,5 +1,7 @@
 import { getCountryCodeFromName } from "../lib/countryPath";
 
+export const revalidate = 3600;
+
 const getServerBase = () => {
   const base =
     process.env.NEXT_PUBLIC_SERVER_URL ||
@@ -9,8 +11,8 @@ const getServerBase = () => {
 };
 
 const fetchHomeAdminEntries = async () => {
-  const res = await fetch(`${getServerBase()}/api/admin`, {
-    cache: "no-store",
+  const res = await fetch(`${getServerBase()}/api/admin/seo`, {
+    next: { revalidate },
   });
   if (!res.ok) return [];
   const json = await res.json();

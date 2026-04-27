@@ -21,7 +21,7 @@ import { slugify, titleize } from "../../../lib/slugify";
 export async function generateMetadata({ params }) {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_SERVER_URL}/api/deals/slug/${params.slug}`,
-    { cache: "no-store" }
+    { next: { revalidate: 3600 } }
   );
 
   const deal = await res.json();

@@ -1,5 +1,7 @@
 import { getCountryCodeFromName } from "./countryPath.js";
 
+export const HOME_ADMIN_REVALIDATE_SECONDS = 3600;
+
 export const getServerBase = () => {
   const base =
     process.env.NEXT_PUBLIC_SERVER_URL ||
@@ -9,8 +11,8 @@ export const getServerBase = () => {
 };
 
 export const fetchHomeAdminEntries = async () => {
-  const res = await fetch(`${getServerBase()}/api/admin`, {
-    cache: "no-store",
+  const res = await fetch(`${getServerBase()}/api/admin/seo`, {
+    next: { revalidate: HOME_ADMIN_REVALIDATE_SECONDS },
   });
   if (!res.ok) return [];
   const json = await res.json();

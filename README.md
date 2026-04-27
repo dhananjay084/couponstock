@@ -1,6 +1,6 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-## Getting Started
+## Getting Started (Local)
 
 First, run the development server:
 
@@ -15,6 +15,18 @@ bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## Production (VPS/AWS)
+
+Do **not** run `next dev` on a server (it watches files and uses more CPU/RAM).
+
+```bash
+npm ci
+npm run build
+npm run start
+```
+
+Environment variables are read from `.env`/hosting config. At minimum you’ll need `NEXT_PUBLIC_SERVER_URL` and `NEXT_PUBLIC_SITE_URL`.
 
 You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 

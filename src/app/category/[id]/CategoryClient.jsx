@@ -19,7 +19,7 @@ import ArrowScrollRow from "../../../components/Minor/ArrowScrollRow";
 export async function generateMetadata({ params }) {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_SERVER_URL}/api/categories/${params.id}`,
-    { cache: "no-store" }
+    { next: { revalidate: 3600 } }
   );
 
   const category = await res.json();

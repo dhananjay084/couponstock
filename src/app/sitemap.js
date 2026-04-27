@@ -30,7 +30,7 @@ const staticRoutes = [
 async function getJson(path) {
   if (!API_BASE_URL) return [];
   try {
-    const data = await fetchJson(`${API_BASE_URL}${path}`, { cache: "no-store" });
+    const data = await fetchJson(`${API_BASE_URL}${path}`, { next: { revalidate } });
     return Array.isArray(data) ? data : [];
   } catch {
     return [];
@@ -44,11 +44,11 @@ function safeDate(value) {
 
 export default async function sitemap() {
   const [stores, deals, categories, blogs, countries] = await Promise.all([
-    getJson("/api/stores"),
-    getJson("/api/deals"),
-    getJson("/api/categories"),
-    getJson("/api/blogs"),
-    getJson("/api/countries"),
+    getJson("/api/stores/sitemap"),
+    getJson("/api/deals/sitemap"),
+    getJson("/api/categories/sitemap"),
+    getJson("/api/blogs/sitemap"),
+    getJson("/api/countries/sitemap"),
   ]);
 
   const staticEntries = staticRoutes.map((route) => ({
@@ -78,38 +78,14 @@ export default async function sitemap() {
       priority: 0.8,
     }));
 
-  const countryCodeStoreEntries = COUNTRY_PREFIX_CODES.flatMap((code) =>
-    stores
-      .filter((store) => store?.slug)
-      .map((store) => ({
-        url: `${SITE_URL}/${code}/store/${encodeURIComponent(store.slug)}`,
-        lastModified: safeDate(store.updatedAt || store.createdAt),
-        changeFrequency: "daily",
-        priority: 0.7,
-      }))
-  );
-
   const dealEntries = deals
-    .map((deal) => deal?.slug || deal?._id)
-    .filter(Boolean)
-    .map((slugOrId) => ({
-      url: `${SITE_URL}/deal/${encodeURIComponent(slugOrId)}`,
-      lastModified: new Date(),
+    .filter((deal) => deal?.slug || deal?._id)
+    .map((deal) => ({
+      url: `${SITE_URL}/deal/${encodeURIComponent(deal.slug || deal._id)}`,
+      lastModified: safeDate(deal.updatedAt || deal.createdAt),
       changeFrequency: "daily",
       priority: 0.8,
     }));
-
-  const countryCodeDealEntries = COUNTRY_PREFIX_CODES.flatMap((code) =>
-    deals
-      .map((deal) => deal?.slug || deal?._id)
-      .filter(Boolean)
-      .map((slugOrId) => ({
-        url: `${SITE_URL}/${code}/deal/${encodeURIComponent(slugOrId)}`,
-        lastModified: new Date(),
-        changeFrequency: "daily",
-        priority: 0.7,
-      }))
-  );
 
   const categoryEntries = categories
     .filter((category) => category?.name)
@@ -121,19 +97,6 @@ export default async function sitemap() {
       changeFrequency: "weekly",
       priority: 0.7,
     }));
-
-  const countryCodeCategoryEntries = COUNTRY_PREFIX_CODES.flatMap((code) =>
-    categories
-      .filter((category) => category?.name)
-      .map((category) => ({
-        url: `${SITE_URL}/${code}/category/${encodeURIComponent(
-          category.name.toString().trim().toLowerCase()
-        )}`,
-        lastModified: safeDate(category.updatedAt || category.createdAt),
-        changeFrequency: "weekly",
-        priority: 0.6,
-      }))
-  );
 
   const blogEntries = blogs
     .filter((blog) => blog?._id)
@@ -153,18 +116,22 @@ export default async function sitemap() {
     }));
 
   const countryEntries = countries
-    .map((c) => (c?.country_name || c?.name || "").toString().trim())
-    .filter(Boolean)
-    .map((name) => ({
+    .map((c) => ({
+      name: (c?.country_name || c?.name || "").toString().trim(),
+      updatedAt: c?.updatedAt,
+      createdAt: c?.createdAt,
+    }))
+    .filter((c) => c.name)
+    .map((c) => ({
       url: `${SITE_URL}/country/${encodeURIComponent(
-        name
+        c.name
           .toLowerCase()
           .replace(/[^\w\s-]/g, "")
           .trim()
           .replace(/\s+/g, "-")
           .replace(/-+/g, "-")
       )}`,
-      lastModified: new Date(),
+      lastModified: safeDate(c.updatedAt || c.createdAt),
       changeFrequency: "weekly",
       priority: 0.6,
     }));
@@ -173,11 +140,8 @@ export default async function sitemap() {
     ...staticEntries,
     ...countryCodeEntries,
     ...storeEntries,
-    ...countryCodeStoreEntries,
     ...dealEntries,
-    ...countryCodeDealEntries,
     ...categoryEntries,
-    ...countryCodeCategoryEntries,
     ...blogEntries,
     ...countryEntries,
   ];

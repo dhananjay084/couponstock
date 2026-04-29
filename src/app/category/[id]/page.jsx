@@ -176,7 +176,7 @@ import CategoryClient from "./CategoryClient";
 import { fetchJson } from "../../../lib/serverFetchJson";
 
 export async function generateMetadata({ params }) {
-  const { id } = await params;
+  const { id } = params;
   const categorySlug = decodeURIComponent(id).toLowerCase();
   const categoryName = categorySlug.toUpperCase();
 

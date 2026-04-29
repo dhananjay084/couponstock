@@ -11,25 +11,10 @@ import DealOfWeek from "../../../components/cards/DealOfWeek";
 import { getDeals } from "../../../redux/deal/dealSlice";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams } from "next/navigation";
-import { titleize } from "../../../lib/slugify";
+import { slugify, titleize } from "../../../lib/slugify";
 import { GridSkeleton, RowSkeleton, TextSkeleton } from "../../../components/skeletons/InlineSkeletons";
 import ArrowScrollRow from "../../../components/Minor/ArrowScrollRow";
 
-// Loading fallback UI
-export async function generateMetadata({ params }) {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/categories/${params.id}`,
-    { next: { revalidate: 3600 } }
-  );
-
-  const category = await res.json();
-
-  return {
-    title: category.metaTitle || category.name,
-    description: category.metaDescription || "",
-    keywords: category.metaKeywords || "",
-  };
-}
 const SingleCategoryContent = () => {
   const dispatch = useDispatch();
   const { deals = [] } = useSelector((state) => state.deal);
@@ -38,11 +23,12 @@ const SingleCategoryContent = () => {
   // Read the category from the dynamic route param `[id]`
   const params = useParams();
   const categoryParam = params?.id ? decodeURIComponent(params.id).trim().toLowerCase() : "all";
-  const category = categoryParam === "all" ? "All" : categoryParam.toUpperCase();
   const categoryDisplay = categoryParam === "all" ? "All" : titleize(categoryParam);
 
   // Filter deals based on category
-  const filteredDeals = deals.filter((deal) => deal.categorySelect === category);
+  const filteredDeals = categoryParam === "all"
+    ? deals
+    : deals.filter((deal) => slugify(deal?.categorySelect || "") === categoryParam);
 
   // Sorting menu state
   const [anchorEl, setAnchorEl] = useState(null);

@@ -40,9 +40,6 @@ const CategoryDealsPage = () => {
           <span className="rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold">
             {filteredDeals.length} Active Offers
           </span>
-          <span className="rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold">
-            {reviews.length} Reviews
-          </span>
         </div>
       </section>
 

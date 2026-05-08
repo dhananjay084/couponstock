@@ -106,7 +106,7 @@ const authSlice = createSlice({
         state.loading = false;
         state.user = normalizeUser(action.payload);
         state.isAuthenticated = true;
-        state.message = normalizeMessage(action.payload, "Google login successful!");
+        state.message = normalizeMessage(action.payload, "Social login successful!");
       })
       .addCase(googleLogin.rejected, (state, action) => {
         state.loading = false;

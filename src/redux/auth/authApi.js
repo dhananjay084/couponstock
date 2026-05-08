@@ -3,6 +3,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
 // import { toast } from "react-toastify";
 
 
@@ -15,6 +16,18 @@ const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL;
 const extractUserFromResponse = (payload) => {
   if (!payload || typeof payload !== "object") return null;
   return payload.user && typeof payload.user === "object" ? payload.user : payload;
+};
+
+const buildGoogleProfileFromCredential = (credential) => {
+  const payload = jwtDecode(credential);
+  return {
+    provider: "google",
+    providerUserId: String(payload?.sub || "").trim(),
+    email: String(payload?.email || "").trim().toLowerCase(),
+    name: String(payload?.name || payload?.given_name || "Social User").trim(),
+    avatar: String(payload?.picture || "").trim(),
+    emailVerified: payload?.email_verified === true,
+  };
 };
 
 // Helper to store basic user info in client-side cookies
@@ -69,7 +82,8 @@ export const googleLogin = createAsyncThunk(
   "auth/googleLogin",
   async (credential, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${SERVER_URL}/api/auth/google`, { credential });
+      const profile = buildGoogleProfileFromCredential(credential);
+      const response = await axios.post(`${SERVER_URL}/api/auth/social-login`, profile);
       setUserDataInCookies(extractUserFromResponse(response.data));
       return response.data;
     } catch (error) {

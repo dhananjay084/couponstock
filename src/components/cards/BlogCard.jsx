@@ -8,7 +8,7 @@ import { slugWithId } from "../../lib/slugify";
 const stripHTML = (html = "") => {
   if (!html) return "";
   const clean = html.replace(/<[^>]+>/g, "");
-  return clean.length > 120 ? clean.slice(0, 1020) + "..." : clean;
+  return clean.length > 120 ? clean.slice(0, 120) + "..." : clean;
 };
 
 const trimText = (text = "", limit = 120, suffix = "...") => {
@@ -53,22 +53,23 @@ const BlogCard = ({
   return (
     <div
       onClick={() => router.push(detailUrl)}
-      className={`pro-card cursor-pointer overflow-hidden 
+      className={`coupon-banner-card cursor-pointer overflow-hidden 
       transition hover:shadow-lg ${large ? "h-full" : ""} ${forceFullHeight ? "h-full flex flex-col" : ""} ${className}`}
-      style={fixedHeight ? { height: fixedHeight } : undefined}
+      style={fixedHeight ? { minHeight: fixedHeight } : undefined}
     >
       {/* IMAGE */}
       <img
         src={blog.image}
         alt={blog.heading}
-        className={`w-full object-cover ${large ? "h-80" : compact ? "h-36" : "h-48"}`}
+        className={`w-full object-cover ${large ? "h-80" : compact ? "h-32" : "h-48"}`}
       />
 
       {/* CONTENT */}
-      <div className={`${compact ? "p-4 sm:p-5" : "p-6"} ${forceFullHeight ? "flex-1 flex flex-col" : ""}`}>
+      <div className={`${compact ? "p-4 sm:p-5" : "p-6"} ${forceFullHeight ? "flex-1 flex flex-col min-h-0" : ""}`}>
+        <span className="coupon-chip coupon-chip-muted mb-3">Savings Story</span>
         {/* TITLE */}
         <h2
-          className={`${compact ? "mb-2 text-lg" : "mb-2 text-xl"} font-bold leading-snug text-[#1A243B]`}
+          className={`${compact ? "mb-2 min-h-[3.75rem] text-lg" : "mb-2 text-xl"} font-bold leading-snug text-[#1A243B]`}
           style={headingStyle}
         >
           {blog.heading}
@@ -76,7 +77,7 @@ const BlogCard = ({
 
         {/* DESCRIPTION */}
         <p
-          className="text-[14px] leading-relaxed text-[#5D6780]"
+          className={`text-[14px] leading-relaxed text-[#5D6780] ${forceFullHeight ? "min-h-[4.4rem]" : ""}`}
           style={
             descriptionClamp
               ? {
@@ -93,7 +94,7 @@ const BlogCard = ({
 
         {/* AUTHOR + DATE + ACTION */}
         <div
-          className={`mt-4 flex items-end justify-between gap-3 text-sm text-[#7B8498] ${
+          className={`mt-4 flex items-end justify-between gap-3 border-t border-[#edf1f7] pt-4 text-sm text-[#7B8498] ${
             forceFullHeight ? "mt-auto" : ""
           }`}
         >
@@ -114,7 +115,7 @@ const BlogCard = ({
                 e.stopPropagation();
                 router.push(detailUrl);
               }}
-              className="shrink-0 rounded-lg bg-[#5B3CC4] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#4A2FA8]"
+              className="pro-btn shrink-0"
             >
               View
             </button>

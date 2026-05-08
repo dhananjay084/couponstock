@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation";
 import { RowSkeleton, TextSkeleton } from "../../../components/skeletons/InlineSkeletons";
 import ArrowScrollRow from "../../../components/Minor/ArrowScrollRow";
 import CountryLink from "../../../components/Minor/CountryLink";
+import CountryAvailabilityGate from "../../../components/Minor/CountryAvailabilityGate";
 import { slugify, titleize } from "../../../lib/slugify";
 export async function generateMetadata({ params }) {
   const res = await fetch(
@@ -205,7 +206,7 @@ const DealDetailsContent = ({ initialDeal }) => {
   const categoryLabel = categorySlug ? titleize(categorySlug) : "";
 
   return (
-    <>
+    <CountryAvailabilityGate availableCountries={dealDetails.country} itemLabel="deal">
       <section className="mx-4 mt-4 overflow-hidden rounded-[26px] border border-[#E3D9FF] bg-[linear-gradient(120deg,#231147_0%,#3A1D78_45%,#5D31BD_100%)] px-5 py-6 text-white shadow-[0_20px_45px_rgba(36,16,82,0.3)] sm:px-8">
         <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
           {dealDetails.dealTitle}
@@ -409,7 +410,7 @@ const DealDetailsContent = ({ initialDeal }) => {
         onClose={() => setIsModalOpen(false)}
         redirectUrl={loginRedirectUrl}
       />
-    </>
+    </CountryAvailabilityGate>
   );
 };
 

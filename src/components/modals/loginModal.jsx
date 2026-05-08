@@ -3,74 +3,23 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Formik, Form, Field } from "formik";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  loginUser,
-  googleLogin,
-  checkCurrentUser,
-  setUserDataInCookies,
-} from "../../redux/auth/authApi";
-import { clearAuthMessage, setAuthMessage } from "../../redux/auth/authSlice";
-import { useSearchParams, useRouter } from "next/navigation";
-import GoogleIcon from "@mui/icons-material/Google";
+import { loginUser, googleLogin, checkCurrentUser } from "../../redux/auth/authApi";
+import { clearAuthMessage } from "../../redux/auth/authSlice";
+import { useRouter } from "next/navigation";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { toast } from "react-toastify";
+import GoogleAuthButton from "../Minor/GoogleAuthButton";
 
 const LoginModal = ({ isOpen, onClose, redirectUrl = "" }) => {
   const dispatch = useDispatch();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { loading, isAuthenticated } = useSelector(
     (state) => state.auth
   );
 
-  const oauthHandledRef = useRef(false);
   const loginHandledRef = useRef(false);
   const [showPassword, setShowPassword] = useState(false);
-
-  useEffect(() => {
-    if (oauthHandledRef.current) return;
-
-    const name = searchParams?.get("name");
-    const email = searchParams?.get("email");
-    const authError = searchParams?.get("error");
-
-    if (name && email) {
-      setUserDataInCookies({
-        name: decodeURIComponent(name),
-        email: decodeURIComponent(email),
-      });
-      dispatch(
-        setAuthMessage({
-          message: `Welcome, ${decodeURIComponent(name)}! Logging you in...`,
-          type: "success",
-        })
-      );
-      window.history.replaceState({}, document.title, window.location.pathname);
-      dispatch(checkCurrentUser())
-        .unwrap()
-        .then((user) => {
-          toast.success(`Welcome, ${decodeURIComponent(name)}!`);
-          if (redirectUrl) {
-            window.open(redirectUrl, "_blank");
-          } else if (
-            typeof user?.role === "string" &&
-            user.role.toLowerCase() === "admin"
-          ) {
-            router.push("/admin/home");
-          }
-          onClose?.();
-        })
-        .catch(() => {
-          toast.error("Google login completed, but session check failed.");
-        });
-      oauthHandledRef.current = true;
-    } else if (authError === "google_auth_failed") {
-      toast.error("Google authentication failed. Please try again.");
-      window.history.replaceState({}, document.title, window.location.pathname);
-      oauthHandledRef.current = true;
-    }
-  }, [searchParams, dispatch, onClose, redirectUrl, router]);
 
   useEffect(() => {
     if (!loginHandledRef.current && isAuthenticated && !loading) {
@@ -107,8 +56,31 @@ const LoginModal = ({ isOpen, onClose, redirectUrl = "" }) => {
     }
   };
 
-  const handleGoogleLogin = () => {
-    dispatch(googleLogin());
+  const handleGoogleLogin = async (credentialResponse) => {
+    if (!credentialResponse?.credential) {
+      toast.error("Google login failed. Please try again.");
+      return;
+    }
+
+    try {
+      const loginPayload = await dispatch(googleLogin(credentialResponse.credential)).unwrap();
+      const user = loginPayload?.user || loginPayload || {};
+      toast.success(`Welcome${user?.name ? `, ${user.name}` : ""}!`);
+
+      if (redirectUrl) {
+        window.open(redirectUrl, "_blank");
+      } else if (
+        typeof user?.role === "string" &&
+        user.role.toLowerCase() === "admin"
+      ) {
+        router.push("/admin/home");
+      }
+
+      dispatch(checkCurrentUser());
+      onClose?.();
+    } catch (err) {
+      toast.error(typeof err === "string" ? err : err?.message || "Google login failed.");
+    }
   };
 
   if (!isOpen) return null;
@@ -214,14 +186,11 @@ const LoginModal = ({ isOpen, onClose, redirectUrl = "" }) => {
 
         {/* Google Login */}
         <div className="space-y-3">
-          <button
-            onClick={handleGoogleLogin}
-            className="w-full flex items-center justify-center gap-2 border border-gray-300 rounded-md py-3 hover:bg-gray-50 transition cursor-pointer"
-            disabled={loading}
-          >
-            <GoogleIcon className="text-[#4285F4]" />
-            <span className="font-medium">Continue with Google</span>
-          </button>
+          <GoogleAuthButton
+            onCredential={handleGoogleLogin}
+            onError={() => toast.error("Google login failed.")}
+            text="continue_with"
+          />
         </div>
 
         <div className="text-center text-sm mt-6">

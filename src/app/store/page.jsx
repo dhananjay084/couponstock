@@ -7,6 +7,7 @@ import TextLink from "../../components/Minor/TextLink";
 import HeadingText from "../../components/Minor/HeadingText";
 import PopularBrandCard from "../../components/cards/PopularBrandWithTitle";
 import { getStores } from "../../redux/store/storeSlice";
+import { getDeals } from "../../redux/deal/dealSlice";
 import { getHomeAdminData } from "../../redux/admin/homeAdminSlice";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
@@ -20,6 +21,7 @@ const AllStores = () => {
   const dispatch = useDispatch();
 
   const { stores = [], loading, error } = useSelector((state) => state.store);
+  const { deals = [] } = useSelector((state) => state.deal || {});
   const homeAdmin = useSelector((state) => state.homeAdmin) || { data: [], loading: false };
   const { selectedCountry } = useSelector((state) => state.country || {});
   const data = homeAdmin.data?.[0] || {};
@@ -50,9 +52,23 @@ const AllStores = () => {
     );
   }, [stores, selectedLetter]);
 
+  const dealCountsByStore = useMemo(() => {
+    const counts = new Map();
+    for (const deal of deals || []) {
+      const key = String(deal?.store || "").trim().toLowerCase();
+      if (!key) continue;
+      const current = counts.get(key) || { coupons: 0, deals: 0 };
+      if (deal?.dealCategory === "coupon") current.coupons += 1;
+      if (deal?.dealCategory === "deal") current.deals += 1;
+      counts.set(key, current);
+    }
+    return counts;
+  }, [deals]);
+
   useEffect(() => {
     if (!selectedCountry) return;
     dispatch(getStores(selectedCountry));
+    dispatch(getDeals(selectedCountry));
     dispatch(getHomeAdminData(selectedCountry));
   }, [dispatch, selectedCountry]);
 
@@ -134,12 +150,16 @@ const AllStores = () => {
       {loading && <p className="text-center text-lg font-medium">Loading stores...</p>}
       {error && <p className="text-center text-red-600">Error: {error}</p>}
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 px-4 mb-6">
+      <div className="grid grid-cols-2 gap-4 px-4 mb-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {loading && stores.length === 0 ? (
-          <GridSkeleton count={12} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 col-span-full" itemClassName="h-32 rounded-lg bg-gray-200" />
+          <GridSkeleton count={12} className="grid grid-cols-2 gap-4 col-span-full sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" itemClassName="h-32 rounded-lg bg-gray-200" />
         ) : (
           stores.filter((store) => store.popularStore).map((store) => (
-            <PopularBrandCard key={store._id} data={store} />
+            <PopularBrandCard
+              key={store._id}
+              data={store}
+              counts={dealCountsByStore.get(String(store?.storeName || "").toLowerCase())}
+            />
           ))
         )}
       </div>
@@ -164,13 +184,19 @@ const AllStores = () => {
           </div>
         </div>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 px-4 mb-10">
+      <div className="grid grid-cols-2 gap-4 px-4 mb-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {loading && stores.length === 0 ? (
-          <GridSkeleton count={18} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 col-span-full" itemClassName="h-32 rounded-lg bg-gray-200" />
+          <GridSkeleton count={18} className="grid grid-cols-2 gap-4 col-span-full sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" itemClassName="h-32 rounded-lg bg-gray-200" />
         ) : filteredStores.length === 0 && !loading ? (
           <p className="text-center col-span-full text-gray-600">No stores found.</p>
         ) : (
-          filteredStores.map((store) => <PopularBrandCard key={store._id} data={store} />)
+          filteredStores.map((store) => (
+            <PopularBrandCard
+              key={store._id}
+              data={store}
+              counts={dealCountsByStore.get(String(store?.storeName || "").toLowerCase())}
+            />
+          ))
         )}
       </div>
 

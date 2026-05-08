@@ -11,63 +11,61 @@ const DealCard = ({ data }) => {
     return null;
   }
 
-  const { dealDescription, dealImage, homePageTitle, store, categorySelect, _id, slug } = data;
+  const { dealDescription, dealImage, homePageTitle, store, categorySelect, _id, slug, dealCategory } = data;
   const urlSlug = slug || _id;
   const dealHref = `/deal/${urlSlug}${categorySelect ? `?category=${categorySelect}` : ""}`;
-
-  const handleCardClick = () => {
-    if (!_id) {
-      toast.error("Deal ID is missing!");
-      return;
-    }
-  };
+  const offerType = dealCategory === "coupon" ? "Coupon" : "Deal";
 
   return (
     <CountryLink
       href={dealHref}
       prefetch
-      className="pro-card relative mx-4 flex min-w-[277px] max-w-[460px] flex-shrink-0 cursor-pointer overflow-hidden"
+      className="coupon-offer-card mx-4 min-w-[286px] max-w-[430px] flex-shrink-0 cursor-pointer"
     >
-      {store && (
-        <div className="absolute bottom-2 right-2 z-10 max-w-[70%] truncate rounded-full border border-[#CDBBFF] bg-[#5B3CC4] px-2.5 py-1 text-[10px] font-semibold text-white shadow">
-          {store}
-        </div>
-      )}
-
-      <div className="flex w-[118px] flex-shrink-0 items-center justify-center bg-white p-2.5">
+      <div className="coupon-offer-media">
         <Image
           src={dealImage || "/default-deal.jpg"}
           alt={homePageTitle || "Deal Image"}
           width={100}
           height={100}
-          className="h-full w-full object-contain"
-          unoptimized={dealImage?.includes("http")} // For external images
+          className="h-[82px] w-[82px] rounded-[20px] object-contain"
+          unoptimized={dealImage?.includes("http")}
           priority={false}
         />
       </div>
 
-      <div className="flex flex-1 flex-col justify-between p-3.5">
-        <div className="space-y-1.5">
-          <p className="line-clamp-1 text-sm font-bold text-[#1E2635]">
+      <div className="coupon-offer-body">
+        <div className="mb-3 flex flex-wrap items-center gap-2">
+          <span className="coupon-chip coupon-chip-hot">{offerType}</span>
+          {store ? <span className="coupon-chip coupon-chip-muted max-w-[150px] truncate">{store}</span> : null}
+        </div>
+
+        <div className="space-y-2">
+          <p className="coupon-card-title line-clamp-2 min-h-[44px] text-[0.98rem]">
             {homePageTitle || "Untitled Deal"}
           </p>
-          <p className="line-clamp-2 text-[11px] text-[#5A667E]">
+          <p className="coupon-card-copy line-clamp-3 min-h-[58px] text-[12px] leading-5">
             {dealDescription || "No description available"}
           </p>
         </div>
 
-        <button
-          className="pro-btn-soft mt-2 self-start"
-          onClick={(e) => {
-            if (!_id) {
-              e.preventDefault();
-              toast.error("Deal ID is missing!");
-            }
-          }}
-          aria-label={`View ${homePageTitle || "deal"}`}
-        >
-          View
-        </button>
+        <div className="mt-auto flex items-center justify-between gap-3 pt-4">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#8793a9]">
+            Verified offer
+          </p>
+          <span
+            className="pro-btn-soft"
+            onClick={(e) => {
+              if (!_id) {
+                e.preventDefault();
+                toast.error("Deal ID is missing!");
+              }
+            }}
+            aria-label={`View ${homePageTitle || "deal"}`}
+          >
+            {dealCategory === "coupon" ? "Show Code" : "Get Deal"}
+          </span>
+        </div>
       </div>
     </CountryLink>
   );

@@ -117,3 +117,18 @@ export const findCountryNameByCode = (countries = [], code = "") => {
   });
   return match?.country_name || null;
 };
+
+export const getCountryCodesFromValue = (value) => {
+  const list = Array.isArray(value) ? value : [value];
+  return [...new Set(list.map((entry) => getCountryCodeFromName(entry)).filter(Boolean))];
+};
+
+export const doesCountrySelectionMatch = ({ selectedCountry = "", availableCountries } = {}) => {
+  const selectedCode = getCountryCodeFromName(selectedCountry);
+  if (!selectedCode || selectedCode === "gl") return true;
+
+  const availableCodes = getCountryCodesFromValue(availableCountries);
+  if (availableCodes.length === 0) return true;
+
+  return availableCodes.includes(selectedCode) || availableCodes.includes("gl");
+};

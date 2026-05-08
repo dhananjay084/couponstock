@@ -14,18 +14,24 @@ const PopularBrandCard = ({ data }) => {
   const storeHref = slug ? `/store/${slug}` : "#";
 
   return (
-    <div className="w-[200px] flex-shrink-0 md:w-[220px] lg:w-[250px]">
-      <div className="pro-card relative overflow-hidden">
-        <img
-          src={storeImage || "/default-store.jpg"}
-          className="h-[130px] w-full object-cover md:h-[146px] lg:h-[164px]"
-          alt={storeName || "Brand"}
-        />
-        <div className="absolute bottom-3 right-3 z-10">
+    <div className="w-[220px] flex-shrink-0 md:w-[240px] lg:w-[260px]">
+      <div className="coupon-banner-card h-full">
+        <div className="coupon-media-frame h-[148px] md:h-[164px] lg:h-[176px]">
+          <img
+            src={storeImage || "/default-store.jpg"}
+            className="h-full w-full object-cover"
+            alt={storeName || "Brand"}
+          />
+        </div>
+        <div className="flex flex-1 flex-col gap-4 p-4">
+          <div>
+            <span className="coupon-chip coupon-chip-muted">Popular</span>
+            <p className="mt-3 line-clamp-2 min-h-[48px] text-[15px] font-extrabold text-[#172338]">{storeName}</p>
+          </div>
           <CountryLink
             href={storeHref}
             prefetch
-            className="pro-btn-soft"
+            className="pro-btn-soft mt-auto self-start"
             onClick={(e) => {
               if (!slug) {
                 e.preventDefault();
@@ -33,12 +39,9 @@ const PopularBrandCard = ({ data }) => {
               }
             }}
           >
-            View
+            Explore Store
           </CountryLink>
         </div>
-      </div>
-      <div className="my-2">
-        <p className="truncate text-sm font-semibold text-[#33265a]">{storeName}</p>
       </div>
     </div>
   );

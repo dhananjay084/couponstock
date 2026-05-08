@@ -1,29 +1,22 @@
 "use client";
 
-import React, { useEffect, useRef, useState, Suspense } from "react";
+import React, { useRef, useState, Suspense } from "react";
 import { Formik, Form, Field } from "formik";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  loginUser,
-  googleLogin,
-  checkCurrentUser,
-  setUserDataInCookies,
-} from "../../redux/auth/authApi";
-import { clearAuthMessage, setAuthMessage } from "../../redux/auth/authSlice";
+import { loginUser, googleLogin, checkCurrentUser } from "../../redux/auth/authApi";
+import { clearAuthMessage } from "../../redux/auth/authSlice";
 import { useRouter, useSearchParams } from "next/navigation";
-import GoogleIcon from "@mui/icons-material/Google";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import CircularProgress from "@mui/material/CircularProgress";
+import GoogleAuthButton from "../../components/Minor/GoogleAuthButton";
 
 const LoginComponent = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const searchParams = useSearchParams();
-
   const { loading } = useSelector((state) => state.auth);
-  const oauthHandledRef = useRef(false);
   const redirectTimerRef = useRef(null);
   const [showPassword, setShowPassword] = useState(false);
   const redirectPath = searchParams?.get("redirect");
@@ -34,46 +27,6 @@ const LoginComponent = () => {
       return "/admin/home";
     return "/";
   };
-
-  useEffect(() => {
-    if (oauthHandledRef.current) return;
-
-    const name = searchParams?.get("name");
-    const email = searchParams?.get("email");
-    const authError = searchParams?.get("error");
-
-    if (name && email) {
-      setUserDataInCookies({
-        name: decodeURIComponent(name),
-        email: decodeURIComponent(email),
-      });
-      dispatch(
-        setAuthMessage({
-          message: `Welcome, ${decodeURIComponent(name)}! Logging you in...`,
-          type: "success",
-        })
-      );
-      if (typeof window !== "undefined") {
-        window.history.replaceState({}, document.title, window.location.pathname);
-      }
-      dispatch(checkCurrentUser())
-        .unwrap()
-        .then((user) => {
-          toast.success(`Welcome, ${decodeURIComponent(name)}!`);
-          router.replace(getPostLoginPath(user));
-        })
-        .catch(() => {
-          toast.error("Google login completed, but session check failed.");
-        });
-      oauthHandledRef.current = true;
-    } else if (authError === "google_auth_failed") {
-      toast.error("Google authentication failed. Please try again.");
-      if (typeof window !== "undefined") {
-        window.history.replaceState({}, document.title, window.location.pathname);
-      }
-      oauthHandledRef.current = true;
-    }
-  }, [searchParams, dispatch, router, redirectPath]);
 
   const handleEmailLogin = async (values, { setSubmitting }) => {
     dispatch(clearAuthMessage());
@@ -106,8 +59,21 @@ const LoginComponent = () => {
     }
   };
 
-  const handleGoogleLogin = () => {
-    dispatch(googleLogin());
+  const handleGoogleLogin = async (credentialResponse) => {
+    if (!credentialResponse?.credential) {
+      toast.error("Google authentication failed. Please try again.");
+      return;
+    }
+
+    try {
+      const loginPayload = await dispatch(googleLogin(credentialResponse.credential)).unwrap();
+      const user = loginPayload?.user || loginPayload || {};
+      toast.success(`Welcome${user?.name ? `, ${user.name}` : ""}!`);
+      const resolvedUser = await dispatch(checkCurrentUser()).unwrap().catch(() => user);
+      router.replace(getPostLoginPath(resolvedUser || user));
+    } catch (err) {
+      toast.error(typeof err === "string" ? err : err?.message || "Google login failed.");
+    }
   };
 
   const handleGoHome = () => {
@@ -224,14 +190,11 @@ const LoginComponent = () => {
           </div>
 
           <div className="space-y-3">
-            <button
-              onClick={handleGoogleLogin}
-              className="w-full flex items-center justify-center gap-2 border border-gray-300 shadow-sm rounded-md py-3 hover:bg-gray-50 transition cursor-pointer"
-              disabled={loading}
-            >
-              <GoogleIcon className="text-[#4285F4]" />
-              <span className="font-medium">Continue with Google</span>
-            </button>
+            <GoogleAuthButton
+              onCredential={handleGoogleLogin}
+              onError={() => toast.error("Google login failed.")}
+              text="continue_with"
+            />
           </div>
 
           <div className="text-center text-sm mt-6">

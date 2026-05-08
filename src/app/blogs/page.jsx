@@ -87,7 +87,7 @@ const BlogsPage = () => {
               }}
             >
               {sorted.slice(0, 6).map((blog) => (
-                <SwiperSlide key={blog._id} style={{ height: "320px" }}>
+                <SwiperSlide key={blog._id} style={{ minHeight: "395px" }}>
                   <BlogCard
                     blog={blog}
                     forceFullHeight
@@ -96,7 +96,7 @@ const BlogsPage = () => {
                     showViewButton
                     compact
                     className="h-full"
-                    fixedHeight="320px"
+                    fixedHeight="395px"
                     headingClamp={2}
                     descriptionClamp={2}
                   />

@@ -17,13 +17,14 @@ import { FaCheckCircle } from "react-icons/fa";
 import FAQAccordion from "../../../components/Minor/Faq";
 import { GridSkeleton, RowSkeleton, TextSkeleton } from "../../../components/skeletons/InlineSkeletons";
 import ArrowScrollRow from "../../../components/Minor/ArrowScrollRow";
+import CountryAvailabilityGate from "../../../components/Minor/CountryAvailabilityGate";
 
 import { getDeals } from "../../../redux/deal/dealSlice";
 import { getStores } from "../../../redux/store/storeSlice.js";
 // import { toast } from "react-toastify";
 
 
-const IndividualStore = () => {
+const IndividualStore = ({ store }) => {
   const params = useParams();
   const { slug } = params;
   const dispatch = useDispatch();
@@ -34,9 +35,7 @@ const IndividualStore = () => {
   const { selectedCountry } = useSelector((state) => state.country || {});
 
   // const storeFromList = stores.find((store) => store._id === id);
-  const storeFromList = stores.find(
-    (store) => store.slug === slug
-  );
+  const storeFromList = stores.find((entry) => entry.slug === slug) || store || null;
   useEffect(() => {
     if (!selectedCountry) return;
     dispatch(getDeals(selectedCountry));
@@ -84,7 +83,7 @@ const IndividualStore = () => {
     return { chartData: counts, todayCount };
   }, [deals, storeFromList]);
 
-  if (loading) {
+  if (loading && !storeFromList) {
     return (
       <div className="p-4 space-y-4">
         <TextSkeleton className="h-8 w-56" />
@@ -94,7 +93,7 @@ const IndividualStore = () => {
     );
   }
   if (!storeFromList) return <p className="text-center py-10">Store not found.</p>;
-  if (error) return <p className="text-red-500 text-center py-10">{error}</p>;
+  if (error && !storeFromList) return <p className="text-red-500 text-center py-10">{error}</p>;
 
   const description = storeFromList.storeDescription || "";
   const shouldTruncate = description.length > 140;
@@ -109,7 +108,8 @@ const IndividualStore = () => {
   const totalOffers = topCodes.length + topDeals.length;
 
   return (
-    <div>
+    <CountryAvailabilityGate availableCountries={storeFromList.country} itemLabel="store">
+      <div>
       <section className="mx-6 mt-2 overflow-hidden rounded-[26px] border border-[#E3D9FF] bg-[linear-gradient(120deg,#231147_0%,#3A1D78_45%,#5D31BD_100%)] px-5 py-6 text-white shadow-[0_20px_45px_rgba(36,16,82,0.3)] sm:px-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
           <div className="h-16 w-16 flex-shrink-0 rounded-full bg-white/95 p-2 ring-2 ring-white/30 shadow sm:h-20 sm:w-20">
@@ -249,7 +249,8 @@ const IndividualStore = () => {
       )}
 
       <FAQAccordion />
-    </div>
+      </div>
+    </CountryAvailabilityGate>
   );
 };
 

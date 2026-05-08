@@ -24,48 +24,45 @@ const Coupons_Deals = ({ border, disabled, data }) => {
 
   return (
     <>
-      <div className="relative">
-        {/* MAIN CARD */}
+      <div className="relative h-full">
         <div
-          className={`relative mx-2 flex items-center gap-4 overflow-hidden rounded-xl px-4 py-4 transition-all duration-200 
-            ${border ? "pro-card" : ""}
-            ${disabled ? "opacity-70 cursor-not-allowed" : "cursor-pointer hover:shadow-md"}
+          className={`coupon-offer-card mx-2 min-h-[232px] h-full ${border ? "" : "shadow-none"} ${
+            disabled ? "cursor-not-allowed opacity-70" : "cursor-pointer"
+          }
           `}
         >
-          {/* Image Section */}
-          <div className="relative w-[120px] h-[100px] flex-shrink-0 overflow-hidden rounded-lg bg-white">
+          <div className="coupon-offer-media">
             <img
               src={dealImage || "/default-deal.jpg"}
               alt="Deal"
-              className="w-full h-full object-cover"
+              className="h-[84px] w-[84px] rounded-[20px] object-contain"
             />
-            {disabled && (
-              <div className="absolute inset-0 bg-black bg-opacity-50 rounded-lg" />
-            )}
+            {disabled && <div className="absolute inset-0 rounded-[20px] bg-black/20" />}
           </div>
 
-          {/* Store Tag */}
-          {data?.store && (
-            <div
-              className="absolute bottom-2 right-2 z-10 max-w-[70%] truncate rounded-tl-xl rounded-br-xl bg-[#5B3CC4] px-4 py-2 text-[11px] font-semibold text-white shadow-sm"
-              style={{ border: "1px solid #D7C8FF" }}
-            >
-              {data.store}
+          <div className="coupon-offer-body">
+            <div className="mb-3 flex flex-wrap items-center gap-2">
+              <span className="coupon-chip coupon-chip-hot">
+                {dealCategory === "coupon" ? "Coupon code" : "Best deal"}
+              </span>
+              {data?.store ? <span className="coupon-chip coupon-chip-muted max-w-[150px] truncate">{data.store}</span> : null}
             </div>
-          )}
 
-          {/* Text + Button */}
-          <div className="flex flex-col justify-between h-full flex-1 overflow-hidden">
-            <div>
+            <div className="min-h-0 space-y-1.5">
               <Typography
                 variant="subtitle2"
                 sx={{
-                  color: disabled ? "#999" : "#592EA9",
-                  fontWeight: 600,
-                  fontSize: "13px",
-                  marginBottom: "4px",
+                  color: disabled ? "#8a95a8" : "#172338",
+                  fontWeight: 800,
+                  fontSize: "15px",
+                  lineHeight: 1.35,
+                  marginBottom: "6px",
+                  minHeight: "2.6rem",
+                  display: "-webkit-box",
+                  WebkitBoxOrient: "vertical",
+                  WebkitLineClamp: 2,
+                  overflow: "hidden",
                 }}
-                noWrap
               >
                 {homePageTitle || "Untitled Deal"}
               </Typography>
@@ -73,29 +70,27 @@ const Coupons_Deals = ({ border, disabled, data }) => {
               <Typography
                 variant="body2"
                 sx={{
-                  color: disabled ? "#aaa" : "#444",
-                  fontSize: "11px",
-                  lineHeight: "1.4",
+                  color: disabled ? "#9ba7ba" : "#61718a",
+                  fontSize: "12px",
+                  lineHeight: "1.55",
+                  minHeight: "2.4rem",
+                  display: "-webkit-box",
+                  WebkitBoxOrient: "vertical",
+                  WebkitLineClamp: 2,
+                  overflow: "hidden",
                 }}
-                className="line-clamp-2"
               >
                 {dealDescription || "No description available."}
               </Typography>
             </div>
 
-            {/* Action Button */}
             {dealCategory === "coupon" ? (
               <button
                 onClick={handleCardClick}
                 disabled={disabled}
-                className={`
-                  mt-3 self-start px-4 py-1.5 text-sm rounded-md shadow
-                  ${disabled
-                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                    : "bg-[#F2EBFF] text-[#5B3CC4] border border-[#DCCEFF] hover:bg-[#EADFFF]"}
-                `}
+                className={`mt-auto self-start ${disabled ? "cursor-not-allowed rounded-[14px] border border-gray-200 bg-gray-200 px-4 py-3 text-sm text-gray-500" : "coupon-code-button"}`}
               >
-                Code
+                {data?.couponCode ? `Code: ${String(data.couponCode).slice(0, 10)}` : "Show Code"}
               </button>
             ) : (
               <CountryLink
@@ -107,9 +102,9 @@ const Coupons_Deals = ({ border, disabled, data }) => {
                     toast.error("Deal ID missing!");
                   }
                 }}
-                className="mt-3 self-start rounded-md border border-[#DCCEFF] bg-[#F2EBFF] px-4 py-1.5 text-sm text-[#5B3CC4] shadow hover:bg-[#EADFFF]"
+                className="pro-btn-soft mt-auto self-start"
               >
-                View
+                View Deal
               </CountryLink>
             )}
           </div>

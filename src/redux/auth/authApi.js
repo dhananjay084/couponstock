@@ -64,15 +64,16 @@ export const loginUser = createAsyncThunk(
   }
 );
 
-// Google OAuth login
+// Google credential login
 export const googleLogin = createAsyncThunk(
   "auth/googleLogin",
-  async (_, { rejectWithValue }) => {
+  async (credential, { rejectWithValue }) => {
     try {
-      window.location.href = `${SERVER_URL}/api/auth/google`;
-      return { message: "Redirecting to Google login..." };
+      const response = await axios.post(`${SERVER_URL}/api/auth/google`, { credential });
+      setUserDataInCookies(extractUserFromResponse(response.data));
+      return response.data;
     } catch (error) {
-      return rejectWithValue(error.message || "Google login failed.");
+      return rejectWithValue(error.response?.data?.message || error.message || "Google login failed.");
     }
   }
 );

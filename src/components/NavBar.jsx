@@ -77,8 +77,8 @@ const SearchBar = styled(Box, {
   transition: "all 0.4s ease",
   color: scrolled ? "#fff" : "inherit",
   boxShadow: scrolled ? "0 0 10px rgba(255,255,255,0.2)" : "none",
-  marginTop: scrolled ? 0 : 8,
-  marginLeft: scrolled ? 20 : 0,
+  marginTop: 0,
+  marginLeft: 0,
   zIndex: 1500,
 }));
 
@@ -657,64 +657,6 @@ const NavBar = () => {
             )}
           </Box>
 
-          {/* Center: Search bar (only when scrolled) */}
-          {scrolled && !isMobile && (
-            <Box
-              ref={searchBarRef}
-              sx={{
-                flex: "1 1 auto",
-                display: "flex",
-                justifyContent: "center",
-                position: "relative",
-                marginX: 2,
-                transition: "all 0.5s ease",
-              }}
-            >
-              <SearchBar scrolled={scrolled}>
-                <SearchIconWrapper scrolled={scrolled}>
-                  <SearchIcon />
-                </SearchIconWrapper>
-                <StyledInputBase
-                  scrolled={scrolled}
-                  placeholder="Search for stores"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  onFocus={() => setShowResults(true)}
-                  fullWidth
-                />
-                {showResults && searchTerm && (
-                  <SearchResultsContainer>
-                    {loading ? (
-                      <SearchResultItem>
-                        <Typography variant="body2" sx={{ color: "#5F4A87", fontWeight: 600 }}>
-                          Searching stores...
-                        </Typography>
-                      </SearchResultItem>
-                    ) : searchResults.length > 0 ? (
-                      <>
-                        {renderResultsHeader()}
-                        <SearchResultsGrid>
-                          {searchResults.map((store) =>
-                            renderStoreCard(store, () => handleResultClick(store), false)
-                          )}
-                        </SearchResultsGrid>
-                      </>
-                    ) : (
-                      <SearchResultItem>
-                        <Typography variant="body2" sx={{ color: "#5F4A87", fontWeight: 600 }}>
-                          No stores found.
-                        </Typography>
-                        <Typography variant="caption" sx={{ color: "#8E7AAE" }}>
-                          Try a different keyword like brand name or category.
-                        </Typography>
-                      </SearchResultItem>
-                    )}
-                  </SearchResultsContainer>
-                )}
-              </SearchBar>
-            </Box>
-          )}
-
           {/* Right: Navigation & Icons */}
           {!isMobile && (
             <Box
@@ -882,20 +824,27 @@ const NavBar = () => {
           )}
         </Toolbar>
 
-        {/* Search bar below Nav (only when NOT scrolled and NOT mobile) */}
-       {/* Search bar below Nav (visible on all screens when not scrolled) */}
-       {!scrolled && !isMobile && (
+        {/* Desktop search bar stays in one slot to avoid sticky-header flicker */}
+       {!isMobile && (
   <Box
     ref={searchBarRef}
-    px={isMobile ? 1 : 2}
+    px={2}
     sx={{
       position: "relative",
       pb: 1,
       transition: "all 0.5s ease",
       width: "100%",
+      display: "flex",
+      justifyContent: "center",
     }}
   >
-    <SearchBar scrolled={scrolled}>
+    <SearchBar
+      scrolled={scrolled}
+      sx={{
+        width: "100%",
+        maxWidth: scrolled ? 820 : "100%",
+      }}
+    >
       <SearchIconWrapper scrolled={scrolled}>
         <SearchIcon />
       </SearchIconWrapper>

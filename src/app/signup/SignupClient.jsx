@@ -6,9 +6,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { registerUser, googleLogin } from "../../redux/auth/authApi";
 import { clearAuthMessage, setAuthMessage } from "../../redux/auth/authSlice";
 import { signupWithReferral } from "../../redux/referral/referralSlice";
-import GoogleIcon from "@mui/icons-material/Google";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-toastify";
+import GoogleAuthButton from "../../components/Minor/GoogleAuthButton";
 
 const SignupClient = () => {
   const dispatch = useDispatch();
@@ -62,11 +62,19 @@ const SignupClient = () => {
     }
   };
 
-  const handleGoogleSignup = () => {
-    dispatch(googleLogin())
-      .unwrap()
-      .then(() => toast.success("Signed up with Google!"))
-      .catch(() => toast.error("Google signup failed."));
+  const handleGoogleSignup = async (credentialResponse) => {
+    if (!credentialResponse?.credential) {
+      toast.error("Google signup failed.");
+      return;
+    }
+
+    try {
+      await dispatch(googleLogin(credentialResponse.credential)).unwrap();
+      toast.success("Signed up with Google!");
+      router.push("/");
+    } catch {
+      toast.error("Google signup failed.");
+    }
   };
 
   const handleGoHome = () => {
@@ -223,13 +231,11 @@ const SignupClient = () => {
             </div>
 
             <div className="space-y-3 w-full max-w-md">
-              <button
-                onClick={handleGoogleSignup}
-                className="w-full shadow-md p-3 rounded-md flex items-center justify-center gap-2 text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
-                disabled={loading}
-              >
-                <GoogleIcon className="text-[#4285F4]" /> Continue with Google
-              </button>
+              <GoogleAuthButton
+                onCredential={handleGoogleSignup}
+                onError={() => toast.error("Google signup failed.")}
+                text="signup_with"
+              />
             </div>
           </>
         )}

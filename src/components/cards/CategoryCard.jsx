@@ -25,14 +25,14 @@ const CategoryCard = ({ data }) => {
         }
       }}
     >
-      <div className="pro-card flex aspect-square w-full items-center justify-center overflow-hidden rounded-2xl p-1.5">
+      <div className="coupon-icon-card flex aspect-square w-full items-center justify-center overflow-hidden">
         <img
           src={image || "/default-category.jpg"}
-          className="h-full w-full rounded-xl object-cover"
+          className="h-[72%] w-[72%] rounded-[20px] object-cover shadow-[0_14px_30px_rgba(15,23,42,0.12)]"
           alt={name || "Category"}
         />
       </div>
-      <p className="truncate px-2 text-[11px] font-semibold text-[#39445A]">{name || "Unnamed"}</p>
+      <p className="line-clamp-2 min-h-[36px] px-2 text-[12px] font-bold text-[#31415d]">{name || "Unnamed"}</p>
     </CountryLink>
   );
 };

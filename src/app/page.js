@@ -150,6 +150,7 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
   const latestStoryBlogs = featuredBlogs.length > 0 ? featuredBlogs : latestBlogs;
   const homepageCategories = safeFilter(categories, (cat) => cat?.showOnHomepage);
   const heroPopularStores = (popularStores.length > 0 ? popularStores : stores).slice(0, 8);
+  const heroCategories = (homepageCategories.length > 0 ? homepageCategories : categories).slice(0, 6);
   const heroHeading =
     trimText(stripHtmlTags(decodeHtmlEntities(data.homeFooterTitle || "")), 110) ||
     "Discover trusted coupon codes and high-converting deals in one premium destination.";
@@ -180,10 +181,85 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
   return (
     <>
       <main className="site-shell pb-8">
+      <section className="mx-4 mt-6 overflow-hidden rounded-[32px] border border-[#dfe7f3] bg-[linear-gradient(135deg,#f4eeff_0%,#ffffff_48%,#eef5ff_100%)] p-5 shadow-[0_24px_50px_rgba(20,33,61,0.08)] sm:p-7 lg:p-8">
+        <div className="grid gap-8 lg:grid-cols-[1.3fr_0.95fr]">
+          <div>
+            <span className="coupon-heading-kicker">Smart Savings Daily</span>
+            <h1 className="mt-4 max-w-2xl text-3xl font-extrabold leading-tight text-[#172338] sm:text-4xl">
+              Coupons, cashback-style savings, and top stores in one cleaner shopping hub.
+            </h1>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-[#5f6d86] sm:text-base">
+              Browse verified offers, trending categories, and store-first deals with a layout inspired by leading coupon platforms while keeping your existing functionality intact.
+            </p>
+
+            <div className="mt-6 flex flex-wrap gap-3">
+              <CountryLink href="/deals" className="pro-btn">
+                Explore Deals
+              </CountryLink>
+              <CountryLink href="/store" className="pro-btn-soft">
+                Browse Stores
+              </CountryLink>
+            </div>
+
+            <div className="mt-7 grid gap-3 sm:grid-cols-3">
+              <div className="coupon-mini-stat">
+                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#7a879d]">Total deals</p>
+                <p className="mt-1 text-lg font-extrabold text-[#172338]">{deals.length || 0}+</p>
+              </div>
+              <div className="coupon-mini-stat">
+                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#7a879d]">Total stores</p>
+                <p className="mt-1 text-lg font-extrabold text-[#172338]">{stores.length || 0}+</p>
+              </div>
+              <div className="coupon-mini-stat">
+                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#7a879d]">Total categories</p>
+                <p className="mt-1 text-lg font-extrabold text-[#172338]">{categories.length || 0}+</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid gap-4">
+            <div className="rounded-[26px] border border-white/70 bg-white/75 p-5 shadow-[0_18px_35px_rgba(20,33,61,0.08)] backdrop-blur-sm">
+              <div className="coupon-section-header">
+                <div>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#7a879d]">Top stores</p>
+                  <h2 className="mt-1 text-xl font-extrabold text-[#172338]">Most searched brands</h2>
+                </div>
+              </div>
+              <div className="mt-4 flex flex-wrap gap-2.5">
+                {heroPopularStores.map((store) => (
+                  <CountryLink
+                    key={store._id}
+                    href={`/store/${store.slug || ""}`}
+                    prefetch
+                    className="rounded-full border border-[#dce6f5] bg-white px-3 py-2 text-[12px] font-bold text-[#30415d] transition hover:border-[#d7c7ff] hover:text-[#5b33d6]"
+                  >
+                    {store.storeName || "Store"}
+                  </CountryLink>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-[26px] border border-[#dfe7f3] bg-white p-5 shadow-[0_18px_35px_rgba(20,33,61,0.08)]">
+              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#7a879d]">Trending categories</p>
+              <div className="mt-4 flex flex-wrap gap-2.5">
+                {heroCategories.map((category) => (
+                  <CountryLink
+                    key={category._id}
+                    href={`/category/${encodeURIComponent(String(category?.name || "").toLowerCase())}`}
+                    prefetch
+                    className="rounded-full bg-[#eef5ff] px-3 py-2 text-[12px] font-bold text-[#3156a8] transition hover:bg-[#e3efff]"
+                  >
+                    {category?.name || "Category"}
+                  </CountryLink>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Mobile Banner */}
-    {/* ✅ Mobile Banner Slider */}
-{/* ✅ Mobile Banner Slider */}
-<div className="lg:hidden px-2 pb-4">
+<div className="coupon-section lg:hidden px-2 pb-4">
   {homeAdmin.loading ? (
     <RowSkeleton count={2} itemClassName="h-36 w-full rounded-lg bg-gray-200" />
   ) : Array.isArray(data.bannerDeals) && data.bannerDeals.length > 0 ? (
@@ -224,7 +300,7 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
         }}
       >
         {data.bannerDeals.map((deal) => (
-          <SwiperSlide key={deal._id} className="flex justify-center items-center">
+          <SwiperSlide key={deal._id} className="coupon-equal-slide flex justify-center items-center">
             <BannerCard data={deal} />
           </SwiperSlide>
         ))}
@@ -238,7 +314,7 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
 
 
       {/* Desktop Banner Cards */}
-      <div className="hidden lg:block p-4">
+      <div className="coupon-section hidden lg:block p-4">
         {homeAdmin.loading ? (
           <GridSkeleton count={3} className="grid grid-cols-3 gap-4 w-full" itemClassName="h-40 rounded-lg bg-gray-200" />
         ) : Array.isArray(data.bannerDeals) && data.bannerDeals.length > 0 ? (
@@ -279,7 +355,7 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
                 }}
               >
                 {data.bannerDeals.map((deal) => (
-                  <SwiperSlide key={deal._id} className="flex justify-center items-center">
+                  <SwiperSlide key={deal._id} className="coupon-equal-slide flex justify-center items-center">
                     <BannerCard data={deal} />
                   </SwiperSlide>
                 ))}
@@ -314,7 +390,7 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
             itemClassName="h-40 rounded-2xl bg-gray-200"
           />
         ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="coupon-section coupon-section-inner grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {topDeals.map((deal) => (
               <TopDealShowcaseCard
                 key={deal._id}
@@ -326,14 +402,14 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
         )}
       </div>
       <TextLink text="Brands" colorText="" link="/store" linkText="View All" />
-      <ArrowScrollRow className="md:hidden" controlsClassName="px-4" scrollerClassName="flex overflow-x-scroll">
+      <ArrowScrollRow className="coupon-section md:hidden" controlsClassName="px-4 pt-4" scrollerClassName="coupon-scroll-row flex overflow-x-scroll">
         {storesLoading && stores.length === 0 ? (
           <RowSkeleton count={3} />
         ) : brandStores.map((store) => (
           <BrandCard key={store._id} data={store} />
         ))}
       </ArrowScrollRow>
-      <ArrowScrollRow className="hidden md:block" controlsClassName="px-4" scrollerClassName="flex gap-4 overflow-x-scroll px-4">
+      <ArrowScrollRow className="coupon-section hidden md:block" controlsClassName="px-4 pt-4" scrollerClassName="coupon-scroll-row flex gap-4 overflow-x-scroll">
         {storesLoading && stores.length === 0 ? (
           <RowSkeleton count={4} />
         ) : brandStores.map((store) => (
@@ -347,7 +423,7 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
   linkText="View All"
 />
 
-<div className="mb-10 px-4">
+<div className="coupon-section coupon-section-inner mb-10 px-4">
   {categoriesLoading && categories.length === 0 ? (
     <GridSkeleton
       count={8}
@@ -369,14 +445,14 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
 
       {/* Popular Brands */}
       <TextLink text="Popular" colorText="Brands" link="/store" linkText="View All" />
-      <ArrowScrollRow className="md:hidden" controlsClassName="px-4" scrollerClassName="flex space-x-4 overflow-x-auto p-4 pt-0 scrollbar-hide">
+      <ArrowScrollRow className="coupon-section md:hidden" controlsClassName="px-4 pt-4" scrollerClassName="coupon-scroll-row flex space-x-4 overflow-x-auto scrollbar-hide">
         {storesLoading && stores.length === 0 ? (
           <RowSkeleton count={3} />
         ) : popularBrands.map((store) => (
           <PopularBrandCard key={store._id} data={store} />
         ))}
       </ArrowScrollRow>
-      <ArrowScrollRow className="hidden md:block" controlsClassName="px-4" scrollerClassName="flex space-x-4 overflow-x-auto p-4 pt-0 scrollbar-hide px-4">
+      <ArrowScrollRow className="coupon-section hidden md:block" controlsClassName="px-4 pt-4" scrollerClassName="coupon-scroll-row flex space-x-4 overflow-x-auto scrollbar-hide">
         {storesLoading && stores.length === 0 ? (
           <RowSkeleton count={4} />
         ) : popularBrands.map((store) => (
@@ -386,7 +462,7 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
 
       {/* Mid Homepage Banner Slider */}
       {Array.isArray(data.midHomepageBanners) && data.midHomepageBanners.length >= 3 && (
-        <div className="px-4 py-6 relative">
+        <div className="coupon-section px-4 py-6 relative">
           <div className="absolute right-6 top-2 z-10 flex items-center gap-2">
             <button
               type="button"
@@ -425,8 +501,8 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
                     : banner?.image;
               const link = typeof banner === "string" ? "" : banner?.link;
               return (
-              <SwiperSlide key={`${banner}-${idx}`} className="flex justify-center items-center">
-                <div className="w-full h-40 rounded-xl overflow-hidden border border-[#E4D8FF] shadow-sm">
+              <SwiperSlide key={`${banner}-${idx}`} className="coupon-equal-slide flex justify-center items-center">
+                <div className="w-full overflow-hidden rounded-xl border border-[#E4D8FF] shadow-sm aspect-[21/7] min-h-[160px]">
                   {link ? (
                     <a href={link} target="_blank" rel="noopener noreferrer" className="block w-full h-full">
                       <img src={image} alt="Mid Banner" className="w-full h-full object-cover" />
@@ -443,14 +519,14 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
 
       {/* Hot Deals */}
       <TextLink text="Hot" colorText="Deals" link="/deal" linkText="View All" />
-      <ArrowScrollRow className="md:hidden" controlsClassName="px-4" scrollerClassName="flex overflow-x-scroll">
+      <ArrowScrollRow className="coupon-section md:hidden" controlsClassName="px-4 pt-4" scrollerClassName="coupon-scroll-row flex overflow-x-scroll">
         {dealsLoading && deals.length === 0 ? (
           <RowSkeleton count={3} />
         ) : hotDeals.map((deal) => (
           <DealCard key={deal._id} data={deal} />
         ))}
       </ArrowScrollRow>
-      <ArrowScrollRow className="hidden md:block" controlsClassName="px-4" scrollerClassName="flex gap-4 overflow-x-scroll px-4">
+      <ArrowScrollRow className="coupon-section hidden md:block" controlsClassName="px-4 pt-4" scrollerClassName="coupon-scroll-row flex gap-4 overflow-x-scroll">
         {dealsLoading && deals.length === 0 ? (
           <RowSkeleton count={4} />
         ) : hotDeals.map((deal) => (
@@ -458,7 +534,7 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
         ))}
       </ArrowScrollRow>
       <TextLink text="Popular" colorText="Stores" link="/store" linkText="View All" />
-      <ArrowScrollRow controlsClassName="px-4" scrollerClassName="flex space-x-4 overflow-x-auto p-4 scrollbar-hide">
+      <ArrowScrollRow className="coupon-section" controlsClassName="px-4 pt-4" scrollerClassName="coupon-scroll-row flex space-x-4 overflow-x-auto scrollbar-hide">
         {storesLoading && stores.length === 0 ? (
           <RowSkeleton count={4} />
         ) : popularStores.map((store) => (
@@ -472,7 +548,7 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
 
       {/* Coupons & Deals */}
       <TextLink text="Coupons" colorText="& Deals" link="/deal" linkText="View All" />
-      <div className="space-y-4 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:justify-around">
+      <div className="coupon-section coupon-section-inner grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {dealsLoading && deals.length === 0 ? (
           <GridSkeleton count={6} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" itemClassName="h-40 rounded-lg bg-gray-200" />
         ) : couponDeals.map((deal) => (
@@ -536,10 +612,10 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
                     forceFullHeight
                     showViewButton
                     compact
-                    fixedHeight="320px"
-                    headingClamp={1}
+                    fixedHeight="405px"
+                    headingClamp={2}
                     descriptionClamp={3}
-                    descriptionLimit={120}
+                    descriptionLimit={135}
                     className="h-full"
                   />
                 </SwiperSlide>
@@ -553,7 +629,7 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
 
       {/* Reviews */}
       <TextLink text="Public" colorText="Reviews" link="" linkText="" />
-      <ArrowScrollRow controlsClassName="px-4" scrollerClassName="flex gap-4 overflow-x-scroll p-4">
+      <ArrowScrollRow className="coupon-section" controlsClassName="px-4 pt-4" scrollerClassName="coupon-scroll-row flex gap-4 overflow-x-scroll">
         {reviewsLoading && reviews.length === 0 ? (
           <RowSkeleton count={3} />
         ) : Array.isArray(reviews) && reviews.length > 0 ? (
@@ -563,13 +639,13 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
         )}
       </ArrowScrollRow>
       <TextLink text="Deal of the " colorText="Week" link="/deal" linkText="View All" />
-      <ArrowScrollRow controlsClassName="px-4" scrollerClassName="flex gap-4 overflow-x-scroll px-4">
+      <div className="coupon-section coupon-section-inner mx-4 grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-6">
         {dealsLoading && deals.length === 0 ? (
-          <RowSkeleton count={3} />
+          <GridSkeleton count={6} className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-6 col-span-full" itemClassName="aspect-square rounded-2xl bg-gray-200" />
         ) : weeklyDeals.map((deal) => (
           <DealOfWeek key={deal._id} data={deal} />
         ))}
-      </ArrowScrollRow>
+      </div>
 
       <FAQ data={data.faqs} imageUrl={data.faqImage} />
 

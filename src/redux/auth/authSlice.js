@@ -96,7 +96,7 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
       })
 
-      // Google Login (initiation - actual login/cookie setting handled by backend redirect)
+      // Google Login
       .addCase(googleLogin.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -104,13 +104,16 @@ const authSlice = createSlice({
       })
       .addCase(googleLogin.fulfilled, (state, action) => {
         state.loading = false;
-        state.message = action.payload.message; // "Redirecting to Google..."
-        // isAuthenticated and user will be set by checkCurrentUser after redirect
+        state.user = normalizeUser(action.payload);
+        state.isAuthenticated = true;
+        state.message = normalizeMessage(action.payload, "Google login successful!");
       })
       .addCase(googleLogin.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
         state.message = null;
+        state.user = null;
+        state.isAuthenticated = false;
       })
 
       // Refresh Access Token

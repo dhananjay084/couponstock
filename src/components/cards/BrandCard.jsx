@@ -7,38 +7,37 @@ import CountryLink from "../Minor/CountryLink";
 const DealCard = ({ data }) => {
   if (!data) return null;
 
-  const { storeDescription, storeImage, storeName } = data;
+  const { storeDescription, storeImage, storeName, discountPercentage } = data;
   const storeHref = data?.slug ? `/store/${data.slug}` : "#";
   
 
   return (
-    <div className="pro-card relative mx-4 flex min-w-[277px] max-w-[450px] items-center overflow-hidden">
-
-      {storeName && (
-        <div
-          className="absolute bottom-2 right-2 z-10 max-w-[70%] truncate rounded-full border border-[#CDBBFF] bg-[#5B3CC4] px-2.5 py-1 text-[10px] font-semibold text-white shadow"
-        >
-          {storeName}
-        </div>
-      )}
-
-      <div className="flex h-[112px] w-[112px] flex-shrink-0 items-center justify-center bg-white p-2.5">
+    <div className="coupon-offer-card mx-4 min-w-[286px] max-w-[430px] items-stretch">
+      <div className="coupon-offer-media">
         <img
           src={storeImage || "/default-store.jpg"}
           alt="Store"
-          className="h-full w-full rounded-xl object-cover"
+          className="h-[84px] w-[84px] rounded-[20px] object-contain"
         />
       </div>
 
-      <div className="flex flex-1 flex-col justify-between p-3.5">
-        <p className="line-clamp-3 text-[11px] text-[#59637A]">
+      <div className="coupon-offer-body">
+        <div className="mb-3 flex flex-wrap items-center gap-2">
+          <span className="coupon-chip coupon-chip-muted">Top Store</span>
+          {typeof discountPercentage === "number" ? (
+            <span className="coupon-chip coupon-chip-cashback">{discountPercentage}% off</span>
+          ) : null}
+        </div>
+
+        <p className="coupon-card-title line-clamp-1 text-[0.98rem]">{storeName || "Store"}</p>
+        <p className="coupon-card-copy mt-2 line-clamp-3 min-h-[58px] text-[12px] leading-5">
           {storeDescription || "No description available."}
         </p>
 
         <CountryLink
           href={storeHref}
           prefetch
-          className="pro-btn-soft mt-3 self-start"
+          className="pro-btn-soft mt-auto self-start"
           onClick={(e) => {
             if (!data?.slug) {
               e.preventDefault();

@@ -11,50 +11,6 @@ import { addCountryPrefix, findCountryNameByCode, getCountryCodeFromName, isAllo
 import NewsLetter from "../components/Minor/NewsLetter";
 // import withSkeleton from "@/components/skeletons/WithSkeleton";
 
-const GEOLOCATION_TIMEOUT_MS = 8000;
-
-const reverseGeocodeCountry = async (latitude, longitude) => {
-  const url = new URL("https://api.bigdatacloud.net/data/reverse-geocode-client");
-  url.searchParams.set("latitude", String(latitude));
-  url.searchParams.set("longitude", String(longitude));
-  url.searchParams.set("localityLanguage", "en");
-
-  const response = await fetch(url.toString(), { cache: "no-store" });
-  if (!response.ok) {
-    throw new Error("Reverse geocoding failed");
-  }
-
-  const data = await response.json();
-  return String(data?.countryName || data?.countryCode || "").trim();
-};
-
-const getCurrentPosition = () =>
-  new Promise((resolve, reject) => {
-    if (typeof navigator === "undefined" || !navigator.geolocation) {
-      reject(new Error("Geolocation is unavailable"));
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(resolve, reject, {
-      enableHighAccuracy: false,
-      timeout: GEOLOCATION_TIMEOUT_MS,
-      maximumAge: 10 * 60 * 1000,
-    });
-  });
-
-const resolveCountrySelection = (countries, detectedCountry) => {
-  const detectedCode = getCountryCodeFromName(detectedCountry);
-  if (detectedCode && isAllowedCountryCode(detectedCode)) {
-    return (
-      findCountryNameByCode(countries, detectedCode) ||
-      detectedCountry
-    );
-  }
-
-  return findCountryNameByCode(countries, "gl") || "Global";
-};
-
-
 export default function ClientLayout({ children }) {
   
   const pathname = usePathname();
@@ -66,7 +22,6 @@ export default function ClientLayout({ children }) {
   const hideLayout = layoutBasePath === "/login" || layoutBasePath === "/signup" || layoutBasePath === "/payment";
   const [showNewsletterPopup, setShowNewsletterPopup] = useState(false);
   const lastNormalizedUrlRef = useRef(null);
-  const countryDetectionAttemptedRef = useRef(false);
   const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://mycouponstock.com").replace(/\/$/, "");
   const canonicalUrl = `${baseUrl}${pathname || "/"}`;
   const isAdminRoute = pathname.startsWith("/admin");
@@ -78,56 +33,18 @@ export default function ClientLayout({ children }) {
   }, [dispatch, countries.length]);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (!countries.length) return;
     if (hideLayout) return;
     if (pathname.startsWith("/admin")) return;
     if (pathname.startsWith("/country")) return;
-    if (countryDetectionAttemptedRef.current) return;
+    const { countryCode } = splitCountryPrefix(pathname);
+    if (countryCode) return;
 
-    let cancelled = false;
-    const detectCountry = async () => {
-      countryDetectionAttemptedRef.current = true;
-
-      const selectFallback = () => {
-        if (cancelled) return;
-        dispatch(setSelectedCountry(resolveCountrySelection(countries, "Global")));
-      };
-
-      try {
-        if (typeof navigator === "undefined" || !navigator.geolocation) {
-          selectFallback();
-          return;
-        }
-
-        if (typeof navigator.permissions !== "undefined" && navigator.permissions?.query) {
-          const permissionStatus = await navigator.permissions.query({ name: "geolocation" });
-          if (permissionStatus.state === "denied") {
-            selectFallback();
-            return;
-          }
-        }
-
-        const position = await getCurrentPosition();
-        if (cancelled) return;
-
-        const detectedCountry = await reverseGeocodeCountry(
-          position.coords.latitude,
-          position.coords.longitude
-        );
-
-        if (cancelled) return;
-        dispatch(setSelectedCountry(resolveCountrySelection(countries, detectedCountry)));
-      } catch (err) {
-        selectFallback();
-      }
-    };
-
-    if (countries.length) detectCountry();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [countries, dispatch, hideLayout, pathname]);
+    const globalCountry = findCountryNameByCode(countries, "gl") || "Global";
+    if (globalCountry && selectedCountry !== globalCountry) {
+      dispatch(setSelectedCountry(globalCountry));
+    }
+  }, [countries, dispatch, hideLayout, pathname, selectedCountry]);
 
   useEffect(() => {
     if (!countries.length) return;

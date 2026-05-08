@@ -54,40 +54,19 @@ const ProductCard = ({ data }) => {
     <div
       className="coupon-banner-card h-full w-full cursor-pointer"
       onClick={handleRedirect}
+      style={{
+        backgroundImage: data?.dealImage
+          ? `linear-gradient(180deg, rgba(9,16,30,0.08) 0%, rgba(9,16,30,0.2) 52%, rgba(9,16,30,0.78) 100%), url(${data.dealImage})`
+          : "linear-gradient(180deg, #ffffff 0%, #f7faff 100%)",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
     >
-      <div className="coupon-media-frame aspect-[16/10]">
-        <img
-          src={data.dealImage}
-          alt="Product Image"
-          className="block h-full w-full object-cover"
-        />
-        <div className="absolute left-4 top-4 flex flex-wrap gap-2">
-          <span className="coupon-chip coupon-chip-hot">
-            {data?.dealCategory === "coupon" ? "Coupon" : "Deal"}
-          </span>
-          {data?.store ? <span className="coupon-chip coupon-chip-cashback max-w-[160px] truncate">{data.store}</span> : null}
-        </div>
-      </div>
-
-      <div className="flex min-h-[130px] flex-1 flex-col gap-4 p-5">
-        <div>
-          <p className="line-clamp-2 text-base font-extrabold text-[#172338]">
-            {data?.homePageTitle || data?.dealTitle || "Featured offer"}
-          </p>
-          <p className="mt-2 line-clamp-2 text-sm leading-6 text-[#61718a]">
-            {data?.dealDescription || "Open this featured promotion to view the latest verified savings."}
-          </p>
-        </div>
-
-        <div className="mt-auto flex items-center justify-between gap-3">
-          <div className="coupon-mini-stat">
-            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#7a879d]">Save now</p>
-            <p className="mt-1 text-sm font-extrabold text-[#172338]">
-              {data?.dealCategory === "coupon" ? "Use code" : "Shop offer"}
-            </p>
-          </div>
-          <span className="pro-btn-soft">{data?.dealCategory === "coupon" ? "Show Code" : "Get Deal"}</span>
-        </div>
+      <div className="flex min-h-[328px] flex-1 items-end p-5">
+        <p className="line-clamp-2 min-h-[48px] text-left text-base font-extrabold leading-6 text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.45)]">
+          {data?.homePageTitle || data?.dealTitle || "Featured offer"}
+        </p>
       </div>
     </div>
   

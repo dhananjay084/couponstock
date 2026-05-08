@@ -696,8 +696,8 @@
   .h-\[60px\] {
     height: 60px;
   }
-  .h-\[72\%\] {
-    height: 72%;
+  .h-\[76\%\] {
+    height: 76%;
   }
   .h-\[82px\] {
     height: 82px;
@@ -771,9 +771,6 @@
   .min-h-\[34px\] {
     min-height: 34px;
   }
-  .min-h-\[36px\] {
-    min-height: 36px;
-  }
   .min-h-\[40px\] {
     min-height: 40px;
   }
@@ -782,6 +779,9 @@
   }
   .min-h-\[48px\] {
     min-height: 48px;
+  }
+  .min-h-\[54px\] {
+    min-height: 54px;
   }
   .min-h-\[58px\] {
     min-height: 58px;
@@ -795,11 +795,14 @@
   .min-h-\[84px\] {
     min-height: 84px;
   }
+  .min-h-\[88px\] {
+    min-height: 88px;
+  }
+  .min-h-\[112px\] {
+    min-height: 112px;
+  }
   .min-h-\[120px\] {
     min-height: 120px;
-  }
-  .min-h-\[130px\] {
-    min-height: 130px;
   }
   .min-h-\[160px\] {
     min-height: 160px;
@@ -821,6 +824,9 @@
   }
   .min-h-\[232px\] {
     min-height: 232px;
+  }
+  .min-h-\[328px\] {
+    min-height: 328px;
   }
   .min-h-\[calc\(100vh-0px\)\] {
     min-height: calc(100vh - 0px);
@@ -912,8 +918,8 @@
   .w-\[60px\] {
     width: 60px;
   }
-  .w-\[72\%\] {
-    width: 72%;
+  .w-\[76\%\] {
+    width: 76%;
   }
   .w-\[82px\] {
     width: 82px;
@@ -1238,6 +1244,9 @@
       margin-block-end: calc(calc(var(--spacing) * 10) * calc(1 - var(--tw-space-y-reverse)));
     }
   }
+  .gap-x-4 {
+    column-gap: calc(var(--spacing) * 4);
+  }
   .space-x-2 {
     :where(& > :not(:last-child)) {
       --tw-space-x-reverse: 0;
@@ -1251,6 +1260,9 @@
       margin-inline-start: calc(calc(var(--spacing) * 4) * var(--tw-space-x-reverse));
       margin-inline-end: calc(calc(var(--spacing) * 4) * calc(1 - var(--tw-space-x-reverse)));
     }
+  }
+  .gap-y-6 {
+    row-gap: calc(var(--spacing) * 6);
   }
   .divide-y {
     :where(& > :not(:last-child)) {
@@ -2616,6 +2628,9 @@
     -webkit-user-select: text;
     user-select: text;
   }
+  .\[text-shadow\:0_2px_10px_rgba\(0\,0\,0\,0\.45\)\] {
+    text-shadow: 0 2px 10px rgba(0,0,0,0.45);
+  }
   .backface-hidden {
     backface-visibility: hidden;
   }
@@ -3390,11 +3405,6 @@
       grid-template-columns: repeat(4, minmax(0, 1fr));
     }
   }
-  .md\:grid-cols-5 {
-    @media (width >= 48rem) {
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-    }
-  }
   .md\:grid-cols-6 {
     @media (width >= 48rem) {
       grid-template-columns: repeat(6, minmax(0, 1fr));
@@ -3932,12 +3942,16 @@ a {
   display: flex;
   width: 100%;
   min-height: 100%;
+  height: 100%;
   flex-direction: column;
   overflow: hidden;
   border-radius: 24px;
   border: 1px solid #dfe7f3;
   background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
   box-shadow: 0 16px 38px rgba(20, 33, 61, 0.08);
+}
+.coupon-banner-media {
+  min-height: 240px;
 }
 .coupon-banner-card img {
   transition: transform 0.35s ease;
@@ -3954,6 +3968,7 @@ a {
 .coupon-icon-card {
   display: flex;
   height: 100%;
+  min-height: 112px;
   flex-direction: column;
   align-items: center;
   border-radius: 22px;

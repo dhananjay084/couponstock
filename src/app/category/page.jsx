@@ -131,7 +131,7 @@ const AllCategories = () => {
       </div>
 
       <TextLink text="Popular Categories" colorText="" link="" linkText="" />
-      <div className="px-4 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-4">
+      <div className="px-4 grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8">
         {loading && categories.length === 0 ? (
           <GridSkeleton count={16} className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 xl:grid-cols-8 gap-4 col-span-full" itemClassName="h-24 rounded-lg bg-gray-200" />
         ) : categories.length > 0 ? (
@@ -163,7 +163,7 @@ const AllCategories = () => {
           </div>
         </div>
       </div>
-      <div className="px-4 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-4 mb-10">
+      <div className="px-4 mb-10 grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8">
         {filteredCategories.length > 0 ? (
           filteredCategories.map((cat) => <CategoryCard key={cat._id} data={cat} />)
         ) : (

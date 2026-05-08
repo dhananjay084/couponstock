@@ -39,6 +39,7 @@ export default function ClientLayout({ children }) {
     if (pathname.startsWith("/country")) return;
     const { countryCode } = splitCountryPrefix(pathname);
     if (countryCode) return;
+    if (selectedCountry) return;
 
     const globalCountry = findCountryNameByCode(countries, "gl") || "Global";
     if (globalCountry && selectedCountry !== globalCountry) {

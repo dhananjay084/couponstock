@@ -1,6 +1,7 @@
 import axios from 'axios';
+import { buildPublicApiUrl } from "../../lib/publicApiBase";
 
-const BASE_URL = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/deals`; // adjust for production if needed
+const BASE_URL = buildPublicApiUrl("/api/deals");
 
 export const getAllDeals = async (country) => {
   const params = country ? { country } : undefined;

@@ -22,13 +22,17 @@ export const getServerApiBase = () => {
 
   if (publicApiBase) {
     const apiHost = getHostname(publicApiBase);
-    const siteHost = getHostname(publicSiteBase);
-
-    // If the "API" URL points at the public site domain, server-side fetches can
-    // receive a Next.js RSC payload instead of JSON on self-hosted deployments.
-    if (!siteHost || apiHost !== siteHost) {
+    if (apiHost && apiHost !== "localhost" && apiHost !== "127.0.0.1") {
       return normalizeBase(publicApiBase);
     }
+  }
+
+  if (publicSiteBase) {
+    return normalizeBase(publicSiteBase);
+  }
+
+  if (publicApiBase) {
+    return normalizeBase(publicApiBase);
   }
 
   return "http://127.0.0.1:5000";

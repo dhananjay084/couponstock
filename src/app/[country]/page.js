@@ -1,18 +1,11 @@
 import HomePage from "../page";
 import { getCountryCodeFromName } from "../../lib/countryPath";
+import { buildServerApiUrl } from "../../lib/serverApi";
 
 export const revalidate = 3600;
 
-const getServerBase = () => {
-  const base =
-    process.env.NEXT_PUBLIC_SERVER_URL ||
-    process.env.SERVER_URL ||
-    "http://localhost:5000";
-  return String(base).replace(/\/$/, "");
-};
-
 const fetchHomeAdminEntries = async () => {
-  const res = await fetch(`${getServerBase()}/api/admin/seo`, {
+  const res = await fetch(buildServerApiUrl("/api/admin/seo"), {
     next: { revalidate },
   });
   if (!res.ok) return [];

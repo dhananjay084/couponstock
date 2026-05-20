@@ -3,8 +3,9 @@
 import React from "react";
 import { toast } from "react-toastify";
 import CountryLink from "../Minor/CountryLink";
+import { cacheStoreDetailPayload } from "../../lib/storeDetailCache";
 
-const PopularBrandCard = ({ data, counts }) => {
+const PopularBrandCard = ({ data, counts, relatedDeals = [] }) => {
   if (!data) return null;
 
   const { storeImage, storeName, slug, discountPercentage } = data;
@@ -25,7 +26,14 @@ const PopularBrandCard = ({ data, counts }) => {
         if (!slug) {
           e.preventDefault();
           toast.error("Store slug not found!");
+          return;
         }
+
+        cacheStoreDetailPayload({
+          slug,
+          store: data,
+          deals: relatedDeals,
+        });
       }}
     >
       <div className="flex h-full min-h-[228px] flex-col overflow-hidden rounded-[22px] border border-[#dddff3] bg-white shadow-[0_14px_30px_rgba(28,32,72,0.08)] transition duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_18px_36px_rgba(91,46,169,0.14)]">

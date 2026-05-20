@@ -21,6 +21,7 @@ import CountryAvailabilityGate from "../../../components/Minor/CountryAvailabili
 
 import { getDeals } from "../../../redux/deal/dealSlice";
 import { getStores } from "../../../redux/store/storeSlice.js";
+import { getCachedStoreDetailPayload } from "../../../lib/storeDetailCache";
 // import { toast } from "react-toastify";
 
 
@@ -29,13 +30,29 @@ const IndividualStore = ({ store }) => {
   const { slug } = params;
   const dispatch = useDispatch();
   const [isDescExpanded, setIsDescExpanded] = useState(false);
+  const [cachedPayload, setCachedPayload] = useState(null);
 
   const { deals = [] } = useSelector((state) => state.deal);
   const { stores = [], loading, error } = useSelector((state) => state.store);
   const { selectedCountry } = useSelector((state) => state.country || {});
 
-  // const storeFromList = stores.find((store) => store._id === id);
-  const storeFromList = stores.find((entry) => entry.slug === slug) || store || null;
+  useEffect(() => {
+    setCachedPayload(getCachedStoreDetailPayload());
+  }, []);
+
+  const cachedStore = cachedPayload?.slug === slug ? cachedPayload?.store : null;
+  const cachedDeals = cachedPayload?.slug === slug && Array.isArray(cachedPayload?.deals)
+    ? cachedPayload.deals
+    : [];
+
+  const storeFromList =
+    stores.find((entry) => entry.slug === slug) ||
+    store ||
+    cachedStore ||
+    null;
+
+  const resolvedDeals = deals.length > 0 ? deals : cachedDeals;
+
   useEffect(() => {
     if (!selectedCountry) return;
     dispatch(getDeals(selectedCountry));
@@ -61,7 +78,7 @@ const IndividualStore = ({ store }) => {
     let todayCount = 0;
 
     const counts = dateLabels.map(({ date, label }) => {
-      const count = deals.filter((deal) => {
+      const count = resolvedDeals.filter((deal) => {
         const dealDate = new Date(deal.updatedAt).toISOString().split("T")[0];
         const isSameDay = dealDate === date;
         const isSameStore = deal.store === storeFromList?.storeName;
@@ -81,7 +98,7 @@ const IndividualStore = ({ store }) => {
     });
 
     return { chartData: counts, todayCount };
-  }, [deals, storeFromList]);
+  }, [resolvedDeals, storeFromList]);
 
   if (loading && !storeFromList) {
     return (
@@ -97,10 +114,10 @@ const IndividualStore = ({ store }) => {
 
   const description = storeFromList.storeDescription || "";
   const shouldTruncate = description.length > 140;
-  const topCodes = deals.filter(
+  const topCodes = resolvedDeals.filter(
     (deal) => deal.store === storeFromList.storeName && deal.dealCategory === "coupon"
   );
-  const topDeals = deals.filter(
+  const topDeals = resolvedDeals.filter(
     (deal) => deal.store === storeFromList.storeName && deal.dealCategory === "deal"
   );
   const popularStores = stores.filter((store) => store.popularStore);

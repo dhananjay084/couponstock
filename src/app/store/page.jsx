@@ -159,6 +159,7 @@ const AllStores = () => {
               key={store._id}
               data={store}
               counts={dealCountsByStore.get(String(store?.storeName || "").toLowerCase())}
+              relatedDeals={deals.filter((deal) => deal.store === store.storeName)}
             />
           ))
         )}
@@ -195,6 +196,7 @@ const AllStores = () => {
               key={store._id}
               data={store}
               counts={dealCountsByStore.get(String(store?.storeName || "").toLowerCase())}
+              relatedDeals={deals.filter((deal) => deal.store === store.storeName)}
             />
           ))
         )}

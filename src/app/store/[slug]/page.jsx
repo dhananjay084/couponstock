@@ -271,9 +271,5 @@ export default async function Page({ params }) {
   const { slug } = await params;
   const store = await getStore(slug);
 
-  if (!store) {
-    return <div>Store not found</div>;
-  }
-
   return <StoreClient store={store} />;
 }

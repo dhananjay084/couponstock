@@ -23,11 +23,16 @@
       "static/css/app/[country]/page.css",
       "static/chunks/app/[country]/page.js"
     ],
-    "/[country]/category/page": [
+    "/[country]/store/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/css/app/[country]/category/page.css",
-      "static/chunks/app/[country]/category/page.js"
+      "static/css/app/[country]/store/page.css",
+      "static/chunks/app/[country]/store/page.js"
+    ],
+    "/[country]/store/[slug]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/[country]/store/[slug]/page.js"
     ]
   }
 }

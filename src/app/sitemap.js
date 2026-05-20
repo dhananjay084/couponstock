@@ -1,8 +1,8 @@
 import { fetchJson } from "../lib/serverFetchJson";
 import { ALLOWED_COUNTRY_CODES } from "../lib/countryPath";
+import { buildServerApiUrl } from "../lib/serverApi";
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://mycouponstock.com").replace(/\/$/, "");
-const API_BASE_URL = (process.env.NEXT_PUBLIC_SERVER_URL || "").replace(/\/$/, "");
 const COUNTRY_PREFIX_CODES = ALLOWED_COUNTRY_CODES.filter((code) => code !== "in");
 
 export const revalidate = 3600; // 1 hour
@@ -28,9 +28,8 @@ const staticRoutes = [
 ];
 
 async function getJson(path) {
-  if (!API_BASE_URL) return [];
   try {
-    const data = await fetchJson(`${API_BASE_URL}${path}`, { next: { revalidate } });
+    const data = await fetchJson(buildServerApiUrl(path), { next: { revalidate } });
     return Array.isArray(data) ? data : [];
   } catch {
     return [];

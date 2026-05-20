@@ -1,10 +1,11 @@
 import DealClient from "./DealClient";
+import { buildServerApiUrl } from "../../../lib/serverApi";
 import { fetchJson } from "../../../lib/serverFetchJson";
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   const deal = await fetchJson(
-    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/deals/slug/${slug}`,
+    buildServerApiUrl(`/api/deals/slug/${slug}`),
     { next: { revalidate: 300 } }
   );
 
@@ -19,7 +20,7 @@ export async function generateMetadata({ params }) {
 export default async function Page({ params }) {
   const { slug } = await params;
   const deal = await fetchJson(
-    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/deals/slug/${slug}`,
+    buildServerApiUrl(`/api/deals/slug/${slug}`),
     { next: { revalidate: 300 } }
   );
 

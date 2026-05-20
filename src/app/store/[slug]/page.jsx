@@ -223,11 +223,12 @@
 
 // export default IndividualStore;
 import StoreClient from "./StoreClient";
+import { buildServerApiUrl } from "../../../lib/serverApi";
 import { fetchJson } from "../../../lib/serverFetchJson";
 
 async function getStore(slug) {
   return fetchJson(
-    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/stores/slug/${slug}`,
+    buildServerApiUrl(`/api/stores/slug/${slug}`),
     { next: { revalidate: 300 } }
   );
 }

@@ -173,6 +173,7 @@
 
 // export default SingleCategory;
 import CategoryClient from "./CategoryClient";
+import { buildServerApiUrl } from "../../../lib/serverApi";
 import { fetchJson } from "../../../lib/serverFetchJson";
 
 export async function generateMetadata({ params }) {
@@ -181,7 +182,7 @@ export async function generateMetadata({ params }) {
   const categoryName = categorySlug.toUpperCase();
 
   const category = await fetchJson(
-    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/categories/name/${categoryName}`,
+    buildServerApiUrl(`/api/categories/name/${categoryName}`),
     { next: { revalidate: 300 } }
   );
 

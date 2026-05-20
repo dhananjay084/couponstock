@@ -9,12 +9,28 @@ const getHostname = (value) => {
 };
 
 export const getServerApiBase = () => {
+  return getServerApiBases()[0] || "http://127.0.0.1:5000";
+};
+
+export const getServerApiBases = () => {
+  const candidates = [
+    process.env.INTERNAL_SERVER_URL,
+    process.env.SERVER_URL,
+    process.env.NEXT_PUBLIC_SERVER_URL,
+    process.env.NEXT_PUBLIC_SITE_URL,
+    "http://127.0.0.1:5000",
+  ]
+    .map((value) => normalizeBase(value))
+    .filter(Boolean);
+
+  const ordered = [];
+
   const internalBase =
     process.env.INTERNAL_SERVER_URL ||
     process.env.SERVER_URL;
 
   if (internalBase) {
-    return normalizeBase(internalBase);
+    ordered.push(normalizeBase(internalBase));
   }
 
   const publicApiBase = process.env.NEXT_PUBLIC_SERVER_URL;
@@ -23,22 +39,29 @@ export const getServerApiBase = () => {
   if (publicApiBase) {
     const apiHost = getHostname(publicApiBase);
     if (apiHost && apiHost !== "localhost" && apiHost !== "127.0.0.1") {
-      return normalizeBase(publicApiBase);
+      ordered.push(normalizeBase(publicApiBase));
     }
   }
 
   if (publicSiteBase) {
-    return normalizeBase(publicSiteBase);
+    ordered.push(normalizeBase(publicSiteBase));
   }
 
   if (publicApiBase) {
-    return normalizeBase(publicApiBase);
+    ordered.push(normalizeBase(publicApiBase));
   }
 
-  return "http://127.0.0.1:5000";
+  candidates.forEach((value) => ordered.push(value));
+
+  return [...new Set(ordered)];
 };
 
 export const buildServerApiUrl = (path = "") => {
   const normalizedPath = String(path || "").startsWith("/") ? path : `/${path}`;
   return `${getServerApiBase()}${normalizedPath}`;
+};
+
+export const buildServerApiUrls = (path = "") => {
+  const normalizedPath = String(path || "").startsWith("/") ? path : `/${path}`;
+  return getServerApiBases().map((base) => `${base}${normalizedPath}`);
 };

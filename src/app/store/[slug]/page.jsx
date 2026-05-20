@@ -223,14 +223,18 @@
 
 // export default IndividualStore;
 import StoreClient from "./StoreClient";
-import { buildServerApiUrl } from "../../../lib/serverApi";
+import { buildServerApiUrls } from "../../../lib/serverApi";
 import { fetchJson } from "../../../lib/serverFetchJson";
 
 async function getStore(slug) {
-  return fetchJson(
-    buildServerApiUrl(`/api/stores/slug/${slug}`),
-    { next: { revalidate: 300 } }
-  );
+  const urls = buildServerApiUrls(`/api/stores/slug/${slug}`);
+
+  for (const url of urls) {
+    const store = await fetchJson(url, { next: { revalidate: 300 } });
+    if (store) return store;
+  }
+
+  return null;
 }
 
 export async function generateMetadata({ params }) {

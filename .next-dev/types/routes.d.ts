@@ -5,7 +5,7 @@ type AppRoutes = never
 type PageRoutes = never
 type LayoutRoutes = "/" | "/[country]"
 type RedirectRoutes = "/allcategories" | "/allcoupons" | "/allstores"
-type RewriteRoutes = never
+type RewriteRoutes = "/api/[[...path]]" | "/uploads/[[...path]]"
 type Routes = AppRoutes | PageRoutes | LayoutRoutes | RedirectRoutes | RewriteRoutes
 
 
@@ -15,6 +15,8 @@ interface ParamMap {
   "/allcategories": {}
   "/allcoupons": {}
   "/allstores": {}
+  "/api/[[...path]]": { "path"?: string[]; }
+  "/uploads/[[...path]]": { "path"?: string[]; }
 }
 
 

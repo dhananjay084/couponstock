@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import CountryLink from "../Minor/CountryLink";
 import { cacheStoreDetailPayload } from "../../lib/storeDetailCache";
 
-const PopularBrandCard = ({ data, counts, relatedDeals = [] }) => {
+const PopularBrandCard = ({ data, counts }) => {
   if (!data) return null;
 
   const { storeImage, storeName, slug, discountPercentage } = data;
@@ -32,7 +32,6 @@ const PopularBrandCard = ({ data, counts, relatedDeals = [] }) => {
         cacheStoreDetailPayload({
           slug,
           store: data,
-          deals: relatedDeals,
         });
       }}
     >

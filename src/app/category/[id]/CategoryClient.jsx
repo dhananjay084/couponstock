@@ -112,7 +112,7 @@ const SingleCategoryContent = () => {
       <TextLink text="Coupons" colorText="& Deals" link="" linkText="View All" />
 
       {/* All Deals Grid */}
-      <Box className="space-y-4 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:justify-around" sx={{ px: 4 }}>
+      <Box className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 lg:gap-6" sx={{ px: 4 }}>
         {filteredDeals.length === 0 ? (
           <GridSkeleton count={6} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" itemClassName="h-40 rounded-lg bg-gray-200" />
         ) : filteredDeals.map((deal) => (

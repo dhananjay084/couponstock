@@ -173,22 +173,47 @@
 
 // export default SingleCategory;
 import CategoryClient from "./CategoryClient";
-import { buildServerApiUrl } from "../../../lib/serverApi";
+import { cache } from "react";
+import { buildServerApiUrls } from "../../../lib/serverApi";
 import { fetchJson } from "../../../lib/serverFetchJson";
+
+const getCategoryBySlug = cache(async (categorySlug) => {
+  const categoryName = decodeURIComponent(categorySlug).toLowerCase();
+  const categoryUpper = categoryName.toUpperCase();
+  const categoryTitle = categoryName
+    .split("-")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+  const candidates = [...new Set([categoryUpper, categoryTitle, categoryName])];
+
+  const urls = candidates.flatMap((candidate) =>
+    buildServerApiUrls(`/api/categories/name/${encodeURIComponent(candidate)}`)
+  );
+
+  const attempts = urls.map((url) =>
+    fetchJson(url, { next: { revalidate: 300 } }).then((category) => {
+      if (!category) {
+        throw new Error(`No category data from ${url}`);
+      }
+      return category;
+    })
+  );
+
+  try {
+    return await Promise.any(attempts);
+  } catch {
+    return null;
+  }
+});
 
 export async function generateMetadata({ params }) {
   const { id } = params;
   const categorySlug = decodeURIComponent(id).toLowerCase();
-  const categoryName = categorySlug.toUpperCase();
-
-  const category = await fetchJson(
-    buildServerApiUrl(`/api/categories/name/${categoryName}`),
-    { next: { revalidate: 300 } }
-  );
+  const category = await getCategoryBySlug(categorySlug);
 
   if (!category) {
     return {
-      title: categoryName,
+      title: categorySlug,
       description: "",
     };
   }

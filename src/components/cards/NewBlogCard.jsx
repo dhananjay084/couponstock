@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { slugWithId } from "../../lib/slugify";
 
 // Remove HTML + trim description (dynamic length)
@@ -12,11 +12,11 @@ const stripHTML = (html = "", limit = 90) => {
 };
 
 const RecentBlogCard = ({ blog, large = false }) => {
-  const router = useRouter();
+  const detailUrl = `/blog/${slugWithId(blog?.heading, blog?._id)}`;
 
   return (
-    <div
-      onClick={() => router.push(`/blog/${slugWithId(blog?.heading, blog?._id)}`)}
+    <Link
+      href={detailUrl}
       className="cursor-pointer bg-white rounded-2xl shadow-md overflow-hidden
       transition hover:shadow-lg flex flex-col"
     >
@@ -51,7 +51,7 @@ const RecentBlogCard = ({ blog, large = false }) => {
           </span>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 

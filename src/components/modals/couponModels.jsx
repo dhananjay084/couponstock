@@ -13,7 +13,10 @@ const CouponModal = ({ open, onClose, data }) => {
   if (!open) return null;
 
   const handleCardClick = () => {
-    router.push(addCountryPrefix(`/deal/${data._id}?category=${data.categorySelect}`, selectedCountry || ""));
+    const dealSlug = data?.slug || data?._id;
+    if (!dealSlug) return;
+    const href = `/deal/${dealSlug}${data?.categorySelect ? `?category=${data.categorySelect}` : ""}`;
+    router.push(addCountryPrefix(href, selectedCountry || ""));
   };
 
   const handleCopyAndGo = async () => {
@@ -71,9 +74,13 @@ const CouponModal = ({ open, onClose, data }) => {
 
         {/* Details */}
         <div className="mt-4 flex items-center justify-between">
-          <Typography className="text-sm text-[#6c38d9] underline cursor-pointer">
-            <p onClick={handleCardClick}>See Details</p>
-          </Typography>
+          <button
+            type="button"
+            onClick={handleCardClick}
+            className="text-sm text-[#6c38d9] underline cursor-pointer"
+          >
+            See Details
+          </button>
           <span className="text-xs text-gray-500">
             Expiry: {expiryText}
           </span>

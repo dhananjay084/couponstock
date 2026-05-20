@@ -5,27 +5,39 @@ import { Typography } from "@mui/material";
 import CouponModal from "../modals/couponModels";
 import { toast } from "react-toastify";
 import CountryLink from "../Minor/CountryLink";
+import { useRouter } from "next/navigation";
+import { addCountryPrefix } from "../../lib/countryPath";
+import { useSelector } from "react-redux";
 
 const Coupons_Deals = ({ border, disabled, data }) => {
   if (!data) return null;
 
   const { dealDescription, dealImage, homePageTitle, dealCategory } = data;
   const [modalOpen, setModalOpen] = useState(false);
+  const router = useRouter();
+  const { selectedCountry } = useSelector((state) => state.country || {});
+  const urlSlug = data?.slug || data?._id;
+  const dealHref = urlSlug
+    ? `/deal/${urlSlug}${data?.categorySelect ? `?category=${data.categorySelect}` : ""}`
+    : "#";
 
   const handleCardClick = () => {
     if (disabled) {
       toast.error("This deal is currently unavailable!");
       return;
     }
-    setModalOpen(true);
+    if (!urlSlug) {
+      toast.error("Deal details not available!");
+      return;
+    }
+    router.push(addCountryPrefix(dealHref, selectedCountry || ""));
   };
-
-  const dealHref = data?._id ? `/deal/${data._id}?category=${data.categorySelect}` : "#";
 
   return (
     <>
       <div className="relative h-full">
         <div
+          onClick={handleCardClick}
           className={`coupon-offer-card mx-2 min-h-[232px] h-full ${border ? "" : "shadow-none"} ${
             disabled ? "cursor-not-allowed opacity-70" : "cursor-pointer"
           }
@@ -86,7 +98,14 @@ const Coupons_Deals = ({ border, disabled, data }) => {
 
             {dealCategory === "coupon" ? (
               <button
-                onClick={handleCardClick}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (disabled) {
+                    toast.error("This deal is currently unavailable!");
+                    return;
+                  }
+                  setModalOpen(true);
+                }}
                 disabled={disabled}
                 className={`mt-auto self-start ${disabled ? "cursor-not-allowed rounded-[14px] border border-gray-200 bg-gray-200 px-4 py-3 text-sm text-gray-500" : "coupon-code-button"}`}
               >
@@ -97,9 +116,10 @@ const Coupons_Deals = ({ border, disabled, data }) => {
                 href={dealHref}
                 prefetch
                 onClick={(e) => {
-                  if (!data?._id) {
+                  e.stopPropagation();
+                  if (!urlSlug) {
                     e.preventDefault();
-                    toast.error("Deal ID missing!");
+                    toast.error("Deal details not available!");
                   }
                 }}
                 className="pro-btn-soft mt-auto self-start"

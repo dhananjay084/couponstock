@@ -23,20 +23,26 @@ const PopularBrandCardWithText = ({ data = {} }) => {
     "No description available";
 
   const handleCardClick = () => {
-    // 👉 STORE → use SLUG
+    // Deal/coupon cards in category/store pages should open the deal detail first.
+    if (data._id || data.slug) {
+      const dealSlug = data.slug || data._id;
+      if (!dealSlug) {
+        toast.error("Deal details not found!");
+        return;
+      }
+      const dealHref = `/deal/${dealSlug}${data.categorySelect ? `?category=${data.categorySelect}` : ""}`;
+      router.push(addCountryPrefix(dealHref, selectedCountry || ""));
+      return;
+    }
+
+    // Fallback to store route only when this is actually store-shaped data.
     if (data.storeName || data.store) {
-      const storeSlug = data.slug || slugify(storeName);
+      const storeSlug = data.storeSlug || slugify(storeName);
       if (!storeSlug) {
         toast.error("Store slug not found!");
         return;
       }
       router.push(addCountryPrefix(`/store/${storeSlug}`, selectedCountry || ""));
-      return;
-    }
-
-    // 👉 DEAL → keep ID
-    if (data._id) {
-      router.push(addCountryPrefix(`/deal/${data._id}?category=${data.categorySelect}`, selectedCountry || ""));
       return;
     }
 

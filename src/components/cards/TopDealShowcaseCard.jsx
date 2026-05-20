@@ -4,6 +4,7 @@ import React from "react";
 import Image from "next/image";
 import { FiExternalLink } from "react-icons/fi";
 import CountryLink from "../Minor/CountryLink";
+import { slugify } from "../../lib/slugify";
 
 const TopDealShowcaseCard = ({ deal, store }) => {
   if (!deal) return null;
@@ -13,8 +14,9 @@ const TopDealShowcaseCard = ({ deal, store }) => {
     ? `/deal/${urlSlug}${deal?.categorySelect ? `?category=${deal.categorySelect}` : ""}`
     : "#";
 
-      const storeName = store?.storeName || deal?.store || "Store";
-      const storeHref = store?.slug ? `/store/${store.slug}` : "/store";
+  const storeName = store?.storeName || deal?.store || "Store";
+  const derivedStoreSlug = store?.slug || (deal?.store ? slugify(deal.store) : "");
+  const storeHref = derivedStoreSlug ? `/store/${derivedStoreSlug}` : "/store";
 
   return (
     <div className="coupon-spotlight-card">

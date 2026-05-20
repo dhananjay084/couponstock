@@ -3,13 +3,13 @@
 import React from "react";
 import Image from "next/image";
 import { Typography, Button } from "@mui/material";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import DOMPurify from "dompurify";
 import { toast } from "react-toastify";
 import { slugWithId } from "../../lib/slugify";
 
 const FeaturedPost = ({ blog }) => {
-  const router = useRouter();
+  const detailUrl = `/blog/${slugWithId(blog?.heading, blog?._id)}`;
   const getFirst200Words = (htmlString) => {
     // Strip HTML and get plain text
     const tempDiv = document.createElement("div");
@@ -28,11 +28,10 @@ const FeaturedPost = ({ blog }) => {
           toast.error("blog ID is missing!");
           return;
         }
-    router.push(`/blog/${slugWithId(blog?.heading, blog?._id)}`);
   };
 
   return (
-    <div className="pro-card w-full p-4">
+    <Link href={detailUrl} className="pro-card block w-full p-4">
       <div className="relative w-full h-[300px] mb-4">
         <Image
           src={blog.image || "/default-blog.jpg"}
@@ -67,11 +66,16 @@ const FeaturedPost = ({ blog }) => {
         variant="contained"
         color="black"
         sx={{ color: "#fff", borderRadius: "10px", mt: 2 ,background:'#5B3CC4' , cursor: "pointer", fontWeight: 700, px: 2.2 }}
-        onClick={handleClick}
+        onClick={(e) => {
+          if (!blog?._id) {
+            e.preventDefault();
+            handleClick();
+          }
+        }}
       >
         Read Post
       </Button>
-    </div>
+    </Link>
   );
 };
 

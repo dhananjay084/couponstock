@@ -41,9 +41,6 @@ const IndividualStore = ({ store }) => {
   }, []);
 
   const cachedStore = cachedPayload?.slug === slug ? cachedPayload?.store : null;
-  const cachedDeals = cachedPayload?.slug === slug && Array.isArray(cachedPayload?.deals)
-    ? cachedPayload.deals
-    : [];
 
   const storeFromList =
     stores.find((entry) => entry.slug === slug) ||
@@ -51,7 +48,7 @@ const IndividualStore = ({ store }) => {
     cachedStore ||
     null;
 
-  const resolvedDeals = deals.length > 0 ? deals : cachedDeals;
+  const resolvedDeals = deals;
 
   useEffect(() => {
     if (!selectedCountry) return;
@@ -172,7 +169,7 @@ const IndividualStore = ({ store }) => {
       {topCodes.length > 0 && (
         <>
           <TextLink text="Top Codes" colorText="" link="" linkText="" />
-          <div className="space-y-4 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:justify-around">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 lg:gap-6">
             {topCodes.map((deal) => (
               <Coupons_Deals key={deal._id} data={deal} border={true} />
             ))}

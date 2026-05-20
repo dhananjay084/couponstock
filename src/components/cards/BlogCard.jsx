@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { slugWithId } from "../../lib/slugify";
 
 // Removes ALL HTML tags + trims text
@@ -30,7 +30,6 @@ const BlogCard = ({
   showViewButton = false,
   compact = false,
 }) => {
-  const router = useRouter();
   const detailUrl = `/blog/${slugWithId(blog?.heading, blog?._id)}`;
   const rawDescription = stripHTML(blog?.details);
   const description =
@@ -51,8 +50,8 @@ const BlogCard = ({
         : undefined;
 
   return (
-    <div
-      onClick={() => router.push(detailUrl)}
+    <Link
+      href={detailUrl}
       className={`coupon-banner-card cursor-pointer overflow-hidden 
       transition hover:shadow-lg ${large ? "h-full" : ""} ${forceFullHeight ? "h-full flex flex-col" : ""} ${className}`}
       style={fixedHeight ? { minHeight: fixedHeight } : undefined}
@@ -109,20 +108,13 @@ const BlogCard = ({
             </p>
           </div>
           {showViewButton && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                router.push(detailUrl);
-              }}
-              className="pro-btn shrink-0"
-            >
+            <span className="pro-btn shrink-0">
               View
-            </button>
+            </span>
           )}
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 

@@ -3,9 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import { Typography } from "@mui/material";
-import { useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
-import { addCountryPrefix } from "../../lib/countryPath";
+import CountryLink from "../Minor/CountryLink";
 
 const DealOfWeek = ({ data }) => {
   if (!data) {
@@ -13,20 +11,14 @@ const DealOfWeek = ({ data }) => {
     return null;
   }
 
-  const router = useRouter();
-  const { selectedCountry } = useSelector((state) => state.country || {});
   const { dealImage, homePageTitle } = data;
-
-  const handleCardClick = () => {
-    const href = `/deal/${data._id}?category=${data.categorySelect}`;
-    router.push(addCountryPrefix(href, selectedCountry || ""));
-  };
+  const urlSlug = data?.slug || data?._id;
+  const href = urlSlug
+    ? `/deal/${urlSlug}${data?.categorySelect ? `?category=${data.categorySelect}` : ""}`
+    : "#";
 
   return (
-    <div
-      className="w-full min-w-0 cursor-pointer"
-      onClick={handleCardClick}
-    >
+    <CountryLink href={href} prefetch className="block w-full min-w-0 cursor-pointer">
       <div className="coupon-banner-card h-full overflow-hidden">
         <div className="relative aspect-square w-full overflow-hidden">
           <Image
@@ -49,7 +41,7 @@ const DealOfWeek = ({ data }) => {
           </span>
         </div>
       </div>
-    </div>
+    </CountryLink>
   );
 };
 

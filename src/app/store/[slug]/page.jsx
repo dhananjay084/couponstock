@@ -223,19 +223,28 @@
 
 // export default IndividualStore;
 import StoreClient from "./StoreClient";
+import { cache } from "react";
 import { buildServerApiUrls } from "../../../lib/serverApi";
 import { fetchJson } from "../../../lib/serverFetchJson";
 
-async function getStore(slug) {
+const getStore = cache(async (slug) => {
   const urls = buildServerApiUrls(`/api/stores/slug/${slug}`);
 
-  for (const url of urls) {
-    const store = await fetchJson(url, { next: { revalidate: 300 } });
-    if (store) return store;
-  }
+  const attempts = urls.map((url) =>
+    fetchJson(url, { next: { revalidate: 300 } }).then((store) => {
+      if (!store) {
+        throw new Error(`No store data from ${url}`);
+      }
+      return store;
+    })
+  );
 
-  return null;
-}
+  try {
+    return await Promise.any(attempts);
+  } catch {
+    return null;
+  }
+});
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;

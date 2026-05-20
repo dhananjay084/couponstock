@@ -40,6 +40,7 @@ import { toast } from "react-toastify";
 import { addCountryPrefix, getCountryCodeFromName, isAllowedCountryCode } from "../lib/countryPath";
 import { titleize } from "../lib/slugify";
 import globeImage from "../assets/globe.png";
+import CountryLink from "./Minor/CountryLink";
 
 const baseNavLinks = [
   { name: "All Offers", href: "/deals" },
@@ -551,21 +552,25 @@ const NavBar = () => {
         >
           {/* Left: Logo */}
           <Box display="flex" alignItems="center" sx={{ flex: "0 0 auto" }}>
-            <Link href={withCountry("/")} passHref>
-            <Typography
-  variant={isMobile ? "subtitle1" : "h6"}
-  fontWeight="bold"
-  sx={{
-    cursor: "pointer",
-    color: scrolled ? "#fff" : "#592EA9",
-    transition: "color 0.4s ease",
-    "&:hover": { opacity: 0.8 },
-    fontSize: isMobile ? "1rem" : "1.25rem", // slightly smaller on mobile
-  }}
->
-                MY COUPON STOCK
-              </Typography>
-            </Link>
+            <Box
+              component={CountryLink}
+              href="/"
+              sx={{
+                display: "inline-block",
+                cursor: "pointer",
+                color: scrolled ? "#fff" : "#592EA9",
+                transition: "color 0.4s ease",
+                "&:hover": { opacity: 0.8 },
+                fontSize: isMobile ? "1rem" : "1.25rem",
+                fontWeight: "bold",
+                lineHeight: 1.2,
+                textDecoration: "none",
+                position: "relative",
+                zIndex: 2,
+              }}
+            >
+              MY COUPON STOCK
+            </Box>
             {/* Desktop: show selected country as text. Mobile: show a selector. */}
             {selectedCountry && !isMobile && (
               <Typography

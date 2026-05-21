@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
-import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
 import TextLink from "../../../components/Minor/TextLink";
 import Coupons_Deals from "../../../components/cards/Coupons_Deals";
 import PopularBrandCard from "../../../components/cards/PopularBrandWithText";
@@ -18,43 +18,118 @@ import FAQAccordion from "../../../components/Minor/Faq";
 import { GridSkeleton, RowSkeleton, TextSkeleton } from "../../../components/skeletons/InlineSkeletons";
 import ArrowScrollRow from "../../../components/Minor/ArrowScrollRow";
 import CountryAvailabilityGate from "../../../components/Minor/CountryAvailabilityGate";
-
-import { getDeals } from "../../../redux/deal/dealSlice";
-import { getStores } from "../../../redux/store/storeSlice.js";
 import { getCachedStoreDetailPayload } from "../../../lib/storeDetailCache";
+import { buildPublicApiUrl } from "../../../lib/publicApiBase";
 // import { toast } from "react-toastify";
 
 
-const IndividualStore = ({ store }) => {
+const IndividualStore = ({ store, initialDeals = [], initialPopularStores = [] }) => {
   const params = useParams();
   const { slug } = params;
-  const dispatch = useDispatch();
   const [isDescExpanded, setIsDescExpanded] = useState(false);
   const [cachedPayload, setCachedPayload] = useState(null);
-
-  const { deals = [] } = useSelector((state) => state.deal);
-  const { stores = [], loading, error } = useSelector((state) => state.store);
-  const { selectedCountry } = useSelector((state) => state.country || {});
+  const [cacheLoaded, setCacheLoaded] = useState(false);
+  const [storeData, setStoreData] = useState(store || null);
+  const [dealsData, setDealsData] = useState(Array.isArray(initialDeals) ? initialDeals : []);
+  const [popularStoresData, setPopularStoresData] = useState(
+    Array.isArray(initialPopularStores) ? initialPopularStores : []
+  );
+  const [isLoadingRemote, setIsLoadingRemote] = useState(!store);
 
   useEffect(() => {
     setCachedPayload(getCachedStoreDetailPayload());
+    setCacheLoaded(true);
   }, []);
+
+  useEffect(() => {
+    if (store) {
+      setStoreData(store);
+    }
+  }, [store]);
+
+  useEffect(() => {
+    if (Array.isArray(initialDeals) && initialDeals.length > 0) {
+      setDealsData(initialDeals);
+    }
+  }, [initialDeals]);
+
+  useEffect(() => {
+    if (Array.isArray(initialPopularStores) && initialPopularStores.length > 0) {
+      setPopularStoresData(initialPopularStores);
+    }
+  }, [initialPopularStores]);
 
   const cachedStore = cachedPayload?.slug === slug ? cachedPayload?.store : null;
 
   const storeFromList =
-    stores.find((entry) => entry.slug === slug) ||
-    store ||
+    storeData ||
     cachedStore ||
     null;
 
-  const resolvedDeals = deals;
-
   useEffect(() => {
-    if (!selectedCountry) return;
-    dispatch(getDeals(selectedCountry));
-    dispatch(getStores(selectedCountry));
-  }, [dispatch, selectedCountry]);
+    if (!slug || storeData?.slug === slug) {
+      setIsLoadingRemote(false);
+      return;
+    }
+
+    let active = true;
+
+    const loadStorePageData = async () => {
+      try {
+        setIsLoadingRemote(true);
+        const storeRes = await axios.get(buildPublicApiUrl(`/api/stores/slug/${slug}`));
+        const resolvedStore = storeRes.data || null;
+
+        if (!active) return;
+
+        setStoreData(resolvedStore);
+
+        const countries = Array.isArray(resolvedStore?.country)
+          ? resolvedStore.country.filter(Boolean)
+          : [];
+
+        const [dealsRes, popularStoresRes] = await Promise.all([
+          axios.get(buildPublicApiUrl("/api/deals"), {
+            params: {
+              store: resolvedStore?.storeName,
+              limit: 60,
+              ...(countries.length > 0 ? { countries: countries.join(",") } : {}),
+            },
+          }),
+          axios.get(buildPublicApiUrl("/api/stores"), {
+            params: {
+              popularStore: true,
+              limit: 12,
+              ...(countries.length > 0 ? { countries: countries.join(",") } : {}),
+            },
+          }),
+        ]);
+
+        if (!active) return;
+
+        setDealsData(Array.isArray(dealsRes.data) ? dealsRes.data : []);
+        setPopularStoresData(Array.isArray(popularStoresRes.data) ? popularStoresRes.data : []);
+      } catch (error) {
+        if (!active) return;
+        setStoreData(null);
+        setDealsData([]);
+        setPopularStoresData([]);
+      } finally {
+        if (active) {
+          setIsLoadingRemote(false);
+        }
+      }
+    };
+
+    loadStorePageData();
+
+    return () => {
+      active = false;
+    };
+  }, [slug, storeData?.slug]);
+
+  const resolvedDeals = dealsData;
+  const popularStores = popularStoresData;
 
   const { chartData, todayCount } = useMemo(() => {
     const now = new Date();
@@ -97,7 +172,7 @@ const IndividualStore = ({ store }) => {
     return { chartData: counts, todayCount };
   }, [resolvedDeals, storeFromList]);
 
-  if (loading && !storeFromList) {
+  if ((!storeFromList && !cacheLoaded) || (isLoadingRemote && !storeFromList)) {
     return (
       <div className="p-4 space-y-4">
         <TextSkeleton className="h-8 w-56" />
@@ -107,7 +182,6 @@ const IndividualStore = ({ store }) => {
     );
   }
   if (!storeFromList) return <p className="text-center py-10">Store not found.</p>;
-  if (error && !storeFromList) return <p className="text-red-500 text-center py-10">{error}</p>;
 
   const description = storeFromList.storeDescription || "";
   const shouldTruncate = description.length > 140;
@@ -117,7 +191,6 @@ const IndividualStore = ({ store }) => {
   const topDeals = resolvedDeals.filter(
     (deal) => deal.store === storeFromList.storeName && deal.dealCategory === "deal"
   );
-  const popularStores = stores.filter((store) => store.popularStore);
   const hasHtmlContent = Boolean(storeFromList.storeHtmlContent);
   const totalOffers = topCodes.length + topDeals.length;
 

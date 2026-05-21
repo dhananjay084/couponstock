@@ -52,7 +52,7 @@ const BannerCard = ({ data }) => {
           {data.dealCategory === "deal" ? (
             <CountryLink
               href={dealHref}
-              prefetch
+              prefetch={false}
               className="pro-btn-soft mt-auto self-start whitespace-nowrap"
               onClick={(e) => {
                 if (!data?._id) {

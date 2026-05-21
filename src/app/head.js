@@ -1,23 +1,6 @@
-import { getCountryCodeFromName } from "../lib/countryPath";
-import { buildServerApiUrl } from "../lib/serverApi";
+import { fetchHomeAdminEntries, pickDefaultEntry } from "../lib/homeAdminSeo";
 
 export const revalidate = 3600;
-
-const fetchHomeAdminEntries = async () => {
-  const res = await fetch(buildServerApiUrl("/api/admin/seo"), {
-    next: { revalidate },
-  });
-  if (!res.ok) return [];
-  const json = await res.json();
-  return Array.isArray(json?.data) ? json.data : [];
-};
-
-const pickDefaultEntry = (entries = []) => {
-  const india = entries.find(
-    (entry) => getCountryCodeFromName(entry?.country || "") === "in"
-  );
-  return india || entries[0] || null;
-};
 
 export default async function Head() {
   try {

@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import TextLink from "../../../components/Minor/TextLink";
 import Coupons_Deals from "../../../components/cards/Coupons_Deals";
 import HeadingText from "../../../components/Minor/HeadingText";
@@ -10,9 +10,11 @@ import { getDeals } from "../../../redux/deal/dealSlice";
 import { GridSkeleton } from "../../../components/skeletons/InlineSkeletons";
 import { titleize } from "../../../lib/slugify";
 import { setSelectedCountry } from "../../../redux/country/countrySlice";
+import { addCountryPrefix } from "../../../lib/countryPath";
 
 const CountryDealsPage = () => {
   const dispatch = useDispatch();
+  const router = useRouter();
   const params = useParams();
   const countrySlug = params?.slug ? decodeURIComponent(params.slug) : "";
   const countryName = titleize(countrySlug.replace(/-/g, " "));
@@ -25,6 +27,11 @@ const CountryDealsPage = () => {
     }
     dispatch(getDeals(countryName));
   }, [dispatch, countryName]);
+
+  useEffect(() => {
+    if (!countryName) return;
+    router.replace(addCountryPrefix("/deal", countryName));
+  }, [countryName, router]);
 
   const filteredDeals = deals.filter((deal) =>
     Array.isArray(deal.country)

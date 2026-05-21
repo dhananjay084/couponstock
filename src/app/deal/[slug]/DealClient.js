@@ -2,15 +2,15 @@
 
 import React, { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useParams } from "next/navigation";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import axios from "axios";
 import {
   Typography,
   Button,
 } from "@mui/material";
+import { toast } from "react-toastify";
 import HeadingText from "../../../components/Minor/HeadingText";
 import DealCard from "../../../components/cards/DealCard";
-import { getDeals } from "../../../redux/deal/dealSlice";
 import TextLink from "../../../components/Minor/TextLink";
 import LoginModal from "../../../components/modals/loginModal";
 import { useRouter } from "next/navigation";
@@ -19,35 +19,11 @@ import ArrowScrollRow from "../../../components/Minor/ArrowScrollRow";
 import CountryLink from "../../../components/Minor/CountryLink";
 import CountryAvailabilityGate from "../../../components/Minor/CountryAvailabilityGate";
 import { slugify, titleize } from "../../../lib/slugify";
-export async function generateMetadata({ params }) {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/deals/slug/${params.slug}`,
-    { next: { revalidate: 3600 } }
-  );
+import { addCountryPrefix } from "../../../lib/countryPath";
+import { buildPublicApiUrl } from "../../../lib/publicApiBase";
+const buildDealApiUrl = (path = "") => buildPublicApiUrl(path);
 
-  const deal = await res.json();
-
-  return {
-    title:
-      deal.metaTitle ||
-      `${deal.dealTitle} | My Couponstock`,
-
-    description:
-      deal.metaDescription ||
-      deal.dealDescription?.slice(0, 150),
-
-    keywords: deal.metaKeywords || "",
-
-    openGraph: {
-      title: deal.metaTitle,
-      description: deal.metaDescription,
-      images: [deal.dealImage],
-      type: "website",
-    },
-  };
-}
-const DealDetailsContent = ({ initialDeal }) => {
-  const dispatch = useDispatch();
+const DealDetailsContent = ({ initialDeal, initialRelatedDeals = [] }) => {
   const searchParams = useSearchParams();
   const params = useParams();
   const slug = params?.slug;
@@ -57,7 +33,6 @@ const DealDetailsContent = ({ initialDeal }) => {
   const [loginRedirectUrl, setLoginRedirectUrl] = useState("");
   
   const category = searchParams?.get("category") || "";
-  const { deals = [] } = useSelector((state) => state.deal);
   const { selectedCountry } = useSelector((state) => state.country || {});
   const router = useRouter();
   const [userId, setUserId] = useState("");
@@ -79,7 +54,7 @@ const DealDetailsContent = ({ initialDeal }) => {
       try {
         setLoading(true);
         const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_SERVER_URL}/api/deals/slug/${slug}`
+          buildDealApiUrl(`/api/deals/slug/${slug}`)
         );
         setDealDetails(res.data);
       } catch (err) {
@@ -89,12 +64,13 @@ const DealDetailsContent = ({ initialDeal }) => {
         if (idMatch) {
           try {
             const res = await axios.get(
-              `${process.env.NEXT_PUBLIC_SERVER_URL}/api/deals/${slug}`
+              buildDealApiUrl(`/api/deals/${slug}`)
             );
             setDealDetails(res.data);
             // Optional: Redirect to slug URL
             if (res.data.slug) {
-              router.replace(`/deal/${res.data.slug}?category=${category}`);
+              const nextHref = `/deal/${res.data.slug}${category ? `?category=${category}` : ""}`;
+              router.replace(addCountryPrefix(nextHref, selectedCountry || ""));
             }
           } catch (fallbackErr) {
             console.error("Fallback fetch failed:", fallbackErr);
@@ -106,7 +82,7 @@ const DealDetailsContent = ({ initialDeal }) => {
     };
 
     fetchDealBySlug();
-  }, [slug, category, router, initialDeal]);
+  }, [slug, category, router, initialDeal, selectedCountry]);
 
   // Get user ID from cookie
   useEffect(() => {
@@ -120,12 +96,6 @@ const DealDetailsContent = ({ initialDeal }) => {
       setUserId(getCookie("userId"));
     }
   }, [router]);
-
-  // Fetch deals and reviews
-  useEffect(() => {
-    if (!selectedCountry) return;
-    dispatch(getDeals(selectedCountry));
-  }, [dispatch, selectedCountry]);
 
   if (loading) {
     return (
@@ -143,6 +113,12 @@ const DealDetailsContent = ({ initialDeal }) => {
 
   // Shop Now button click handler
   const handleShopNow = () => {
+    const baseRedirectUrl = String(dealDetails?.redirectionLink || "").trim();
+    if (!baseRedirectUrl) {
+      toast.error("Redirection link not available for this deal.");
+      return;
+    }
+
     if (userId) {
       let trackedUserId = userId;
       const now = new Date();
@@ -155,7 +131,7 @@ const DealDetailsContent = ({ initialDeal }) => {
       trackedUserId = `${userId}TIME${timeString}`;
       const encodedUserId = encodeURIComponent(trackedUserId);
       
-      let redirectUrl = dealDetails.redirectionLink;
+      let redirectUrl = baseRedirectUrl;
       
       if (redirectUrl.includes("{click_id}")) {
         redirectUrl = redirectUrl.replace("{click_id}", encodedUserId);
@@ -164,9 +140,9 @@ const DealDetailsContent = ({ initialDeal }) => {
         redirectUrl = `${redirectUrl}${separator}user_id=${encodedUserId}`;
       }
       
-      window.open(redirectUrl, "_blank");
+      window.open(redirectUrl, "_blank", "noopener,noreferrer");
     } else {
-      setLoginRedirectUrl(dealDetails.redirectionLink);
+      setLoginRedirectUrl(baseRedirectUrl);
       setIsModalOpen(true);
     }
   };
@@ -188,11 +164,14 @@ const DealDetailsContent = ({ initialDeal }) => {
   const normalizedTitle = normalizeText(dealDetails.dealTitle || "");
   const normalizedHeadline = normalizeText(dealDetails.headline || "");
   const showHeadline = Boolean(normalizedHeadline) && normalizedHeadline !== normalizedTitle;
-  const relatedDeals = deals.filter(
+  const fallbackCategory = String(dealDetails.categorySelect || "").trim();
+  const activeCategory = String(category || fallbackCategory).trim();
+  const relatedDeals = (Array.isArray(initialRelatedDeals) ? initialRelatedDeals : []).filter(
     (deal) =>
-      deal.categorySelect === category &&
+      deal &&
       deal._id !== dealDetails._id &&
-      deal.dealCategory === "deal"
+      deal.dealCategory === "deal" &&
+      (!activeCategory || deal.categorySelect === activeCategory)
   );
   const hasRelatedDeals = relatedDeals.length > 0;
   const storeName = dealDetails.store ? String(dealDetails.store).trim() : "";
@@ -415,7 +394,7 @@ const DealDetailsContent = ({ initialDeal }) => {
 };
 
 // Main Page Component
-const DealDetailsPage = ({ deal }) => {
+const DealDetailsPage = ({ deal, initialRelatedDeals = [] }) => {
   return (
     <Suspense
       fallback={
@@ -426,7 +405,7 @@ const DealDetailsPage = ({ deal }) => {
         </div>
       }
     >
-      <DealDetailsContent initialDeal={deal} />
+      <DealDetailsContent initialDeal={deal} initialRelatedDeals={initialRelatedDeals} />
     </Suspense>
   );
 };

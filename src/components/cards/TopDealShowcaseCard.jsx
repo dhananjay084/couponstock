@@ -2,12 +2,17 @@
 
 import React from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
 import { FiExternalLink } from "react-icons/fi";
 import CountryLink from "../Minor/CountryLink";
 import { slugify } from "../../lib/slugify";
+import { addCountryPrefix } from "../../lib/countryPath";
 
 const TopDealShowcaseCard = ({ deal, store }) => {
   if (!deal) return null;
+  const router = useRouter();
+  const { selectedCountry } = useSelector((state) => state.country || {});
 
   const urlSlug = deal?.slug || deal?._id;
   const dealHref = urlSlug
@@ -17,14 +22,33 @@ const TopDealShowcaseCard = ({ deal, store }) => {
   const storeName = store?.storeName || deal?.store || "Store";
   const derivedStoreSlug = store?.slug || (deal?.store ? slugify(deal.store) : "");
   const storeHref = derivedStoreSlug ? `/store/${derivedStoreSlug}` : "/store";
+  const resolvedDealHref = addCountryPrefix(dealHref, selectedCountry || "");
+
+  const handleCardOpen = () => {
+    if (!urlSlug) return;
+    router.push(resolvedDealHref);
+  };
+
+  const handleCardKeyDown = (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      handleCardOpen();
+    }
+  };
+
+  const stopPropagation = (event) => {
+    event.stopPropagation();
+  };
 
   return (
-    <div className="coupon-spotlight-card">
-      <CountryLink
-        href={dealHref}
-        prefetch
-        className="block flex-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5B3CC4]/40"
-      >
+    <div
+      className="coupon-spotlight-card cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5B3CC4]/40"
+      role="link"
+      tabIndex={0}
+      onClick={handleCardOpen}
+      onKeyDown={handleCardKeyDown}
+    >
+      <div className="block flex-1">
         <div className="flex min-h-[214px] items-stretch sm:min-h-[226px]">
           <div className="flex w-[122px] flex-shrink-0 items-center justify-center bg-[linear-gradient(180deg,#f8f2ff_0%,#eef5ff_100%)] p-4 sm:w-[148px]">
             {deal?.dealImage ? (
@@ -58,7 +82,7 @@ const TopDealShowcaseCard = ({ deal, store }) => {
             </p>
           </div>
         </div>
-      </CountryLink>
+      </div>
 
       <div className="h-[1px] w-full bg-[#e8eef8]" />
 
@@ -82,12 +106,23 @@ const TopDealShowcaseCard = ({ deal, store }) => {
 
         <CountryLink
           href={storeHref}
+          prefetch
+          onClick={stopPropagation}
           className="inline-flex min-w-0 flex-1 items-center justify-between gap-2 text-[13px] font-semibold text-[#2F6FED] hover:underline"
         >
           <span className="line-clamp-1">View All {storeName} Coupons</span>
           <FiExternalLink className="h-4 w-4 flex-shrink-0" aria-hidden />
         </CountryLink>
-        <span className="pro-btn-soft hidden sm:inline-flex">Open</span>
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation();
+            handleCardOpen();
+          }}
+          className="pro-btn-soft hidden sm:inline-flex"
+        >
+          Open
+        </button>
       </div>
     </div>
   );

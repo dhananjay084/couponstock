@@ -1,42 +1,17 @@
 import DealClient from "./DealClient";
-import { cache } from "react";
-import { buildServerApiUrls } from "../../../lib/serverApi";
-import { fetchJson } from "../../../lib/serverFetchJson";
-
-const getDeal = cache(async (slug) => {
-  const urls = buildServerApiUrls(`/api/deals/slug/${slug}`);
-
-  const attempts = urls.map((url) =>
-    fetchJson(url, { next: { revalidate: 300 } }).then((deal) => {
-      if (!deal) {
-        throw new Error(`No deal data from ${url}`);
-      }
-      return deal;
-    })
-  );
-
-  try {
-    return await Promise.any(attempts);
-  } catch {
-    return null;
-  }
-});
+import { titleize } from "../../../lib/slugify";
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const deal = await getDeal(slug);
+  const plainSlug = String(slug || "").split("--")[0];
+  const titleBase = titleize(plainSlug || "deal");
 
   return {
-    title: deal?.metaTitle || `${deal?.dealTitle || "Deal"} | My Couponstock`,
-    description:
-      deal?.metaDescription ||
-      deal?.dealDescription?.slice(0, 150),
+    title: `${titleBase} | My Couponstock`,
+    description: "View deal details, coupon information, and active offers.",
   };
 }
 
-export default async function Page({ params }) {
-  const { slug } = await params;
-  const deal = await getDeal(slug);
-
-  return <DealClient deal={deal} />;
+export default async function Page() {
+  return <DealClient deal={null} initialRelatedDeals={[]} />;
 }

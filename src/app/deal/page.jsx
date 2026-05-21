@@ -343,7 +343,7 @@ useEffect(() => {
                               dispatch(setSelectedCountry(name));
                               setSearchTerm("");
                               setIsDropdownOpen(false);
-                              router.push(`/country/${encodeURIComponent(slugify(name))}`);
+                              router.push(addCountryPrefix("/deal", name));
                             }}
                             className="px-4 py-2 text-sm cursor-pointer hover:bg-[#F5F1FF]"
                           >

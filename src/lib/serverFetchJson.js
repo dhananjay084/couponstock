@@ -1,6 +1,9 @@
 export async function fetchJson(url, options = {}) {
   try {
-    const res = await fetch(url, options);
+    const { timeoutMs, signal, ...fetchOptions } = options || {};
+    const resolvedSignal =
+      signal || (timeoutMs ? AbortSignal.timeout(timeoutMs) : undefined);
+    const res = await fetch(url, { ...fetchOptions, signal: resolvedSignal });
     if (!res.ok) return null;
     const contentType = res.headers.get("content-type") || "";
     if (!contentType.includes("application/json")) {

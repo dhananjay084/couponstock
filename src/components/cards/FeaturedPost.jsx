@@ -42,10 +42,12 @@ const FeaturedPost = ({ blog }) => {
         />
       </div>
 
-      <span className="flex items-center gap-1 text-[14px] font-medium text-[#59637A]">
-        <p>By</p>
-        <Typography color="#5b3cc4" fontWeight={700}>{blog.author || "Author"}</Typography>
-      </span>
+      <div className="flex items-center gap-1 text-[14px] font-medium text-[#59637A]">
+        <span>By</span>
+        <Typography component="span" color="#5b3cc4" fontWeight={700}>
+          {blog.author || "Author"}
+        </Typography>
+      </div>
 
       <p className="mt-1 text-[13px] font-medium text-[#6F7890]">
         {new Date(blog.updatedAt).toLocaleDateString("en-US", {

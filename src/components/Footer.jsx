@@ -12,6 +12,7 @@ import { slugify } from "../lib/slugify";
 import { useDispatch, useSelector } from "react-redux";
 import { getStores } from "../redux/store/storeSlice";
 import CountryLink from "./Minor/CountryLink";
+import { addCountryPrefix } from "../lib/countryPath";
 
 const toStoreSlug = (name) => slugify(name.replace(/&/g, "and"));
 
@@ -90,14 +91,14 @@ const Footer = () => {
           <div>
             <h3 className="mb-4 text-[12px] font-bold uppercase tracking-[0.2em] text-white">Global Coupons</h3>
             <ul className="space-y-2.5">
-              <li><Link href="/country/global">Global Coupons</Link></li>
-              <li><Link href="/country/india">India Coupons</Link></li>
-              <li><Link href="/country/usa">USA Coupons</Link></li>
-              <li><Link href="/country/uk">UK Coupons</Link></li>
-              <li><Link href="/country/spain">Spain Coupons</Link></li>
-              <li><Link href="/country/germany">Germany Coupons</Link></li>
-              <li><Link href="/country/france">France Coupons</Link></li>
-              <li><Link href="/country/portugal">Portugal Coupons</Link></li>
+              <li><Link href={addCountryPrefix("/deal", "Global")}>Global Coupons</Link></li>
+              <li><Link href={addCountryPrefix("/deal", "India")}>India Coupons</Link></li>
+              <li><Link href={addCountryPrefix("/deal", "USA")}>USA Coupons</Link></li>
+              <li><Link href={addCountryPrefix("/deal", "UK")}>UK Coupons</Link></li>
+              <li><Link href={addCountryPrefix("/deal", "Spain")}>Spain Coupons</Link></li>
+              <li><Link href={addCountryPrefix("/deal", "Germany")}>Germany Coupons</Link></li>
+              <li><Link href={addCountryPrefix("/deal", "France")}>France Coupons</Link></li>
+              <li><Link href={addCountryPrefix("/deal", "Portugal")}>Portugal Coupons</Link></li>
             </ul>
           </div>
 

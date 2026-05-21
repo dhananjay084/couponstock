@@ -2,26 +2,23 @@
 
 import NavBar from "../components/NavBar";
 import Footer from "../components/Footer";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import Head from "next/head";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCountries, setSelectedCountry } from "../redux/country/countrySlice";
-import { addCountryPrefix, findCountryNameByCode, getCountryCodeFromName, isAllowedCountryCode, splitCountryPrefix } from "../lib/countryPath";
+import { findCountryNameByCode, getCountryCodeFromName, isAllowedCountryCode, splitCountryPrefix } from "../lib/countryPath";
 import NewsLetter from "../components/Minor/NewsLetter";
 // import withSkeleton from "@/components/skeletons/WithSkeleton";
 
 export default function ClientLayout({ children }) {
   
   const pathname = usePathname();
-  const router = useRouter();
-  const searchParams = useSearchParams();
   const dispatch = useDispatch();
   const { countries = [], selectedCountry } = useSelector((state) => state.country || {});
   const { basePath: layoutBasePath } = splitCountryPrefix(pathname);
   const hideLayout = layoutBasePath === "/login" || layoutBasePath === "/signup" || layoutBasePath === "/payment";
   const [showNewsletterPopup, setShowNewsletterPopup] = useState(false);
-  const lastNormalizedUrlRef = useRef(null);
   const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://mycouponstock.com").replace(/\/$/, "");
   const canonicalUrl = `${baseUrl}${pathname || "/"}`;
   const isAdminRoute = pathname.startsWith("/admin");
@@ -72,24 +69,6 @@ export default function ClientLayout({ children }) {
       dispatch(setSelectedCountry(match));
     }
   }, [countries, dispatch, pathname, selectedCountry]);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (!selectedCountry) return;
-    if (hideLayout) return;
-    if (pathname.startsWith("/admin")) return;
-    if (pathname.startsWith("/country")) return;
-
-    const query = searchParams.toString();
-    const currentUrl = query ? `${pathname}?${query}` : pathname;
-    const nextPath = addCountryPrefix(pathname, selectedCountry);
-    const nextUrl = query ? `${nextPath}?${query}` : nextPath;
-    if (nextUrl === currentUrl) return;
-    if (lastNormalizedUrlRef.current === nextUrl) return;
-
-    lastNormalizedUrlRef.current = nextUrl;
-    router.replace(nextUrl);
-  }, [hideLayout, pathname, router, searchParams, selectedCountry]);
 
   //  const WrappedChildren = withSkeleton(() => <>{children}</>);
 

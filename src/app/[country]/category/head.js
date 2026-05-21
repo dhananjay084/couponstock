@@ -5,8 +5,9 @@ import {
 
 export default async function Head({ params }) {
   try {
-    const entries = await fetchHomeAdminEntries();
-    const selected = pickEntryByCountryCode(entries, params?.country);
+    const { country } = await params;
+    const entries = await fetchHomeAdminEntries(country);
+    const selected = pickEntryByCountryCode(entries, country);
     const title =
       selected?.categoryMetaTitle?.trim?.() || "Categories | My Couponstock";
     const description =
@@ -31,4 +32,3 @@ export default async function Head({ params }) {
     );
   }
 }
-

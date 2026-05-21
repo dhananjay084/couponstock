@@ -230,7 +230,7 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
                   <CountryLink
                     key={store._id}
                     href={`/store/${store.slug || ""}`}
-                    prefetch
+                    prefetch={false}
                     className="rounded-full border border-[#dce6f5] bg-white px-3 py-2 text-[12px] font-bold text-[#30415d] transition hover:border-[#d7c7ff] hover:text-[#5b33d6]"
                   >
                     {store.storeName || "Store"}
@@ -246,7 +246,7 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
                   <CountryLink
                     key={category._id}
                     href={`/category/${encodeURIComponent(String(category?.name || "").toLowerCase())}`}
-                    prefetch
+                    prefetch={false}
                     className="rounded-full bg-[#eef5ff] px-3 py-2 text-[12px] font-bold text-[#3156a8] transition hover:bg-[#e3efff]"
                   >
                     {category?.name || "Category"}
@@ -688,7 +688,7 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
                 <CountryLink
                   key={store._id}
                   href={`/store/${store.slug || ""}`}
-                  prefetch
+                  prefetch={false}
                   className="rounded-full border border-white/25 bg-white/12 px-3 py-1.5 text-[11px] font-semibold text-white/90 transition hover:bg-white/20"
                 >
                   {store.storeName || "Store"}

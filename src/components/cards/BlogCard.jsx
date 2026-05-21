@@ -52,6 +52,7 @@ const BlogCard = ({
   return (
     <Link
       href={detailUrl}
+      prefetch
       className={`coupon-banner-card cursor-pointer overflow-hidden 
       transition hover:shadow-lg ${large ? "h-full" : ""} ${forceFullHeight ? "h-full flex flex-col" : ""} ${className}`}
       style={fixedHeight ? { minHeight: fixedHeight } : undefined}

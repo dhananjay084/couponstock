@@ -1,7 +1,8 @@
 {
   "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/page": "app/page.js",
+  "/store/[slug]/page": "app/store/[slug]/page.js",
+  "/store/page": "app/store/page.js",
+  "/[country]/deals/page": "app/[country]/deals/page.js",
   "/[country]/store/[slug]/page": "app/[country]/store/[slug]/page.js",
-  "/[country]/page": "app/[country]/page.js",
-  "/[country]/deal/[slug]/page": "app/[country]/deal/[slug]/page.js"
+  "/[country]/deal/store/[slug]/page": "app/[country]/deal/store/[slug]/page.js"
 }

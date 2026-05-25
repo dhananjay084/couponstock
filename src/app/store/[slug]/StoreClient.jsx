@@ -2,35 +2,38 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import TextLink from "../../../components/Minor/TextLink";
 import Coupons_Deals from "../../../components/cards/Coupons_Deals";
 import PopularBrandCard from "../../../components/cards/PopularBrandWithText";
 import DealCard from "../../../components/cards/DealCard";
 import HeadingText from "../../../components/Minor/HeadingText";
-import BarChartCard from "../../../components/charts/BarChart";
-import { LiaPercentageSolid } from "react-icons/lia";
-import { FaTruck } from "react-icons/fa6";
-import { MdAssignmentReturned } from "react-icons/md";
-import { RiCoupon2Fill } from "react-icons/ri";
-import { FaCheckCircle } from "react-icons/fa";
 import FAQAccordion from "../../../components/Minor/Faq";
-import { GridSkeleton, RowSkeleton, TextSkeleton } from "../../../components/skeletons/InlineSkeletons";
-import ArrowScrollRow from "../../../components/Minor/ArrowScrollRow";
+import { GridSkeleton, TextSkeleton } from "../../../components/skeletons/InlineSkeletons";
 import CountryAvailabilityGate from "../../../components/Minor/CountryAvailabilityGate";
+import ArrowScrollRow from "../../../components/Minor/ArrowScrollRow";
 import { getCachedStoreDetailPayload } from "../../../lib/storeDetailCache";
 import { buildPublicApiUrl } from "../../../lib/publicApiBase";
+import { slugify } from "../../../lib/slugify";
+import { addCountryPrefix } from "../../../lib/countryPath";
+import { getDeals } from "../../../redux/deal/dealSlice";
 // import { toast } from "react-toastify";
 
+const normalizeDealCategory = (value) => String(value || "").trim().toLowerCase();
+const getDealStoreKeys = (deal = {}) =>
+  [...new Set([deal?.store, deal?.storeName, deal?.storeSlug].map((value) => slugify(String(value || ""))).filter(Boolean))];
 
 const IndividualStore = ({ store, initialDeals = [], initialPopularStores = [] }) => {
+  const dispatch = useDispatch();
   const params = useParams();
   const { slug } = params;
+  const { deals = [], loading: dealsLoading } = useSelector((state) => state.deal || {});
+  const { selectedCountry } = useSelector((state) => state.country || {});
   const [isDescExpanded, setIsDescExpanded] = useState(false);
   const [cachedPayload, setCachedPayload] = useState(null);
   const [cacheLoaded, setCacheLoaded] = useState(false);
   const [storeData, setStoreData] = useState(store || null);
-  const [dealsData, setDealsData] = useState(Array.isArray(initialDeals) ? initialDeals : []);
   const [popularStoresData, setPopularStoresData] = useState(
     Array.isArray(initialPopularStores) ? initialPopularStores : []
   );
@@ -48,12 +51,6 @@ const IndividualStore = ({ store, initialDeals = [], initialPopularStores = [] }
   }, [store]);
 
   useEffect(() => {
-    if (Array.isArray(initialDeals) && initialDeals.length > 0) {
-      setDealsData(initialDeals);
-    }
-  }, [initialDeals]);
-
-  useEffect(() => {
     if (Array.isArray(initialPopularStores) && initialPopularStores.length > 0) {
       setPopularStoresData(initialPopularStores);
     }
@@ -65,6 +62,22 @@ const IndividualStore = ({ store, initialDeals = [], initialPopularStores = [] }
     storeData ||
     cachedStore ||
     null;
+  const routeStoreKey = slugify(String(slug || ""));
+  const storeNameKey = slugify(storeFromList?.storeName || "");
+  const storeOfferHref = addCountryPrefix(
+    `/deal/store/${encodeURIComponent(storeNameKey || routeStoreKey)}`,
+    params?.country || ""
+  );
+  const belongsToStore = (deal) => {
+    const dealStoreKeys = getDealStoreKeys(deal);
+    if (dealStoreKeys.length === 0) return false;
+    return dealStoreKeys.includes(routeStoreKey) || dealStoreKeys.includes(storeNameKey);
+  };
+
+  useEffect(() => {
+    if (!selectedCountry) return;
+    dispatch(getDeals(selectedCountry));
+  }, [dispatch, selectedCountry]);
 
   useEffect(() => {
     if (!slug || storeData?.slug === slug) {
@@ -75,44 +88,47 @@ const IndividualStore = ({ store, initialDeals = [], initialPopularStores = [] }
     let active = true;
 
     const loadStorePageData = async () => {
+      let resolvedStore = null;
+
       try {
         setIsLoadingRemote(true);
-        const storeRes = await axios.get(buildPublicApiUrl(`/api/stores/slug/${slug}`));
-        const resolvedStore = storeRes.data || null;
+
+        try {
+          const storeRes = await axios.get(buildPublicApiUrl(`/api/stores/slug/${slug}`));
+          resolvedStore = storeRes.data || null;
+        } catch (error) {
+          resolvedStore = cachedStore || storeData || store || null;
+        }
 
         if (!active) return;
 
+        if (!resolvedStore) {
+          setStoreData(null);
+          setPopularStoresData([]);
+          return;
+        }
+
         setStoreData(resolvedStore);
+        const popularStoresParams = {
+          popularStore: true,
+          limit: 12,
+        };
 
-        const countries = Array.isArray(resolvedStore?.country)
-          ? resolvedStore.country.filter(Boolean)
-          : [];
-
-        const [dealsRes, popularStoresRes] = await Promise.all([
-          axios.get(buildPublicApiUrl("/api/deals"), {
-            params: {
-              store: resolvedStore?.storeName,
-              limit: 60,
-              ...(countries.length > 0 ? { countries: countries.join(",") } : {}),
-            },
-          }),
+        const [, popularStoresRes] = await Promise.all([
+          selectedCountry ? dispatch(getDeals(selectedCountry)) : Promise.resolve(),
           axios.get(buildPublicApiUrl("/api/stores"), {
-            params: {
-              popularStore: true,
-              limit: 12,
-              ...(countries.length > 0 ? { countries: countries.join(",") } : {}),
-            },
+            params: popularStoresParams,
           }),
         ]);
 
         if (!active) return;
 
-        setDealsData(Array.isArray(dealsRes.data) ? dealsRes.data : []);
         setPopularStoresData(Array.isArray(popularStoresRes.data) ? popularStoresRes.data : []);
       } catch (error) {
         if (!active) return;
-        setStoreData(null);
-        setDealsData([]);
+        if (!resolvedStore) {
+          setStoreData(null);
+        }
         setPopularStoresData([]);
       } finally {
         if (active) {
@@ -126,9 +142,14 @@ const IndividualStore = ({ store, initialDeals = [], initialPopularStores = [] }
     return () => {
       active = false;
     };
-  }, [slug, storeData?.slug]);
+  }, [dispatch, slug, selectedCountry, storeData?.slug]);
 
-  const resolvedDeals = dealsData;
+  const resolvedDeals = useMemo(() => {
+    const liveDeals = Array.isArray(deals) ? deals.filter((deal) => belongsToStore(deal)) : [];
+    if (liveDeals.length > 0) return liveDeals;
+    const fallbackDeals = Array.isArray(initialDeals) ? initialDeals.filter((deal) => belongsToStore(deal)) : [];
+    return fallbackDeals;
+  }, [deals, initialDeals, routeStoreKey, storeNameKey]);
   const popularStores = popularStoresData;
 
   const { chartData, todayCount } = useMemo(() => {
@@ -186,10 +207,14 @@ const IndividualStore = ({ store, initialDeals = [], initialPopularStores = [] }
   const description = storeFromList.storeDescription || "";
   const shouldTruncate = description.length > 140;
   const topCodes = resolvedDeals.filter(
-    (deal) => deal.store === storeFromList.storeName && deal.dealCategory === "coupon"
+    (deal) =>
+      belongsToStore(deal) &&
+      normalizeDealCategory(deal?.dealCategory) === "coupon"
   );
   const topDeals = resolvedDeals.filter(
-    (deal) => deal.store === storeFromList.storeName && deal.dealCategory === "deal"
+    (deal) =>
+      belongsToStore(deal) &&
+      normalizeDealCategory(deal?.dealCategory) === "deal"
   );
   const hasHtmlContent = Boolean(storeFromList.storeHtmlContent);
   const totalOffers = topCodes.length + topDeals.length;
@@ -241,19 +266,25 @@ const IndividualStore = ({ store, initialDeals = [], initialPopularStores = [] }
 
       {topCodes.length > 0 && (
         <>
-          <TextLink text="Top Codes" colorText="" link="" linkText="" />
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 lg:gap-6">
+          <TextLink text={storeFromList.storeName} colorText="Coupons" link="" linkText="" />
+          <ArrowScrollRow
+            controlsClassName="px-4"
+            scrollerClassName="flex gap-4 overflow-x-auto px-2 pb-2"
+          >
             {topCodes.map((deal) => (
               <Coupons_Deals key={deal._id} data={deal} border={true} />
             ))}
-          </div>
+          </ArrowScrollRow>
         </>
       )}
 
       {topDeals.length > 0 && (
         <>
-          <TextLink text="Top" colorText="Deals" link="/deal" linkText="View All" />
-          <ArrowScrollRow controlsClassName="px-4" scrollerClassName="flex overflow-x-scroll">
+          <TextLink text={storeFromList.storeName} colorText="Deals" link={storeOfferHref} linkText="View All" />
+          <ArrowScrollRow
+            controlsClassName="px-4"
+            scrollerClassName="flex gap-4 overflow-x-auto px-2 pb-2"
+          >
             {topDeals.map((deal) => (
               <DealCard key={deal._id} data={deal} />
             ))}
@@ -267,6 +298,16 @@ const IndividualStore = ({ store, initialDeals = [], initialPopularStores = [] }
           isHtml={true}
           content={storeFromList.storeHtmlContent}
         />
+      )}
+
+      {totalOffers === 0 && (
+        <div className="section-wrap section-block">
+          <div className="rounded-3xl border border-[#E4D8FF] bg-white px-5 py-8 text-center text-sm text-[#5B5370] shadow-sm">
+            {dealsLoading
+              ? `Loading coupons and deals for ${storeFromList.storeName}...`
+              : `No active coupons or deals are available for ${storeFromList.storeName} right now.`}
+          </div>
+        </div>
       )}
 
       {/* <BarChartCard

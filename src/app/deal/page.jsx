@@ -52,6 +52,7 @@ const AllCoupons = () => {
   const [searchTerm, setSearchTerm] = React.useState("");
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
   const [offerTab, setOfferTab] = React.useState("all");
+  const [sortOrder, setSortOrder] = React.useState("latest");
   const ITEMS_PER_PAGE = 20;
   const [currentPage, setCurrentPage] = React.useState(1);
   const dropdownRef = React.useRef();
@@ -104,14 +105,29 @@ const AllCoupons = () => {
   const tabbedOffers =
     offerTab === "coupon" ? couponOffers : offerTab === "deal" ? dealOffers : filteredActiveDeals;
 
+  const sortedOffers = React.useMemo(() => {
+    const getUploadTime = (deal) => {
+      const rawValue = deal?.createdAt || deal?.updatedAt || 0;
+      const timestamp = new Date(rawValue).getTime();
+      return Number.isNaN(timestamp) ? 0 : timestamp;
+    };
+
+    return [...tabbedOffers].sort((a, b) => {
+      if (sortOrder === "oldest") {
+        return getUploadTime(a) - getUploadTime(b);
+      }
+      return getUploadTime(b) - getUploadTime(a);
+    });
+  }, [sortOrder, tabbedOffers]);
+
   useEffect(() => {
     setCurrentPage(1);
-  }, [offerTab, selectedCountries]);
+  }, [offerTab, selectedCountries, sortOrder]);
 
   const totalPages = React.useMemo(() => {
-    const next = Math.ceil(tabbedOffers.length / ITEMS_PER_PAGE);
+    const next = Math.ceil(sortedOffers.length / ITEMS_PER_PAGE);
     return next > 0 ? next : 1;
-  }, [ITEMS_PER_PAGE, tabbedOffers.length]);
+  }, [ITEMS_PER_PAGE, sortedOffers.length]);
 
   useEffect(() => {
     setCurrentPage((prev) => (prev > totalPages ? totalPages : prev));
@@ -119,8 +135,8 @@ const AllCoupons = () => {
 
   const pagedOffers = React.useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    return tabbedOffers.slice(start, start + ITEMS_PER_PAGE);
-  }, [ITEMS_PER_PAGE, currentPage, tabbedOffers]);
+    return sortedOffers.slice(start, start + ITEMS_PER_PAGE);
+  }, [ITEMS_PER_PAGE, currentPage, sortedOffers]);
 
   const pageButtons = React.useMemo(() => {
     if (totalPages <= 1) return [];
@@ -131,8 +147,8 @@ const AllCoupons = () => {
     return Array.from(pages).sort((a, b) => a - b);
   }, [currentPage, totalPages]);
 
-  const showingFrom = tabbedOffers.length === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1;
-  const showingTo = Math.min(currentPage * ITEMS_PER_PAGE, tabbedOffers.length);
+  const showingFrom = sortedOffers.length === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1;
+  const showingTo = Math.min(currentPage * ITEMS_PER_PAGE, sortedOffers.length);
 
 
 
@@ -239,10 +255,23 @@ useEffect(() => {
 	        <div className="my-4 w-full px-4 md:px-8">
 	          <div className="pro-card flex flex-col gap-4 rounded-2xl border border-[#E4D8FF] bg-gradient-to-br from-[#F7F4FF] to-white p-5 shadow-sm">
 	            <div className="flex items-start justify-between flex-wrap gap-3">
-	              <TextLink text="All" colorText="Offers" link="" linkText="" noSectionWrap />
-	              <span className="text-xs font-medium tracking-wide text-[#6B5B95]">
-	                Filter by store, category or country
-	              </span>
+              <TextLink text="All" colorText="Offers" link="" linkText="" noSectionWrap />
+	              <div className="flex flex-wrap items-center gap-3">
+	                <span className="text-xs font-medium tracking-wide text-[#6B5B95]">
+	                  Filter by store, category or country
+	                </span>
+                  <label className="flex items-center gap-2 text-xs font-medium text-[#6B5B95]">
+                    <span>Sort by</span>
+                    <select
+                      value={sortOrder}
+                      onChange={(e) => setSortOrder(e.target.value)}
+                      className="rounded-lg border border-[#D9CCF5] bg-white px-3 py-2 text-xs text-[#2b1c4d] focus:outline-none focus:ring-2 focus:ring-[#592EA9]/30"
+                    >
+                      <option value="latest">Latest uploaded</option>
+                      <option value="oldest">Oldest uploaded</option>
+                    </select>
+                  </label>
+	              </div>
 	            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -402,11 +431,11 @@ useEffect(() => {
   )}
 </div>
 
-        {tabbedOffers.length > 0 && (
+        {sortedOffers.length > 0 && (
           <div className="mt-6 px-4">
             <div className="flex flex-col items-center justify-between gap-3 rounded-2xl border border-[#E4D8FF] bg-white/80 px-4 py-3 shadow-sm sm:flex-row">
               <p className="text-xs font-semibold text-[#4A3C6A]">
-                Showing {showingFrom}-{showingTo} of {tabbedOffers.length}
+                Showing {showingFrom}-{showingTo} of {sortedOffers.length}
               </p>
               {totalPages > 1 && (
                 <div className="flex flex-wrap items-center justify-center gap-2">

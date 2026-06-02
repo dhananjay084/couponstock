@@ -18,7 +18,7 @@ const ProductCard = ({ data }) => {
 
   return (
     <div
-      className="coupon-banner-card h-full w-full cursor-pointer"
+      className="coupon-banner-card mx-auto aspect-square h-auto w-full max-w-[600px] cursor-pointer"
       onClick={handleRedirect}
       style={{
         backgroundImage: data?.dealImage
@@ -29,7 +29,7 @@ const ProductCard = ({ data }) => {
         backgroundRepeat: "no-repeat",
       }}
     >
-      <div className="flex min-h-[328px] flex-1 items-end p-5">
+      <div className="flex h-full min-h-[600px] flex-1 items-end p-5 max-md:min-h-[320px]">
         <p className="line-clamp-2 min-h-[48px] text-left text-base font-extrabold leading-6 text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.45)]">
           {data?.homePageTitle || data?.dealTitle || "Featured offer"}
         </p>

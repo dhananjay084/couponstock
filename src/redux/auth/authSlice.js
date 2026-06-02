@@ -7,6 +7,8 @@ import {
   refreshAccessToken,
   logoutUser,
   checkCurrentUser,
+  updateCurrentUser,
+  updatePassword,
   adminSpecificLogin
 } from './authApi'; // Import all your async thunks
 // import { toast } from "react-toastify";
@@ -172,6 +174,40 @@ const authSlice = createSlice({
         state.message = null;
         state.user = null;
         state.isAuthenticated = false;
+      })
+
+      // Update Current User
+      .addCase(updateCurrentUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.message = null;
+      })
+      .addCase(updateCurrentUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = normalizeUser(action.payload);
+        state.isAuthenticated = true;
+        state.message = normalizeMessage(action.payload, "Profile updated successfully!");
+      })
+      .addCase(updateCurrentUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+        state.message = null;
+      })
+
+      // Update Password
+      .addCase(updatePassword.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.message = null;
+      })
+      .addCase(updatePassword.fulfilled, (state, action) => {
+        state.loading = false;
+        state.message = normalizeMessage(action.payload, "Password updated successfully!");
+      })
+      .addCase(updatePassword.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+        state.message = null;
       })
 
       // Admin Specific Login (if used)

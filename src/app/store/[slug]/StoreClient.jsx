@@ -12,7 +12,6 @@ import HeadingText from "../../../components/Minor/HeadingText";
 import FAQAccordion from "../../../components/Minor/Faq";
 import { GridSkeleton, TextSkeleton } from "../../../components/skeletons/InlineSkeletons";
 import CountryAvailabilityGate from "../../../components/Minor/CountryAvailabilityGate";
-import ArrowScrollRow from "../../../components/Minor/ArrowScrollRow";
 import { getCachedStoreDetailPayload } from "../../../lib/storeDetailCache";
 import { buildPublicApiUrl } from "../../../lib/publicApiBase";
 import { slugify } from "../../../lib/slugify";
@@ -38,6 +37,7 @@ const IndividualStore = ({ store, initialDeals = [], initialPopularStores = [] }
     Array.isArray(initialPopularStores) ? initialPopularStores : []
   );
   const [isLoadingRemote, setIsLoadingRemote] = useState(!store);
+  const [offerTab, setOfferTab] = useState("all");
 
   useEffect(() => {
     setCachedPayload(getCachedStoreDetailPayload());
@@ -193,6 +193,43 @@ const IndividualStore = ({ store, initialDeals = [], initialPopularStores = [] }
     return { chartData: counts, todayCount };
   }, [resolvedDeals, storeFromList]);
 
+  const topCodes = useMemo(
+    () =>
+      resolvedDeals.filter(
+        (deal) =>
+          belongsToStore(deal) &&
+          normalizeDealCategory(deal?.dealCategory) === "coupon"
+      ),
+    [resolvedDeals, routeStoreKey, storeNameKey]
+  );
+
+  const topDeals = useMemo(
+    () =>
+      resolvedDeals.filter(
+        (deal) =>
+          belongsToStore(deal) &&
+          normalizeDealCategory(deal?.dealCategory) === "deal"
+      ),
+    [resolvedDeals, routeStoreKey, storeNameKey]
+  );
+
+  const sortedOffers = useMemo(() => {
+    const getUploadTime = (deal) => {
+      const rawValue = deal?.createdAt || deal?.updatedAt || 0;
+      const timestamp = new Date(rawValue).getTime();
+      return Number.isNaN(timestamp) ? 0 : timestamp;
+    };
+
+    const source =
+      offerTab === "coupon"
+        ? topCodes
+        : offerTab === "deal"
+          ? topDeals
+          : resolvedDeals;
+
+    return [...source].sort((a, b) => getUploadTime(b) - getUploadTime(a));
+  }, [offerTab, resolvedDeals, topCodes, topDeals]);
+
   if ((!storeFromList && !cacheLoaded) || (isLoadingRemote && !storeFromList)) {
     return (
       <div className="p-4 space-y-4">
@@ -206,16 +243,6 @@ const IndividualStore = ({ store, initialDeals = [], initialPopularStores = [] }
 
   const description = storeFromList.storeDescription || "";
   const shouldTruncate = description.length > 140;
-  const topCodes = resolvedDeals.filter(
-    (deal) =>
-      belongsToStore(deal) &&
-      normalizeDealCategory(deal?.dealCategory) === "coupon"
-  );
-  const topDeals = resolvedDeals.filter(
-    (deal) =>
-      belongsToStore(deal) &&
-      normalizeDealCategory(deal?.dealCategory) === "deal"
-  );
   const hasHtmlContent = Boolean(storeFromList.storeHtmlContent);
   const totalOffers = topCodes.length + topDeals.length;
 
@@ -264,31 +291,42 @@ const IndividualStore = ({ store, initialDeals = [], initialPopularStores = [] }
         </div>
       </section>
 
-      {topCodes.length > 0 && (
+      {totalOffers > 0 && (
         <>
-          <TextLink text={storeFromList.storeName} colorText="Coupons" link="" linkText="" />
-          <ArrowScrollRow
-            controlsClassName="px-4"
-            scrollerClassName="flex gap-4 overflow-x-auto px-2 pb-2"
-          >
-            {topCodes.map((deal) => (
-              <Coupons_Deals key={deal._id} data={deal} border={true} />
+          <TextLink text={storeFromList.storeName} colorText="Coupons & Deals" link={storeOfferHref} linkText="View All" />
+          <div className="w-full px-4 md:px-8">
+            <div className="mb-4 inline-flex flex-wrap gap-2 rounded-full border border-[#E4D8FF] bg-white/70 p-1 shadow-sm">
+              {[
+                { key: "all", label: `All (${resolvedDeals.length})` },
+                { key: "coupon", label: `Coupons (${topCodes.length})` },
+                { key: "deal", label: `Deals (${topDeals.length})` },
+              ].map((tab) => (
+                <button
+                  key={tab.key}
+                  type="button"
+                  onClick={() => setOfferTab(tab.key)}
+                  className={`rounded-full px-4 py-2 text-xs font-semibold transition ${
+                    offerTab === tab.key
+                      ? "bg-[#5B3CC4] text-white shadow"
+                      : "text-[#4A3C6A] hover:bg-[#F2EBFF]"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-4 px-4 pb-2">
+            {sortedOffers.map((deal) => (
+              <div key={deal._id} className="w-full md:w-[calc(50%-0.5rem)] xl:w-[calc(33.333%-0.75rem)]">
+                {normalizeDealCategory(deal?.dealCategory) === "coupon" ? (
+                  <Coupons_Deals data={deal} border={true} />
+                ) : (
+                  <DealCard data={deal} />
+                )}
+              </div>
             ))}
-          </ArrowScrollRow>
-        </>
-      )}
-
-      {topDeals.length > 0 && (
-        <>
-          <TextLink text={storeFromList.storeName} colorText="Deals" link={storeOfferHref} linkText="View All" />
-          <ArrowScrollRow
-            controlsClassName="px-4"
-            scrollerClassName="flex gap-4 overflow-x-auto px-2 pb-2"
-          >
-            {topDeals.map((deal) => (
-              <DealCard key={deal._id} data={deal} />
-            ))}
-          </ArrowScrollRow>
+          </div>
         </>
       )}
 

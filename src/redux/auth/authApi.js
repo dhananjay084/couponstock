@@ -21,6 +21,7 @@ const extractUserFromResponse = (payload) => {
 const buildGoogleProfileFromCredential = (credential) => {
   const payload = jwtDecode(credential);
   return {
+    credential,
     provider: "google",
     providerUserId: String(payload?.sub || "").trim(),
     email: String(payload?.email || "").trim().toLowerCase(),
@@ -129,7 +130,11 @@ export const checkCurrentUser = createAsyncThunk(
       if (response.data.user && response.data.user._id) {
         const storedName = Cookies.get("userName");
         const storedEmail = Cookies.get("userEmail");
-        const user = { ...response.data.user, name: storedName || "User", email: storedEmail };
+        const user = {
+          ...response.data.user,
+          name: response.data.user.name || storedName || "User",
+          email: response.data.user.email || storedEmail || "",
+        };
         setUserDataInCookies(user);
         return user;
       } else {
@@ -144,7 +149,11 @@ export const checkCurrentUser = createAsyncThunk(
           if (refreshed.data.user && refreshed.data.user._id) {
             const storedName = Cookies.get("userName");
             const storedEmail = Cookies.get("userEmail");
-            const user = { ...refreshed.data.user, name: storedName || "User", email: storedEmail };
+            const user = {
+              ...refreshed.data.user,
+              name: refreshed.data.user.name || storedName || "User",
+              email: refreshed.data.user.email || storedEmail || "",
+            };
             setUserDataInCookies(user);
             return user;
           } else {
@@ -158,6 +167,58 @@ export const checkCurrentUser = createAsyncThunk(
       }
       setUserDataInCookies(null);
       return rejectWithValue(error.response?.data?.message || "Failed to check authentication status.");
+    }
+  }
+);
+
+export const updateCurrentUser = createAsyncThunk(
+  "auth/updateCurrentUser",
+  async (profileData, { rejectWithValue, dispatch }) => {
+    try {
+      const response = await axios.put(`${SERVER_URL}/api/auth/profile`, profileData);
+      setUserDataInCookies(extractUserFromResponse(response.data));
+      return response.data;
+    } catch (error) {
+      if (error.response?.status === 401) {
+        try {
+          await dispatch(refreshAccessToken()).unwrap();
+          const retried = await axios.put(`${SERVER_URL}/api/auth/profile`, profileData);
+          setUserDataInCookies(extractUserFromResponse(retried.data));
+          return retried.data;
+        } catch (refreshError) {
+          return rejectWithValue(
+            refreshError.response?.data?.message || refreshError.message || "Profile update failed."
+          );
+        }
+      }
+      return rejectWithValue(
+        error.response?.data?.message || error.message || "Profile update failed."
+      );
+    }
+  }
+);
+
+export const updatePassword = createAsyncThunk(
+  "auth/updatePassword",
+  async (passwordData, { rejectWithValue, dispatch }) => {
+    try {
+      const response = await axios.put(`${SERVER_URL}/api/auth/password`, passwordData);
+      return response.data;
+    } catch (error) {
+      if (error.response?.status === 401) {
+        try {
+          await dispatch(refreshAccessToken()).unwrap();
+          const retried = await axios.put(`${SERVER_URL}/api/auth/password`, passwordData);
+          return retried.data;
+        } catch (refreshError) {
+          return rejectWithValue(
+            refreshError.response?.data?.message || refreshError.message || "Password update failed."
+          );
+        }
+      }
+      return rejectWithValue(
+        error.response?.data?.message || error.message || "Password update failed."
+      );
     }
   }
 );

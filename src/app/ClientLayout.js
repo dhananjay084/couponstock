@@ -11,6 +11,9 @@ import { findCountryNameByCode, getCountryCodeFromName, isAllowedCountryCode, sp
 import NewsLetter from "../components/Minor/NewsLetter";
 // import withSkeleton from "@/components/skeletons/WithSkeleton";
 
+const COUNTRY_STORAGE_KEY = "mcs:selected-country";
+const COUNTRY_INIT_STATUS_KEY = "mcs:country-init-status";
+
 export default function ClientLayout({ children }) {
   
   const pathname = usePathname();
@@ -25,6 +28,17 @@ export default function ClientLayout({ children }) {
   const isHomeRoute = layoutBasePath === "/";
   const shouldUsePageShell = !hideLayout && !isAdminRoute && !isHomeRoute;
 
+  const setGlobalCountry = () => {
+    const globalCountry = findCountryNameByCode(countries, "gl") || "Global";
+    if (globalCountry && selectedCountry !== globalCountry) {
+      dispatch(setSelectedCountry(globalCountry));
+    }
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(COUNTRY_STORAGE_KEY, globalCountry);
+      window.localStorage.setItem(COUNTRY_INIT_STATUS_KEY, "global");
+    }
+  };
+
   useEffect(() => {
     if (!countries.length) dispatch(fetchCountries());
   }, [dispatch, countries.length]);
@@ -37,11 +51,73 @@ export default function ClientLayout({ children }) {
     const { countryCode } = splitCountryPrefix(pathname);
     if (countryCode) return;
     if (selectedCountry) return;
+    if (typeof window === "undefined") return;
 
-    const globalCountry = findCountryNameByCode(countries, "gl") || "Global";
-    if (globalCountry && selectedCountry !== globalCountry) {
-      dispatch(setSelectedCountry(globalCountry));
+    const persistedCountry = window.localStorage.getItem(COUNTRY_STORAGE_KEY);
+    if (persistedCountry) {
+      const matchedPersistedCountry = countries.find(
+        (country) => String(country?.country_name || "").trim() === persistedCountry
+      )?.country_name;
+      if (matchedPersistedCountry) {
+        dispatch(setSelectedCountry(matchedPersistedCountry));
+        return;
+      }
     }
+
+    const initStatus = window.localStorage.getItem(COUNTRY_INIT_STATUS_KEY);
+    if (initStatus === "denied" || initStatus === "global") {
+      setGlobalCountry();
+      return;
+    }
+
+    if (!navigator.geolocation) {
+      setGlobalCountry();
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          const url = new URL("https://api.bigdatacloud.net/data/reverse-geocode-client");
+          url.searchParams.set("latitude", String(latitude));
+          url.searchParams.set("longitude", String(longitude));
+          url.searchParams.set("localityLanguage", "en");
+
+          const response = await fetch(url.toString());
+          const data = await response.json().catch(() => ({}));
+          const detectedCode = String(
+            data?.countryCode || getCountryCodeFromName(data?.countryName || "")
+          ).toLowerCase();
+
+          if (!detectedCode || !isAllowedCountryCode(detectedCode)) {
+            setGlobalCountry();
+            return;
+          }
+
+          const matchedCountry = findCountryNameByCode(countries, detectedCode);
+          if (!matchedCountry) {
+            setGlobalCountry();
+            return;
+          }
+
+          dispatch(setSelectedCountry(matchedCountry));
+          window.localStorage.setItem(COUNTRY_STORAGE_KEY, matchedCountry);
+          window.localStorage.setItem(COUNTRY_INIT_STATUS_KEY, "resolved");
+        } catch (_error) {
+          setGlobalCountry();
+        }
+      },
+      () => {
+        window.localStorage.setItem(COUNTRY_INIT_STATUS_KEY, "denied");
+        setGlobalCountry();
+      },
+      {
+        enableHighAccuracy: false,
+        timeout: 10000,
+        maximumAge: 24 * 60 * 60 * 1000,
+      }
+    );
   }, [countries, dispatch, hideLayout, pathname, selectedCountry]);
 
   useEffect(() => {
@@ -69,6 +145,12 @@ export default function ClientLayout({ children }) {
       dispatch(setSelectedCountry(match));
     }
   }, [countries, dispatch, pathname, selectedCountry]);
+
+  useEffect(() => {
+    if (!selectedCountry) return;
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(COUNTRY_STORAGE_KEY, selectedCountry);
+  }, [selectedCountry]);
 
   //  const WrappedChildren = withSkeleton(() => <>{children}</>);
 

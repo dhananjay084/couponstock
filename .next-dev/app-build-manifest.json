@@ -22,20 +22,10 @@
       "static/chunks/main-app.js",
       "static/chunks/app/admin/home/page.js"
     ],
-    "/admin/contact/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/admin/contact/page.js"
-    ],
     "/admin/subscribers/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/admin/subscribers/page.js"
-    ],
-    "/admin/users/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/admin/users/page.js"
     ]
   }
 }

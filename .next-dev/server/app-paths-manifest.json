@@ -1,8 +1,6 @@
 {
-  "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/admin/subscribers/page": "app/admin/subscribers/page.js",
-  "/admin/users/page": "app/admin/users/page.js",
+  "/page": "app/page.js",
+  "/login/page": "app/login/page.js",
   "/admin/home/page": "app/admin/home/page.js",
-  "/admin/contact/page": "app/admin/contact/page.js",
-  "/page": "app/page.js"
+  "/admin/subscribers/page": "app/admin/subscribers/page.js"
 }

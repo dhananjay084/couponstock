@@ -13,7 +13,7 @@ export async function generateMetadata({ params }) {
     title: `${titleBase} Coupons & Offers | My Couponstock`,
     description: "Browse store offers, coupon codes, and related deals.",
     robots: {
-      index: false,
+      index: true,
       follow: true,
     },
     alternates: {

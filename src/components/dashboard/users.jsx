@@ -17,6 +17,7 @@ export default function UsersAdmin() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     let active = true;
@@ -55,6 +56,22 @@ export default function UsersAdmin() {
   const totalUsers = users.length;
   const adminCount = users.filter((user) => String(user?.role || "").toLowerCase() === "admin").length;
   const socialCount = users.filter((user) => String(user?.authProvider || "").toLowerCase() === "social").length;
+  const filteredUsers = users.filter((user) => {
+    const query = searchTerm.trim().toLowerCase();
+    if (!query) return true;
+
+    return [
+      user?.name,
+      user?.email,
+      user?.phone,
+      user?.role,
+      user?.authProvider,
+      user?.socialProvider,
+      user?.referralCode,
+      user?.referredBy?.email,
+      user?.referredBy?.name,
+    ].some((value) => String(value || "").toLowerCase().includes(query));
+  });
 
   return (
     <div className="px-4 py-8 md:px-8 lg:px-16 max-w-7xl mx-auto">
@@ -79,11 +96,21 @@ export default function UsersAdmin() {
         </div>
       </div>
 
+      <div className="mb-5">
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Search users by name, email, phone, role or referral"
+          className="w-full rounded-xl border border-[#D9E1EE] bg-white px-4 py-3 text-sm text-[#1a243b] shadow-sm outline-none transition focus:border-[#8A63D2] focus:ring-2 focus:ring-[#E9DEFF]"
+        />
+      </div>
+
       {loading ? <div className="py-10 text-center">Loading users...</div> : null}
       {error ? <div className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-red-700">{error}</div> : null}
 
       {!loading && !error ? (
-        users.length > 0 ? (
+        filteredUsers.length > 0 ? (
           <div className="overflow-x-auto rounded-2xl border border-[#E6EAF2] bg-white shadow-sm">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-[#F8F9FC]">
@@ -99,7 +126,7 @@ export default function UsersAdmin() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 bg-white">
-                {users.map((user) => (
+                {filteredUsers.map((user) => (
                   <tr key={user._id}>
                     <td className="px-4 py-3 text-sm text-gray-800">{user?.name || "-"}</td>
                     <td className="px-4 py-3 text-sm text-gray-800">{user?.email || "-"}</td>
@@ -124,7 +151,9 @@ export default function UsersAdmin() {
             </table>
           </div>
         ) : (
-          <div className="py-10 text-center text-gray-500">No users found.</div>
+          <div className="py-10 text-center text-gray-500">
+            {users.length > 0 ? "No users match your search." : "No users found."}
+          </div>
         )
       ) : null}
     </div>

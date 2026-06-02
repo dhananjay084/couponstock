@@ -41,6 +41,26 @@ function safeDate(value) {
   return Number.isNaN(date.getTime()) ? new Date() : date;
 }
 
+function slugifySegment(value = "") {
+  return value
+    .toString()
+    .normalize("NFKD")
+    .replace(/[^\w\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .toLowerCase();
+}
+
+function withCountryVariants(pathname, countryCodes, entry) {
+  const prefixedEntries = countryCodes.map((code) => ({
+    ...entry,
+    url: `${SITE_URL}/${code}${pathname}`,
+  }));
+
+  return [{ ...entry, url: `${SITE_URL}${pathname}` }, ...prefixedEntries];
+}
+
 export default async function sitemap() {
   const [stores, deals, categories, blogs, countries] = await Promise.all([
     getJson("/api/stores/sitemap"),
@@ -70,49 +90,61 @@ export default async function sitemap() {
 
   const storeEntries = stores
     .filter((store) => store?.slug)
-    .map((store) => ({
-      url: `${SITE_URL}/store/${encodeURIComponent(store.slug)}`,
-      lastModified: safeDate(store.updatedAt || store.createdAt),
-      changeFrequency: "daily",
-      priority: 0.8,
-    }));
+    .flatMap((store) =>
+      withCountryVariants(
+        `/store/${encodeURIComponent(store.slug)}`,
+        COUNTRY_PREFIX_CODES,
+        {
+          lastModified: safeDate(store.updatedAt || store.createdAt),
+          changeFrequency: "daily",
+          priority: 0.8,
+        }
+      )
+    );
 
   const dealEntries = deals
     .filter((deal) => deal?.slug || deal?._id)
-    .map((deal) => ({
-      url: `${SITE_URL}/deal/${encodeURIComponent(deal.slug || deal._id)}`,
-      lastModified: safeDate(deal.updatedAt || deal.createdAt),
-      changeFrequency: "daily",
-      priority: 0.8,
-    }));
+    .flatMap((deal) =>
+      withCountryVariants(
+        `/deal/${encodeURIComponent(deal.slug || deal._id)}`,
+        COUNTRY_PREFIX_CODES,
+        {
+          lastModified: safeDate(deal.updatedAt || deal.createdAt),
+          changeFrequency: "daily",
+          priority: 0.8,
+        }
+      )
+    );
 
   const categoryEntries = categories
     .filter((category) => category?.name)
-    .map((category) => ({
-      url: `${SITE_URL}/category/${encodeURIComponent(
-        category.name.toString().trim().toLowerCase()
-      )}`,
-      lastModified: safeDate(category.updatedAt || category.createdAt),
-      changeFrequency: "weekly",
-      priority: 0.7,
-    }));
+    .flatMap((category) => {
+      const slug = slugifySegment(category.name);
+      return withCountryVariants(
+        `/category/${encodeURIComponent(slug)}`,
+        COUNTRY_PREFIX_CODES,
+        {
+          lastModified: safeDate(category.updatedAt || category.createdAt),
+          changeFrequency: "weekly",
+          priority: 0.7,
+        }
+      );
+    });
 
   const blogEntries = blogs
     .filter((blog) => blog?._id)
-    .map((blog) => ({
-      url: `${SITE_URL}/blog/${encodeURIComponent(
-        `${(blog.heading || "blog")
-          .toString()
-          .trim()
-          .replace(/[^\w\s-]/g, "")
-          .replace(/\s+/g, "-")
-          .replace(/-+/g, "-")
-          .toLowerCase()}--${blog._id}`
-      )}`,
-      lastModified: safeDate(blog.updatedAt || blog.createdAt),
-      changeFrequency: "weekly",
-      priority: 0.7,
-    }));
+    .flatMap((blog) => {
+      const slug = `${slugifySegment(blog.heading || "blog")}--${blog._id}`;
+      return withCountryVariants(
+        `/blog/${encodeURIComponent(slug)}`,
+        COUNTRY_PREFIX_CODES,
+        {
+          lastModified: safeDate(blog.updatedAt || blog.createdAt),
+          changeFrequency: "weekly",
+          priority: 0.7,
+        }
+      );
+    });
 
   const countryEntries = countries
     .map((c) => ({
@@ -121,21 +153,20 @@ export default async function sitemap() {
       createdAt: c?.createdAt,
     }))
     .filter((c) => c.name)
-    .map((c) => ({
-      url: `${SITE_URL}/country/${encodeURIComponent(
-        c.name
-          .toLowerCase()
-          .replace(/[^\w\s-]/g, "")
-          .trim()
-          .replace(/\s+/g, "-")
-          .replace(/-+/g, "-")
-      )}`,
-      lastModified: safeDate(c.updatedAt || c.createdAt),
-      changeFrequency: "weekly",
-      priority: 0.6,
-    }));
+    .flatMap((c) => {
+      const slug = slugifySegment(c.name);
+      return withCountryVariants(
+        `/country/${encodeURIComponent(slug)}`,
+        COUNTRY_PREFIX_CODES,
+        {
+          lastModified: safeDate(c.updatedAt || c.createdAt),
+          changeFrequency: "weekly",
+          priority: 0.6,
+        }
+      );
+    });
 
-  return [
+  const entries = [
     ...staticEntries,
     ...countryCodeEntries,
     ...storeEntries,
@@ -144,4 +175,9 @@ export default async function sitemap() {
     ...blogEntries,
     ...countryEntries,
   ];
+
+  return entries.filter(
+    (entry, index, allEntries) =>
+      allEntries.findIndex((candidate) => candidate.url === entry.url) === index
+  );
 }

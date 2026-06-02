@@ -3,7 +3,6 @@
 import NavBar from "../components/NavBar";
 import Footer from "../components/Footer";
 import { usePathname } from "next/navigation";
-import Head from "next/head";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCountries, setSelectedCountry } from "../redux/country/countrySlice";
@@ -22,8 +21,6 @@ export default function ClientLayout({ children }) {
   const { basePath: layoutBasePath } = splitCountryPrefix(pathname);
   const hideLayout = layoutBasePath === "/login" || layoutBasePath === "/signup" || layoutBasePath === "/payment";
   const [showNewsletterPopup, setShowNewsletterPopup] = useState(false);
-  const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://mycouponstock.com").replace(/\/$/, "");
-  const canonicalUrl = `${baseUrl}${pathname || "/"}`;
   const isAdminRoute = pathname.startsWith("/admin");
   const isHomeRoute = layoutBasePath === "/";
   const shouldUsePageShell = !hideLayout && !isAdminRoute && !isHomeRoute;
@@ -157,15 +154,13 @@ export default function ClientLayout({ children }) {
 
   return (
     <>
-      <Head>
-        <link rel="canonical" href={canonicalUrl} />
-      </Head>
       {showNewsletterPopup && (
-        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/45 px-4">
-          <div className="relative w-full max-w-md rounded-2xl border border-[#E4D8FF] bg-white p-4 shadow-xl">
+        <div className="fixed inset-0 z-[10020] flex items-center justify-center bg-black/45 px-4">
+          <div className="relative w-full max-w-md">
             <button
+              type="button"
               onClick={() => setShowNewsletterPopup(false)}
-              className="absolute right-3 top-2 cursor-pointer text-lg font-bold text-[#592EA9]"
+              className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-[#D8C4FF] bg-white text-xl font-bold leading-none text-[#592EA9] shadow-[0_10px_24px_rgba(89,46,169,0.18)] transition hover:scale-[1.04] hover:bg-[#F8F3FF]"
               aria-label="Close newsletter popup"
             >
               ×
@@ -185,7 +180,7 @@ export default function ClientLayout({ children }) {
             bottom: "calc(1.5rem + env(safe-area-inset-bottom))",
             right: "calc(1.25rem + env(safe-area-inset-right))",
           }}
-          className="fixed z-[80] flex h-14 w-14 items-center justify-center rounded-full border border-white/15 bg-[linear-gradient(135deg,#592EA9_0%,#6E3EDC_100%)] text-white shadow-[0_18px_40px_rgba(89,46,169,0.42)] transition hover:brightness-[1.03] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70 active:scale-[0.98]"
+          className="fixed z-[85] flex h-14 w-14 items-center justify-center rounded-full border border-white/15 bg-[linear-gradient(135deg,#592EA9_0%,#6E3EDC_100%)] text-white shadow-[0_18px_40px_rgba(89,46,169,0.42)] transition hover:brightness-[1.03] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70 active:scale-[0.98]"
         >
           <svg
             viewBox="0 0 24 24"

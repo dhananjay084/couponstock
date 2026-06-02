@@ -55,11 +55,16 @@ const adminLinks =  [
   { name: "Add Offers", href: "/admin/deals" },
   { name: "Add Stores", href: "/admin/stores" },
   { name: "Add Categories", href: "/admin/category" },
-  { name: "Contact List", href: "/admin/contact" },
   { name: "Add Home", href: "/admin/home" },
   { name: "Add Reviews", href: "/admin/review" },
   { name: "Coupon Submissions", href: "/admin/submissions" },
 
+];
+
+const adminDirectoryLinks = [
+  { name: "Contact List", href: "/admin/contact" },
+  { name: "Subscribers", href: "/admin/subscribers" },
+  { name: "Signed Up Users", href: "/admin/users" },
 ];
 
 
@@ -766,6 +771,55 @@ const NavBar = () => {
                   </Typography>
                 </Link>
               ))}
+              {isAdmin && (
+                <>
+                  <Typography
+                    variant="body1"
+                    onClick={handleAdminMenuOpen}
+                    sx={{
+                      cursor: "pointer",
+                      fontWeight: 500,
+                      "&:hover": {
+                        color: scrolled ? "#ddd" : "#592EA9",
+                      },
+                      transition: "color 0.4s ease",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 0.5,
+                    }}
+                  >
+                    Directory
+                    <span style={{ fontSize: "0.8rem" }}>▼</span>
+                  </Typography>
+                  <Menu
+                    anchorEl={adminAnchorEl}
+                    open={isAdminMenuOpen}
+                    onClose={handleAdminMenuClose}
+                    PaperProps={{
+                      sx: {
+                        mt: 1,
+                        borderRadius: "12px",
+                        border: "1px solid #E4D8FF",
+                        boxShadow: "0 12px 30px rgba(0,0,0,0.12)",
+                        minWidth: 220,
+                      },
+                    }}
+                  >
+                    {adminDirectoryLinks.map((link) => (
+                      <MenuItem
+                        key={link.name}
+                        onClick={() => {
+                          handleAdminMenuClose();
+                          router.push(link.href);
+                        }}
+                        sx={{ fontSize: "0.92rem", color: "#2b1c4d" }}
+                      >
+                        {link.name}
+                      </MenuItem>
+                    ))}
+                  </Menu>
+                </>
+              )}
               <IconButton
                 onClick={handleMenuOpen}
                 sx={{ color: scrolled ? "#fff" : "inherit" }}
@@ -1074,6 +1128,35 @@ const NavBar = () => {
           </ListItemButton>
         </ListItem>
       ))}
+      {isAdmin && (
+        <>
+          <Divider sx={{ my: 1.5 }} />
+          <Typography
+            variant="subtitle2"
+            sx={{
+              px: 2,
+              pb: 1,
+              color: "#592EA9",
+              fontWeight: 700,
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+            }}
+          >
+            Directory
+          </Typography>
+          {adminDirectoryLinks.map((item) => (
+            <ListItem key={item.name} disablePadding>
+              <ListItemButton
+                component={Link}
+                href={item.href}
+                onClick={() => setDrawerOpen(false)}
+              >
+                <ListItemText primary={item.name} />
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </>
+      )}
     </List>
   </Box>
 </Drawer>

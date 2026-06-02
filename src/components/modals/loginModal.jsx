@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { loginUser, googleLogin, checkCurrentUser } from "../../redux/auth/authApi";
 import { clearAuthMessage } from "../../redux/auth/authSlice";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { toast } from "react-toastify";
@@ -20,6 +21,9 @@ const LoginModal = ({ isOpen, onClose, redirectUrl = "" }) => {
 
   const loginHandledRef = useRef(false);
   const [showPassword, setShowPassword] = useState(false);
+  const signupHref = redirectUrl
+    ? `/signup?redirect=${encodeURIComponent(redirectUrl)}`
+    : "/signup";
 
   useEffect(() => {
     if (!loginHandledRef.current && isAuthenticated && !loading) {
@@ -195,12 +199,12 @@ const LoginModal = ({ isOpen, onClose, redirectUrl = "" }) => {
 
         <div className="text-center text-sm mt-6">
           You don’t have an account?{" "}
-          <a
+          <Link
             className="text-[#592EA9] hover:underline cursor-pointer"
-            href="/signup"
+            href={signupHref}
           >
             Sign up
-          </a>
+          </Link>
         </div>
       </div>
 

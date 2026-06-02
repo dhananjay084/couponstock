@@ -23,6 +23,14 @@ import { addCountryPrefix } from "../../../lib/countryPath";
 import { buildPublicApiUrl } from "../../../lib/publicApiBase";
 const buildDealApiUrl = (path = "") => buildPublicApiUrl(path);
 
+const readCookieValue = (name) => {
+  if (typeof document === "undefined") return "";
+  const match = document.cookie.match(
+    new RegExp("(^| )" + name + "=([^;]+)")
+  );
+  return match ? decodeURIComponent(match[2]) : "";
+};
+
 const DealDetailsContent = ({ initialDeal, initialRelatedDeals = [] }) => {
   const searchParams = useSearchParams();
   const params = useParams();
@@ -34,6 +42,7 @@ const DealDetailsContent = ({ initialDeal, initialRelatedDeals = [] }) => {
   
   const category = searchParams?.get("category") || "";
   const { selectedCountry } = useSelector((state) => state.country || {});
+  const { user, isAuthenticated } = useSelector((state) => state.auth || {});
   const router = useRouter();
   const [userId, setUserId] = useState("");
 
@@ -84,18 +93,13 @@ const DealDetailsContent = ({ initialDeal, initialRelatedDeals = [] }) => {
     fetchDealBySlug();
   }, [slug, category, router, initialDeal, selectedCountry]);
 
-  // Get user ID from cookie
+  // Keep the local user id in sync after login/signup without requiring a refresh.
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const getCookie = (name) => {
-        const match = document.cookie.match(
-          new RegExp("(^| )" + name + "=([^;]+)")
-        );
-        return match ? decodeURIComponent(match[2]) : "";
-      };
-      setUserId(getCookie("userId"));
-    }
-  }, [router]);
+    const nextUserId =
+      String(user?._id || "").trim() ||
+      (isAuthenticated ? readCookieValue("userId") : "");
+    setUserId(nextUserId);
+  }, [user, isAuthenticated]);
 
   if (loading) {
     return (

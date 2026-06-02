@@ -4,8 +4,9 @@ import {
 } from "../../../lib/homeAdminSeo";
 
 export default async function Head({ params }) {
+  const { country } = await params;
+
   try {
-    const { country } = await params;
     const entries = await fetchHomeAdminEntries(country);
     const selected = pickEntryByCountryCode(entries, country);
     const title = selected?.dealsMetaTitle?.trim?.() || "Deals | My Couponstock";

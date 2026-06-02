@@ -3,24 +3,50 @@
 import React, { useEffect } from "react";
 import { Formik, Form, Field } from "formik";
 import { useDispatch, useSelector } from "react-redux";
-import { registerUser, googleLogin } from "../../redux/auth/authApi";
+import { registerUser, googleLogin, checkCurrentUser } from "../../redux/auth/authApi";
 import { clearAuthMessage, setAuthMessage } from "../../redux/auth/authSlice";
 import { signupWithReferral } from "../../redux/referral/referralSlice";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-toastify";
 import GoogleAuthButton from "../../components/Minor/GoogleAuthButton";
+import Link from "next/link";
 
 const SignupClient = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const params = useSearchParams();
   const referralCode = params.get("ref");
+  const redirectTarget = params.get("redirect");
 
   const { loading } = useSelector((state) => state.auth);
 
   useEffect(() => {
     dispatch(clearAuthMessage());
   }, [dispatch]);
+
+  const goToPostSignupTarget = async () => {
+    try {
+      await dispatch(checkCurrentUser()).unwrap();
+    } catch {
+      // Registration already sets auth cookies, so continue even if the sync check fails.
+    }
+
+    if (redirectTarget) {
+      try {
+        const redirectUrl = new URL(redirectTarget, window.location.origin);
+        if (redirectUrl.origin === window.location.origin) {
+          router.replace(`${redirectUrl.pathname}${redirectUrl.search}${redirectUrl.hash}`);
+          return;
+        }
+        window.location.assign(redirectUrl.toString());
+        return;
+      } catch {
+        // Fall back to the default route if redirect parsing fails.
+      }
+    }
+
+    router.replace("/");
+  };
 
   const handleEmailSignup = async (values, { setSubmitting, resetForm }) => {
     dispatch(clearAuthMessage());
@@ -51,7 +77,7 @@ const SignupClient = () => {
       ) {
         toast.success("Signup successful!");
         resetForm();
-        router.push("/login");
+        await goToPostSignupTarget();
       } else {
         throw new Error("Signup failed.");
       }
@@ -71,7 +97,7 @@ const SignupClient = () => {
     try {
       await dispatch(googleLogin(credentialResponse.credential)).unwrap();
       toast.success("Signed up with Google!");
-      router.push("/");
+      await goToPostSignupTarget();
     } catch {
       toast.error("Google signup failed.");
     }
@@ -242,12 +268,12 @@ const SignupClient = () => {
 
         <div className="text-center text-sm mt-6">
           Already have an account?{" "}
-          <a
+          <Link
             className="text-[#592EA9] hover:underline cursor-pointer"
-            href="/login"
+            href={redirectTarget ? `/login?redirect=${encodeURIComponent(redirectTarget)}` : "/login"}
           >
             Sign in
-          </a>
+          </Link>
         </div>
       </div>
     </div>

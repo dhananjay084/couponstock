@@ -1,8 +1,9 @@
 {
   "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/deals/page": "app/deals/page.js",
-  "/deal/store/[slug]/page": "app/deal/store/[slug]/page.js",
-  "/category/page": "app/category/page.js",
-  "/store/[slug]/page": "app/store/[slug]/page.js",
-  "/page": "app/page.js"
+  "/page": "app/page.js",
+  "/[country]/store/page": "app/[country]/store/page.js",
+  "/[country]/store/[slug]/page": "app/[country]/store/[slug]/page.js",
+  "/[country]/deals/page": "app/[country]/deals/page.js",
+  "/[country]/deal/[slug]/page": "app/[country]/deal/[slug]/page.js",
+  "/[country]/page": "app/[country]/page.js"
 }

@@ -5,10 +5,12 @@ import "react-quill/dist/quill.snow.css";
 import Script from "next/script";
 import { Suspense } from "react";
 
-// export const metadata = {
-//   title: "My Couponstock",
-//   description: "Coupons & Deals",
-// };
+export const metadata = {
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
 
 export default function RootLayout({ children }) {
   return (

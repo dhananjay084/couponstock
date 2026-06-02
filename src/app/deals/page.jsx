@@ -1,1 +1,16 @@
-export { default } from "../deal/page";
+import DealsListingClient from "./DealsListingClient";
+import { buildMetadataAlternates } from "../../lib/seoTags";
+
+export async function generateMetadata({ params }) {
+  const resolvedParams = await params;
+  const country = String(resolvedParams?.country || "").trim().toLowerCase();
+  const pathname = country ? `/${country}/deals` : "/deals";
+
+  return {
+    alternates: buildMetadataAlternates(pathname),
+  };
+}
+
+export default function Page() {
+  return <DealsListingClient />;
+}

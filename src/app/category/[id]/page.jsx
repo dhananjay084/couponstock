@@ -207,7 +207,7 @@ const getCategoryBySlug = cache(async (categorySlug) => {
 });
 
 export async function generateMetadata({ params }) {
-  const { id } = params;
+  const { id, country } = await params;
   const categorySlug = decodeURIComponent(id).toLowerCase();
   const category = await getCategoryBySlug(categorySlug);
 
@@ -215,6 +215,13 @@ export async function generateMetadata({ params }) {
     return {
       title: categorySlug,
       description: "",
+      alternates: {
+        canonical: buildCanonicalUrl(
+          country
+            ? `/${String(country).trim().toLowerCase()}/category/${encodeURIComponent(categorySlug)}`
+            : `/category/${encodeURIComponent(categorySlug)}`
+        ),
+      },
     };
   }
 
@@ -223,7 +230,11 @@ export async function generateMetadata({ params }) {
     description: category.metaDescription || "",
     keywords: category.metaKeywords || "",
     alternates: {
-      canonical: `/category/${encodeURIComponent(categorySlug)}`,
+      canonical: buildCanonicalUrl(
+        country
+          ? `/${String(country).trim().toLowerCase()}/category/${encodeURIComponent(categorySlug)}`
+          : `/category/${encodeURIComponent(categorySlug)}`
+      ),
     },
   };
 }

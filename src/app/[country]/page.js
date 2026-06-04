@@ -8,12 +8,12 @@ export async function generateMetadata({ params }) {
   const { country } = await params;
   const label = String(country || "").trim().toLowerCase();
 
-  if (!label || label === "in") {
+  if (!label || label === "in" || label === "gl") {
     return {
-      title: "My Couponstock",
+      title: label === "gl" ? "Gl | MyCouponstock" : "MyCouponstock",
       description: "Coupons & Deals",
       alternates: {
-        canonical: buildCanonicalUrl("/"),
+        canonical: buildCanonicalUrl(label === "gl" ? "/gl" : "/"),
       },
     };
   }

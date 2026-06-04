@@ -1,5 +1,5 @@
 import { fetchJson } from "../lib/serverFetchJson";
-import { ALLOWED_COUNTRY_CODES } from "../lib/countryPath";
+import { ALLOWED_COUNTRY_CODES, getCountryCodeFromName } from "../lib/countryPath";
 import { buildServerApiUrl } from "../lib/serverApi";
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://mycouponstock.com").replace(/\/$/, "");
@@ -61,7 +61,7 @@ function normalizeCountryCodes(value) {
 
   return [...new Set(
     list
-      .map((code) => String(code || "").trim().toLowerCase())
+      .map((code) => getCountryCodeFromName(code) || String(code || "").trim().toLowerCase())
       .filter((code) => ALLOWED_COUNTRY_CODES.includes(code))
   )];
 }

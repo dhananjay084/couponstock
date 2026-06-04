@@ -6,49 +6,10 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
-    "/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/page.css",
-      "static/chunks/app/page.js"
-    ],
-    "/deals/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/deals/page.css",
-      "static/chunks/app/deals/page.js"
-    ],
-    "/category/[id]/loading": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/category/[id]/loading.js"
-    ],
-    "/category/[id]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/category/[id]/page.css",
-      "static/chunks/app/category/[id]/page.js"
-    ],
-    "/login/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/login/page.js"
-    ],
-    "/admin/home/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/admin/home/page.js"
-    ],
     "/[country]/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/[country]/layout.js"
-    ],
-    "/[country]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/[country]/page.css",
-      "static/chunks/app/[country]/page.js"
     ],
     "/[country]/deals/page": [
       "static/chunks/webpack.js",
@@ -56,11 +17,11 @@
       "static/css/app/[country]/deals/page.css",
       "static/chunks/app/[country]/deals/page.js"
     ],
-    "/[country]/store/page": [
+    "/[country]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/css/app/[country]/store/page.css",
-      "static/chunks/app/[country]/store/page.js"
+      "static/css/app/[country]/page.css",
+      "static/chunks/app/[country]/page.js"
     ]
   }
 }

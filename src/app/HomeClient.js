@@ -28,6 +28,7 @@ import NumberStats from "../components/numbers/number";
 import { GridSkeleton, RowSkeleton } from "../components/skeletons/InlineSkeletons";
 import ArrowScrollRow from "../components/Minor/ArrowScrollRow";
 import CountryLink from "../components/Minor/CountryLink";
+import { addCountryPrefix } from "../lib/countryPath";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -141,6 +142,8 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
     deals,
     (deal) => deal?.showOnHomepage && deal?.dealType === "Deal of week" && deal?.dealCategory === "deal"
   );
+  const homepageTopDeals = topDeals.slice(0, 6);
+  const homepageWeeklyDeals = weeklyDeals.slice(0, 6);
   const brandStores = safeFilter(stores, (store) => store?.showOnHomepage && store?.storeType === "Brands");
   const popularBrands = safeFilter(stores, (store) => store?.showOnHomepage && store?.storeType === "Popular");
   const popularStores = safeFilter(stores, (store) => store?.showOnHomepage && store?.storeType === "Popular Store");
@@ -378,7 +381,7 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
       <TextLink
         text="Today's Top"
         colorText="Deals"
-        link="/deal"
+        link={addCountryPrefix("/deal/todays-top", selectedCountry || "")}
         linkText="View All"
       />
 
@@ -391,7 +394,7 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
           />
         ) : (
           <div className="coupon-section coupon-section-inner grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {topDeals.map((deal) => (
+            {homepageTopDeals.map((deal) => (
               <TopDealShowcaseCard
                 key={deal._id}
                 deal={deal}
@@ -638,11 +641,11 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
           <p>No reviews found.</p>
         )}
       </ArrowScrollRow>
-      <TextLink text="Deal of the " colorText="Week" link="/deal" linkText="View All" />
+      <TextLink text="Deal of the " colorText="Week" link={addCountryPrefix("/deal/deal-of-week", selectedCountry || "")} linkText="View All" />
       <div className="coupon-section coupon-section-inner mx-4 grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-6">
         {dealsLoading && deals.length === 0 ? (
           <GridSkeleton count={6} className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-6 col-span-full" itemClassName="aspect-square rounded-2xl bg-gray-200" />
-        ) : weeklyDeals.map((deal) => (
+        ) : homepageWeeklyDeals.map((deal) => (
           <DealOfWeek key={deal._id} data={deal} />
         ))}
       </div>

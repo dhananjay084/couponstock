@@ -7,7 +7,16 @@ const COUNTRY_PREFIX_CODES = ALLOWED_COUNTRY_CODES.filter((code) => code !== "in
 
 export const revalidate = 3600; // 1 hour
 
-const NO_COUNTRY_PREFIX_ROUTES = ["/about", "/contact", "/blogs", "/privacy", "/terms"];
+const NO_COUNTRY_PREFIX_ROUTES = [
+  "/about",
+  "/contact",
+  "/blogs",
+  "/privacy",
+  "/terms",
+  "/submit-coupon",
+  "/login",
+  "/signup",
+];
 
 const staticRoutes = [
   "/",
@@ -23,8 +32,6 @@ const staticRoutes = [
   "/submit-coupon",
   "/login",
   "/signup",
-  "/profilep",
-  "/payment",
 ];
 
 async function getJson(path) {
@@ -158,33 +165,12 @@ export default async function sitemap() {
       );
     });
 
-  const countryEntries = countries
-    .map((c) => ({
-      name: (c?.country_name || c?.name || "").toString().trim(),
-      updatedAt: c?.updatedAt,
-      createdAt: c?.createdAt,
-    }))
-    .filter((c) => c.name)
-    .flatMap((c) => {
-      const slug = slugifySegment(c.name);
-      return withCountryVariants(
-        `/country/${encodeURIComponent(slug)}`,
-        COUNTRY_PREFIX_CODES,
-        {
-          lastModified: safeDate(c.updatedAt || c.createdAt),
-          changeFrequency: "weekly",
-          priority: 0.6,
-        }
-      );
-    });
-
   const entries = [
     ...staticEntries,
     ...countryCodeEntries,
     ...storeEntries,
     ...categoryEntries,
     ...blogEntries,
-    ...countryEntries,
   ];
 
   return entries.filter(

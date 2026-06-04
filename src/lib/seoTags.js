@@ -22,7 +22,7 @@ const normalizePathname = (pathname = "/") => {
 
 export const buildCanonicalUrl = (pathname = "/") => {
   const normalized = normalizePathname(pathname);
-  return normalized === "/" ? `${SITE_URL}/` : `${SITE_URL}${normalized}/`;
+  return normalized === "/" ? SITE_URL : `${SITE_URL}${normalized}`;
 };
 
 export const getHrefLangLinks = (pathname = "/") => {

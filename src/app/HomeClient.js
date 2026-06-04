@@ -316,9 +316,9 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
       {/* Desktop Banner Cards */}
       <div className="coupon-section hidden lg:block p-4">
         {homeAdmin.loading ? (
-          <GridSkeleton count={3} className="grid grid-cols-3 gap-4 w-full" itemClassName="h-40 rounded-lg bg-gray-200" />
+          <GridSkeleton count={6} className="grid grid-cols-3 gap-4 xl:grid-cols-6 w-full" itemClassName="h-40 rounded-lg bg-gray-200" />
         ) : Array.isArray(data.bannerDeals) && data.bannerDeals.length > 0 ? (
-          data.bannerDeals.length > 3 ? (
+          data.bannerDeals.length > 6 ? (
             <div className="w-full">
               <div className="mb-3 flex items-center justify-end gap-2 pr-1">
                 <button
@@ -350,8 +350,8 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
                 spaceBetween={16}
                 loop
                 breakpoints={{
-                  1024: { slidesPerView: 3 },
-                  1280: { slidesPerView: 3 },
+                  1024: { slidesPerView: 4 },
+                  1280: { slidesPerView: 6 },
                 }}
               >
                 {data.bannerDeals.map((deal) => (
@@ -362,9 +362,9 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
               </Swiper>
             </div>
           ) : (
-            <div className="flex flex-wrap gap-4 justify-center lg:justify-between">
+            <div className="grid grid-cols-3 gap-4 xl:grid-cols-6">
               {data.bannerDeals.map((deal) => (
-                <div className="w-full sm:w-[48%] lg:w-[32%]" key={deal._id}>
+                <div className="min-w-0" key={deal._id}>
                   <BannerCard data={deal} />
                 </div>
               ))}

@@ -176,6 +176,7 @@ import CategoryClient from "./CategoryClient";
 import { cache } from "react";
 import { buildServerApiUrls } from "../../../lib/serverApi";
 import { fetchJson } from "../../../lib/serverFetchJson";
+import { buildCanonicalUrl } from "../../../lib/seoTags";
 
 const getCategoryBySlug = cache(async (categorySlug) => {
   const categoryName = decodeURIComponent(categorySlug).toLowerCase();
@@ -207,36 +208,49 @@ const getCategoryBySlug = cache(async (categorySlug) => {
 });
 
 export async function generateMetadata({ params }) {
-  const { id, country } = await params;
-  const categorySlug = decodeURIComponent(id).toLowerCase();
-  const category = await getCategoryBySlug(categorySlug);
+  try {
+    const { id, country } = await params;
+    const categorySlug = decodeURIComponent(String(id || "")).toLowerCase();
+    const canonicalPath = country
+      ? `/${String(country).trim().toLowerCase()}/category/${encodeURIComponent(categorySlug)}`
+      : `/category/${encodeURIComponent(categorySlug)}`;
+    const category = await getCategoryBySlug(categorySlug);
 
-  if (!category) {
+    if (!category) {
+      return {
+        title: categorySlug || "category",
+        description: "",
+        alternates: {
+          canonical: buildCanonicalUrl(canonicalPath),
+        },
+      };
+    }
+
     return {
-      title: categorySlug,
+      title: category.metaTitle || category.name || categorySlug || "category",
+      description: category.metaDescription || "",
+      keywords: category.metaKeywords || "",
+      alternates: {
+        canonical: buildCanonicalUrl(canonicalPath),
+      },
+    };
+  } catch {
+    const resolvedParams = await params;
+    const rawId = String(resolvedParams?.id || "");
+    const rawCountry = String(resolvedParams?.country || "").trim().toLowerCase();
+    const safeSlug = rawId ? encodeURIComponent(rawId) : "category";
+    const canonicalPath = rawCountry
+      ? `/${rawCountry}/category/${safeSlug}`
+      : `/category/${safeSlug}`;
+
+    return {
+      title: rawId || "category",
       description: "",
       alternates: {
-        canonical: buildCanonicalUrl(
-          country
-            ? `/${String(country).trim().toLowerCase()}/category/${encodeURIComponent(categorySlug)}`
-            : `/category/${encodeURIComponent(categorySlug)}`
-        ),
+        canonical: buildCanonicalUrl(canonicalPath),
       },
     };
   }
-
-  return {
-    title: category.metaTitle || category.name,
-    description: category.metaDescription || "",
-    keywords: category.metaKeywords || "",
-    alternates: {
-      canonical: buildCanonicalUrl(
-        country
-          ? `/${String(country).trim().toLowerCase()}/category/${encodeURIComponent(categorySlug)}`
-          : `/category/${encodeURIComponent(categorySlug)}`
-      ),
-    },
-  };
 }
 
 export default function Page() {

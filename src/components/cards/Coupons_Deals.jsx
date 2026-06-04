@@ -35,10 +35,10 @@ const Coupons_Deals = ({ border, disabled, data }) => {
 
   return (
     <>
-      <div className="relative h-full">
+      <div className="relative h-full p-2 sm:p-2.5">
         <div
           onClick={handleCardClick}
-          className={`coupon-offer-card mx-2 min-h-[232px] h-full ${border ? "" : "shadow-none"} ${
+          className={`coupon-offer-card min-h-[232px] h-full ${border ? "" : "shadow-none"} ${
             disabled ? "cursor-not-allowed opacity-70" : "cursor-pointer"
           }
           `}

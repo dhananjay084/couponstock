@@ -52,13 +52,35 @@ function slugifySegment(value = "") {
     .toLowerCase();
 }
 
-function withCountryVariants(pathname, countryCodes, entry) {
-  const prefixedEntries = countryCodes.map((code) => ({
+function normalizeCountryCodes(value) {
+  const list = Array.isArray(value)
+    ? value
+    : typeof value === "string"
+      ? value.split(",")
+      : [];
+
+  return [...new Set(
+    list
+      .map((code) => String(code || "").trim().toLowerCase())
+      .filter((code) => ALLOWED_COUNTRY_CODES.includes(code))
+  )];
+}
+
+function withCountryVariants(pathname, countryCodes, entry, options = {}) {
+  const normalizedCountryCodes = normalizeCountryCodes(countryCodes);
+  const includeBaseRoute = options.includeBaseRoute !== false;
+  const prefixedEntries = normalizedCountryCodes
+    .filter((code) => code !== "in")
+    .map((code) => ({
     ...entry,
     url: `${SITE_URL}/${code}${pathname}`,
   }));
 
-  return [{ ...entry, url: `${SITE_URL}${pathname}` }, ...prefixedEntries];
+  const baseEntries = includeBaseRoute
+    ? [{ ...entry, url: `${SITE_URL}${pathname}` }]
+    : [];
+
+  return [...baseEntries, ...prefixedEntries];
 }
 
 export default async function sitemap() {
@@ -93,26 +115,16 @@ export default async function sitemap() {
     .flatMap((store) =>
       withCountryVariants(
         `/store/${encodeURIComponent(store.slug)}`,
-        COUNTRY_PREFIX_CODES,
+        store?.country,
         {
           lastModified: safeDate(store.updatedAt || store.createdAt),
           changeFrequency: "daily",
           priority: 0.8,
-        }
-      )
-    );
-
-  const dealEntries = deals
-    .filter((deal) => deal?.slug || deal?._id)
-    .flatMap((deal) =>
-      withCountryVariants(
-        `/deal/${encodeURIComponent(deal.slug || deal._id)}`,
-        COUNTRY_PREFIX_CODES,
+        },
         {
-          lastModified: safeDate(deal.updatedAt || deal.createdAt),
-          changeFrequency: "daily",
-          priority: 0.8,
-        }
+          includeBaseRoute: normalizeCountryCodes(store?.country).length === 0 ||
+            normalizeCountryCodes(store?.country).includes("in"),
+        },
       )
     );
 
@@ -170,7 +182,6 @@ export default async function sitemap() {
     ...staticEntries,
     ...countryCodeEntries,
     ...storeEntries,
-    ...dealEntries,
     ...categoryEntries,
     ...blogEntries,
     ...countryEntries,

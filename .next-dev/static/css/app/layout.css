@@ -297,9 +297,6 @@
   .pointer-events-none {
     pointer-events: none;
   }
-  .\!visible {
-    visibility: visible !important;
-  }
   .collapse {
     visibility: collapse;
   }
@@ -3604,6 +3601,11 @@
         margin-block-start: calc(calc(var(--spacing) * 5) * var(--tw-space-y-reverse));
         margin-block-end: calc(calc(var(--spacing) * 5) * calc(1 - var(--tw-space-y-reverse)));
       }
+    }
+  }
+  .sm\:p-2\.5 {
+    @media (width >= 40rem) {
+      padding: calc(var(--spacing) * 2.5);
     }
   }
   .sm\:p-5 {

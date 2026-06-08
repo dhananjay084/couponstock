@@ -1,8 +1,8 @@
 {
   "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/page": "app/page.js",
-  "/deal/todays-top/page": "app/deal/todays-top/page.js",
-  "/[country]/page": "app/[country]/page.js",
-  "/[country]/deal/todays-top/page": "app/[country]/deal/todays-top/page.js",
-  "/[country]/deal/deal-of-week/page": "app/[country]/deal/deal-of-week/page.js"
+  "/admin/home/page": "app/admin/home/page.js",
+  "/admin/awin-offers/page": "app/admin/awin-offers/page.js",
+  "/admin/subscribers/page": "app/admin/subscribers/page.js",
+  "/admin/users/page": "app/admin/users/page.js",
+  "/login/page": "app/login/page.js"
 }

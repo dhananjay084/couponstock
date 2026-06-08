@@ -58,6 +58,7 @@ const adminLinks =  [
   { name: "Add Home", href: "/admin/home" },
   { name: "Add Reviews", href: "/admin/review" },
   { name: "Coupon Submissions", href: "/admin/submissions" },
+  { name: "Awin Offers", href: "/admin/awin-offers" },
 
 ];
 

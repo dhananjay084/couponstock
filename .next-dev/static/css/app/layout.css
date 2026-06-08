@@ -1038,6 +1038,9 @@
   .max-w-\[150px\] {
     max-width: 150px;
   }
+  .max-w-\[320px\] {
+    max-width: 320px;
+  }
   .max-w-\[360px\] {
     max-width: 360px;
   }
@@ -1705,6 +1708,9 @@
   }
   .bg-\[\#F1E8FF\] {
     background-color: #F1E8FF;
+  }
+  .bg-\[\#F5EEFF\] {
+    background-color: #F5EEFF;
   }
   .bg-\[\#F6F6F6\] {
     background-color: #F6F6F6;
@@ -3979,6 +3985,11 @@
   .lg\:grid-cols-\[1\.45fr_0\.55fr\] {
     @media (width >= 64rem) {
       grid-template-columns: 1.45fr 0.55fr;
+    }
+  }
+  .lg\:grid-cols-\[1fr_180px_180px\] {
+    @media (width >= 64rem) {
+      grid-template-columns: 1fr 180px 180px;
     }
   }
   .lg\:flex-row {

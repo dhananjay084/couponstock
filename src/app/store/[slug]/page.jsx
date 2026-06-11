@@ -4,6 +4,7 @@ import { buildServerApiUrls } from "../../../lib/serverApi";
 import { fetchJson } from "../../../lib/serverFetchJson";
 import { titleize } from "../../../lib/slugify";
 import { buildCanonicalUrl } from "../../../lib/seoTags";
+import { getApiCountryFromRoute } from "../../../lib/publicPageData";
 
 const getStoreBySlug = cache(async (slug) => {
   const normalizedSlug = String(slug || "").trim().toLowerCase();
@@ -53,11 +54,38 @@ export async function generateMetadata({ params }) {
 export default async function Page({ params }) {
   const { slug, country } = await params;
   const store = await getStoreBySlug(String(slug || ""));
+  const storeName = String(store?.storeName || "").trim();
+  const countryName = getApiCountryFromRoute(String(country || "").trim().toLowerCase());
+  const query = new URLSearchParams();
+
+  if (countryName) {
+    query.set("country", countryName);
+  }
+
+  if (storeName) {
+    query.set("store", storeName);
+    query.set("limit", "120");
+  }
+
+  let initialDeals = [];
+  if (storeName) {
+    const dealUrls = buildServerApiUrls(`/api/deals?${query.toString()}`);
+    for (const url of dealUrls) {
+      const data = await fetchJson(url, {
+        cache: "no-store",
+        timeoutMs: 12000,
+      });
+      if (Array.isArray(data)) {
+        initialDeals = data;
+        break;
+      }
+    }
+  }
 
   return (
     <StoreClient
       store={store}
-      initialDeals={[]}
+      initialDeals={initialDeals}
       initialPopularStores={[]}
     />
   );

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import axios from "axios";
 import TextLink from "../../../components/Minor/TextLink";
 import Coupons_Deals from "../../../components/cards/Coupons_Deals";
@@ -16,8 +16,7 @@ import CountryAvailabilityGate from "../../../components/Minor/CountryAvailabili
 import { getCachedStoreDetailPayload } from "../../../lib/storeDetailCache";
 import { buildPublicApiUrl } from "../../../lib/publicApiBase";
 import { slugify } from "../../../lib/slugify";
-import { addCountryPrefix } from "../../../lib/countryPath";
-import { getDeals } from "../../../redux/deal/dealSlice";
+import { addCountryPrefix, getCountryNameFromCode } from "../../../lib/countryPath";
 // import { toast } from "react-toastify";
 
 const normalizeDealCategory = (value) => String(value || "").trim().toLowerCase();
@@ -25,19 +24,19 @@ const getDealStoreKeys = (deal = {}) =>
   [...new Set([deal?.store, deal?.storeName, deal?.storeSlug].map((value) => slugify(String(value || ""))).filter(Boolean))];
 
 const IndividualStore = ({ store, initialDeals = [], initialPopularStores = [] }) => {
-  const dispatch = useDispatch();
   const params = useParams();
   const { slug } = params;
-  const { deals = [], loading: dealsLoading } = useSelector((state) => state.deal || {});
   const { selectedCountry } = useSelector((state) => state.country || {});
   const [isDescExpanded, setIsDescExpanded] = useState(false);
   const [cachedPayload, setCachedPayload] = useState(null);
   const [cacheLoaded, setCacheLoaded] = useState(false);
   const [storeData, setStoreData] = useState(store || null);
+  const [storeDeals, setStoreDeals] = useState(Array.isArray(initialDeals) ? initialDeals : []);
   const [popularStoresData, setPopularStoresData] = useState(
     Array.isArray(initialPopularStores) ? initialPopularStores : []
   );
   const [isLoadingRemote, setIsLoadingRemote] = useState(!store);
+  const [isLoadingDeals, setIsLoadingDeals] = useState(!Array.isArray(initialDeals) || initialDeals.length === 0);
   const [offerTab, setOfferTab] = useState("all");
 
   useEffect(() => {
@@ -50,6 +49,13 @@ const IndividualStore = ({ store, initialDeals = [], initialPopularStores = [] }
       setStoreData(store);
     }
   }, [store]);
+
+  useEffect(() => {
+    if (Array.isArray(initialDeals)) {
+      setStoreDeals(initialDeals);
+      setIsLoadingDeals(false);
+    }
+  }, [initialDeals]);
 
   useEffect(() => {
     if (Array.isArray(initialPopularStores) && initialPopularStores.length > 0) {
@@ -74,11 +80,6 @@ const IndividualStore = ({ store, initialDeals = [], initialPopularStores = [] }
     if (dealStoreKeys.length === 0) return false;
     return dealStoreKeys.includes(routeStoreKey) || dealStoreKeys.includes(storeNameKey);
   };
-
-  useEffect(() => {
-    if (!selectedCountry) return;
-    dispatch(getDeals(selectedCountry));
-  }, [dispatch, selectedCountry]);
 
   useEffect(() => {
     if (!slug || storeData?.slug === slug) {
@@ -115,12 +116,9 @@ const IndividualStore = ({ store, initialDeals = [], initialPopularStores = [] }
           limit: 12,
         };
 
-        const [, popularStoresRes] = await Promise.all([
-          selectedCountry ? dispatch(getDeals(selectedCountry)) : Promise.resolve(),
-          axios.get(buildPublicApiUrl("/api/stores"), {
+        const popularStoresRes = await axios.get(buildPublicApiUrl("/api/stores"), {
             params: popularStoresParams,
-          }),
-        ]);
+          });
 
         if (!active) return;
 
@@ -143,14 +141,61 @@ const IndividualStore = ({ store, initialDeals = [], initialPopularStores = [] }
     return () => {
       active = false;
     };
-  }, [dispatch, slug, selectedCountry, storeData?.slug]);
+  }, [slug, selectedCountry, storeData?.slug]);
+
+  useEffect(() => {
+    const resolvedStore = storeData || cachedStore || store || null;
+    const storeName = String(resolvedStore?.storeName || "").trim();
+    if (!slug || !storeName) {
+      setIsLoadingDeals(false);
+      return;
+    }
+
+    let active = true;
+
+    const loadDeals = async () => {
+      try {
+        setIsLoadingDeals(true);
+        const activeCountryCode = String(params?.country || "").trim().toLowerCase();
+        const selectedCountryName =
+          String(selectedCountry || "").trim() ||
+          getCountryNameFromCode(activeCountryCode) ||
+          "";
+        const response = await axios.get(buildPublicApiUrl("/api/deals"), {
+          params: {
+            ...(selectedCountryName && selectedCountryName.toLowerCase() !== "global"
+              ? { country: selectedCountryName }
+              : {}),
+            store: storeName,
+            limit: 120,
+          },
+        });
+
+        if (!active) return;
+        setStoreDeals(Array.isArray(response.data) ? response.data : []);
+      } catch (error) {
+        if (!active) return;
+        setStoreDeals(Array.isArray(initialDeals) ? initialDeals : []);
+      } finally {
+        if (active) {
+          setIsLoadingDeals(false);
+        }
+      }
+    };
+
+    loadDeals();
+
+    return () => {
+      active = false;
+    };
+  }, [params?.country, selectedCountry, slug, storeData, cachedStore, store, initialDeals]);
 
   const resolvedDeals = useMemo(() => {
-    const liveDeals = Array.isArray(deals) ? deals.filter((deal) => belongsToStore(deal)) : [];
+    const liveDeals = Array.isArray(storeDeals) ? storeDeals.filter((deal) => belongsToStore(deal)) : [];
     if (liveDeals.length > 0) return liveDeals;
     const fallbackDeals = Array.isArray(initialDeals) ? initialDeals.filter((deal) => belongsToStore(deal)) : [];
     return fallbackDeals;
-  }, [deals, initialDeals, routeStoreKey, storeNameKey]);
+  }, [storeDeals, initialDeals, routeStoreKey, storeNameKey]);
   const popularStores = popularStoresData;
 
   const { chartData, todayCount } = useMemo(() => {
@@ -342,7 +387,7 @@ const IndividualStore = ({ store, initialDeals = [], initialPopularStores = [] }
       {totalOffers === 0 && (
         <div className="section-wrap section-block">
           <div className="rounded-3xl border border-[#E4D8FF] bg-white px-5 py-8 text-center text-sm text-[#5B5370] shadow-sm">
-            {dealsLoading
+            {isLoadingDeals
               ? `Loading coupons and deals for ${storeFromList.storeName}...`
               : `No active coupons or deals are available for ${storeFromList.storeName} right now.`}
           </div>

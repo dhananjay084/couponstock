@@ -28,7 +28,7 @@ import CloseIcon from "@mui/icons-material/Close";
 
 import { styled } from "@mui/material/styles";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import {
   searchStores,
@@ -37,7 +37,7 @@ import {
 import { logoutUser, checkCurrentUser } from "../redux/auth/authApi";
 import { fetchCountries, setSelectedCountry } from "../redux/country/countrySlice";
 import { toast } from "react-toastify";
-import { addCountryPrefix, getCountryCodeFromName, isAllowedCountryCode } from "../lib/countryPath";
+import { addCountryPrefix, getCountryCodeFromName, isAllowedCountryCode, splitCountryPrefix } from "../lib/countryPath";
 import { titleize } from "../lib/slugify";
 import globeImage from "../assets/globe.png";
 import CountryLink from "./Minor/CountryLink";
@@ -182,6 +182,8 @@ const ResultChip = styled(Box)(() => ({
 const NavBar = () => {
   const dispatch = useDispatch();
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { searchResults, loading } = useSelector((state) => state.store || {});
   // const { isAuthenticated } = useSelector((state) => state.auth);
   const { isAuthenticated, user } = useSelector((state) => state.auth);
@@ -439,9 +441,17 @@ const NavBar = () => {
     dispatch(setSelectedCountry(value));
   };
 
+  const navigateToSelectedCountry = (value) => {
+    const { basePath } = splitCountryPrefix(pathname || "/");
+    const nextPath = addCountryPrefix(basePath || "/", value);
+    const queryString = searchParams?.toString();
+    router.replace(queryString ? `${nextPath}?${queryString}` : nextPath);
+  };
+
   const selectCountry = (value) => {
     if (!value) return;
     dispatch(setSelectedCountry(value));
+    navigateToSelectedCountry(value);
     setCountryOpen(false);
     setMobileCountryAnchorEl(null);
   };

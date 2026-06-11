@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, Suspense, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Menu, MenuItem, Typography, Box } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import TextLink from "../../../components/Minor/TextLink";
@@ -16,13 +16,14 @@ import { getDeals } from "../../../redux/deal/dealSlice";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams } from "next/navigation";
 import { slugify, titleize } from "../../../lib/slugify";
-import { GridSkeleton, RowSkeleton, TextSkeleton } from "../../../components/skeletons/InlineSkeletons";
+import { GridSkeleton, RowSkeleton } from "../../../components/skeletons/InlineSkeletons";
 import ArrowScrollRow from "../../../components/Minor/ArrowScrollRow";
 
-const SingleCategoryContent = () => {
+const SingleCategoryContent = ({ initialDeals = [] }) => {
   const dispatch = useDispatch();
-  const { deals = [] } = useSelector((state) => state.deal);
+  const { deals: liveDeals = [] } = useSelector((state) => state.deal);
   const { selectedCountry } = useSelector((state) => state.country || {});
+  const deals = Array.isArray(liveDeals) && liveDeals.length > 0 ? liveDeals : initialDeals;
 
   // Read the category from the dynamic route param `[id]`
   const params = useParams();
@@ -296,12 +297,8 @@ const SingleCategoryContent = () => {
   );
 };
 
-const SingleCategory = () => {
-  return (
-    <Suspense fallback={<div className="p-4 space-y-4"><TextSkeleton className="h-8 w-48" /><RowSkeleton count={3} /></div>}>
-      <SingleCategoryContent />
-    </Suspense>
-  );
-};
+const SingleCategory = ({ initialDeals = [] }) => (
+  <SingleCategoryContent initialDeals={initialDeals} />
+);
 
 export default SingleCategory;

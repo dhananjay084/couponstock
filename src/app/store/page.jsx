@@ -1,5 +1,6 @@
 import StoreListingClient from "./StoreListingClient";
 import { buildMetadataAlternates } from "../../lib/seoTags";
+import { fetchStoreListingPageData } from "../../lib/publicPageData";
 import {
   fetchHomeAdminEntries,
   pickDefaultEntry,
@@ -24,6 +25,10 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export default function Page() {
-  return <StoreListingClient />;
+export default async function Page({ params }) {
+  const resolvedParams = await params;
+  const country = String(resolvedParams?.country || "").trim().toLowerCase();
+  const initialData = await fetchStoreListingPageData(country);
+
+  return <StoreListingClient {...initialData} />;
 }

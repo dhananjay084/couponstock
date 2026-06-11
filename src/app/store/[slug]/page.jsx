@@ -4,6 +4,7 @@ import { buildServerApiUrls } from "../../../lib/serverApi";
 import { fetchJson } from "../../../lib/serverFetchJson";
 import { titleize } from "../../../lib/slugify";
 import { buildCanonicalUrl } from "../../../lib/seoTags";
+import { fetchStoreDetailPageData } from "../../../lib/publicPageData";
 
 const getStoreBySlug = cache(async (slug) => {
   const normalizedSlug = String(slug || "").trim().toLowerCase();
@@ -50,12 +51,9 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export default async function Page() {
-  return (
-    <StoreClient
-      store={null}
-      initialDeals={[]}
-      initialPopularStores={[]}
-    />
-  );
+export default async function Page({ params }) {
+  const { slug, country } = await params;
+  const initialData = await fetchStoreDetailPageData(slug, country);
+
+  return <StoreClient {...initialData} />;
 }

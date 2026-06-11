@@ -24,13 +24,20 @@ import { useRouter } from "next/navigation";
 import { slugify } from "../../lib/slugify";
 import { addCountryPrefix } from "../../lib/countryPath";
 
-const AllCoupons = () => {
+const AllCoupons = ({
+  deals: initialDeals = [],
+  stores: initialStores = [],
+  categories: initialCategories = [],
+  homeAdminData: initialHomeAdminData = [],
+} = {}) => {
   const dispatch = useDispatch();
   const router = useRouter();
 
-  const { deals = [], loading: dealsLoading } = useSelector((state) => state.deal || { deals: [], loading: false });
+  const { deals: liveDeals = [], loading: dealsLoading } = useSelector((state) => state.deal || { deals: [], loading: false });
   const homeAdmin = useSelector((state) => state.homeAdmin) || { data: [], loading: false };
-  const data = homeAdmin.data?.[0] || {};
+  const homeAdminData =
+    Array.isArray(homeAdmin.data) && homeAdmin.data.length > 0 ? homeAdmin.data : initialHomeAdminData;
+  const data = homeAdminData?.[0] || {};
   const pageBannerDeals =
     Array.isArray(data.dealPageBannerDeals) && data.dealPageBannerDeals.length > 0
       ? data.dealPageBannerDeals
@@ -46,8 +53,12 @@ const AllCoupons = () => {
     const needsApostropheOnly = /s$/i.test(label);
     return needsApostropheOnly ? `${label}'` : `${label}'s`;
   }, [selectedCountry]);
-  const { stores = [] } = useSelector((state) => state.store || { stores: [] });
-  const { categories = [] } = useSelector((state) => state.category || { categories: [] });
+  const { stores: liveStores = [] } = useSelector((state) => state.store || { stores: [] });
+  const { categories: liveCategories = [] } = useSelector((state) => state.category || { categories: [] });
+  const deals = Array.isArray(liveDeals) && liveDeals.length > 0 ? liveDeals : initialDeals;
+  const stores = Array.isArray(liveStores) && liveStores.length > 0 ? liveStores : initialStores;
+  const categories =
+    Array.isArray(liveCategories) && liveCategories.length > 0 ? liveCategories : initialCategories;
   const [selectedCountries, setSelectedCountries] = React.useState([]);
   const [searchTerm, setSearchTerm] = React.useState("");
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);

@@ -17,14 +17,22 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
 import BannerCard from "../../components/cards/BannerCards";
 import { GridSkeleton, RowSkeleton } from "../../components/skeletons/InlineSkeletons";
 
-const AllStores = () => {
+const AllStores = ({
+  stores: initialStores = [],
+  deals: initialDeals = [],
+  homeAdminData: initialHomeAdminData = [],
+} = {}) => {
   const dispatch = useDispatch();
 
-  const { stores = [], loading, error } = useSelector((state) => state.store);
-  const { deals = [] } = useSelector((state) => state.deal || {});
+  const { stores: liveStores = [], loading, error } = useSelector((state) => state.store);
+  const { deals: liveDeals = [] } = useSelector((state) => state.deal || {});
   const homeAdmin = useSelector((state) => state.homeAdmin) || { data: [], loading: false };
   const { selectedCountry } = useSelector((state) => state.country || {});
-  const data = homeAdmin.data?.[0] || {};
+  const stores = Array.isArray(liveStores) && liveStores.length > 0 ? liveStores : initialStores;
+  const deals = Array.isArray(liveDeals) && liveDeals.length > 0 ? liveDeals : initialDeals;
+  const homeAdminData =
+    Array.isArray(homeAdmin.data) && homeAdmin.data.length > 0 ? homeAdmin.data : initialHomeAdminData;
+  const data = homeAdminData?.[0] || {};
   const countryHeading = useMemo(() => {
     if (!selectedCountry) return "";
     const label = String(selectedCountry || "").trim();

@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useEffect, useState, Suspense } from "react";
-import { useSearchParams, useParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import {
@@ -31,8 +31,7 @@ const readCookieValue = (name) => {
   return match ? decodeURIComponent(match[2]) : "";
 };
 
-const DealDetailsContent = ({ initialDeal, initialRelatedDeals = [] }) => {
-  const searchParams = useSearchParams();
+const DealDetailsContent = ({ initialDeal, initialRelatedDeals = [], initialCategory = "" }) => {
   const params = useParams();
   const slug = params?.slug;
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -40,7 +39,7 @@ const DealDetailsContent = ({ initialDeal, initialRelatedDeals = [] }) => {
   const [loading, setLoading] = useState(!initialDeal);
   const [loginRedirectUrl, setLoginRedirectUrl] = useState("");
   
-  const category = searchParams?.get("category") || "";
+  const category = String(initialCategory || "").trim();
   const { selectedCountry } = useSelector((state) => state.country || {});
   const { user, isAuthenticated } = useSelector((state) => state.auth || {});
   const router = useRouter();
@@ -398,20 +397,12 @@ const DealDetailsContent = ({ initialDeal, initialRelatedDeals = [] }) => {
 };
 
 // Main Page Component
-const DealDetailsPage = ({ deal, initialRelatedDeals = [] }) => {
-  return (
-    <Suspense
-      fallback={
-        <div className="p-4 space-y-4">
-          <TextSkeleton className="h-6 w-64" />
-          <div className="h-40 rounded-lg bg-gray-200 animate-pulse" />
-          <RowSkeleton count={3} />
-        </div>
-      }
-    >
-      <DealDetailsContent initialDeal={deal} initialRelatedDeals={initialRelatedDeals} />
-    </Suspense>
-  );
-};
+const DealDetailsPage = ({ deal, initialRelatedDeals = [], initialCategory = "" }) => (
+  <DealDetailsContent
+    initialDeal={deal}
+    initialRelatedDeals={initialRelatedDeals}
+    initialCategory={initialCategory}
+  />
+);
 
 export default DealDetailsPage;

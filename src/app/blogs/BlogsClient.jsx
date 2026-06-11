@@ -13,9 +13,10 @@ import "swiper/css/pagination";
 import "swiper/css/navigation";
 import { Pagination, Autoplay, Navigation } from "swiper/modules";
 
-const BlogsClient = () => {
+const BlogsClient = ({ blogs: initialBlogs = [] } = {}) => {
   const dispatch = useDispatch();
-  const { blogs = [], loading } = useSelector((state) => state.blogs || {});
+  const { blogs: liveBlogs = [], loading } = useSelector((state) => state.blogs || {});
+  const blogs = Array.isArray(liveBlogs) && liveBlogs.length > 0 ? liveBlogs : initialBlogs;
   const latestStoriesPrevRef = useRef(null);
   const latestStoriesNextRef = useRef(null);
 

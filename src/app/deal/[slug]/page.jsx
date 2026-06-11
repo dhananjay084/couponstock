@@ -1,6 +1,7 @@
 import DealClient from "./DealClient";
 import { titleize } from "../../../lib/slugify";
 import { buildCanonicalUrl } from "../../../lib/seoTags";
+import { fetchDealDetailPageData } from "../../../lib/publicPageData";
 
 export async function generateMetadata({ params }) {
   const { slug, country } = await params;
@@ -23,6 +24,15 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export default async function Page() {
-  return <DealClient deal={null} initialRelatedDeals={[]} />;
+export default async function Page({ params, searchParams }) {
+  const { slug, country } = await params;
+  const initialData = await fetchDealDetailPageData(slug, country);
+  const resolvedSearchParams = await searchParams;
+
+  return (
+    <DealClient
+      {...initialData}
+      initialCategory={String(resolvedSearchParams?.category || "").trim()}
+    />
+  );
 }

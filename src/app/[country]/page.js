@@ -1,4 +1,4 @@
-import HomePage from "../page";
+import HomePage, { generateMetadata as generateHomeMetadata } from "../page";
 import { titleize } from "../../lib/slugify";
 import { buildCanonicalUrl } from "../../lib/seoTags";
 
@@ -18,15 +18,18 @@ export async function generateMetadata({ params }) {
     };
   }
 
+  const metadata = await generateHomeMetadata({ params: Promise.resolve({ country: label }) });
   return {
-    title: `${titleize(label)} | My Couponstock`,
-    description: `Coupons & deals for ${titleize(label)}.`,
+    ...metadata,
+    title: metadata?.title || `${titleize(label)} | My Couponstock`,
+    description: metadata?.description || `Coupons & deals for ${titleize(label)}.`,
     alternates: {
+      ...(metadata?.alternates || {}),
       canonical: buildCanonicalUrl(`/${label}`),
     },
   };
 }
 
-export default function CountryHomePage() {
-  return <HomePage />;
+export default function CountryHomePage({ params }) {
+  return <HomePage params={params} />;
 }

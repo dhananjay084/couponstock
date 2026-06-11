@@ -24,6 +24,17 @@ const COUNTRY_NAME_ALIASES = {
   "global": "gl",
 };
 
+const COUNTRY_CODE_LABELS = {
+  in: "India",
+  us: "United States",
+  uk: "United Kingdom",
+  es: "Spain",
+  de: "Germany",
+  fr: "France",
+  pt: "Portugal",
+  gl: "Global",
+};
+
 let nameToCodeCache = null;
 
 const buildNameToCodeCache = () => {
@@ -71,6 +82,9 @@ export const getCountryCodeFromName = (countryName = "") => {
   const cache = buildNameToCodeCache();
   return cache.get(normalized) || "";
 };
+
+export const getCountryNameFromCode = (code = "") =>
+  COUNTRY_CODE_LABELS[String(code || "").trim().toLowerCase()] || "";
 
 export const isCountryCodeSegment = (segment = "") =>
   COUNTRY_CODE_REGEX.test(segment || "");

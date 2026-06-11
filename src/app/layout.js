@@ -3,7 +3,6 @@ import Providers from "./Provider";
 import ClientLayout from "./ClientLayout"; // move client logic here
 import "react-quill/dist/quill.snow.css";
 import Script from "next/script";
-import { Suspense } from "react";
 
 export const metadata = {
   robots: {
@@ -29,9 +28,7 @@ gtag('config', 'G-GNT9Z6HJXS');`}
       </head>
       <body suppressHydrationWarning>
         <Providers>
-          <Suspense fallback={<div className="p-4">Loading...</div>}>
-            <ClientLayout>{children}</ClientLayout>
-          </Suspense>
+          <ClientLayout>{children}</ClientLayout>
         </Providers>
       </body>
     </html>

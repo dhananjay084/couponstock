@@ -16,13 +16,20 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
 import BannerCard from "../../components/cards/BannerCards";
 import { GridSkeleton, RowSkeleton } from "../../components/skeletons/InlineSkeletons";
 
-const AllCategories = () => {
+const AllCategories = ({
+  categories: initialCategories = [],
+  homeAdminData: initialHomeAdminData = [],
+} = {}) => {
   const dispatch = useDispatch();
 
-  const { categories = [], loading } = useSelector((state) => state.category);
+  const { categories: liveCategories = [], loading } = useSelector((state) => state.category);
   const homeAdmin = useSelector((state) => state.homeAdmin) || { data: [], loading: false };
   const { selectedCountry } = useSelector((state) => state.country || {});
-  const data = (homeAdmin.data && homeAdmin.data[0]) || {};
+  const categories =
+    Array.isArray(liveCategories) && liveCategories.length > 0 ? liveCategories : initialCategories;
+  const homeAdminData =
+    Array.isArray(homeAdmin.data) && homeAdmin.data.length > 0 ? homeAdmin.data : initialHomeAdminData;
+  const data = homeAdminData?.[0] || {};
   const countryHeading = useMemo(() => {
     if (!selectedCountry) return "";
     const label = String(selectedCountry || "").trim();

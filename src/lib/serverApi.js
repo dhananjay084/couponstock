@@ -12,12 +12,14 @@ export const getServerApiBase = () => {
   return getServerApiBases()[0] || "http://127.0.0.1:5000";
 };
 
-export const getServerApiBases = () => {
+export const getServerApiBases = (path = "") => {
+  const normalizedPath = String(path || "").startsWith("/") ? path : `/${path}`;
+  const isBackendApiPath = normalizedPath.startsWith("/api/");
   const candidates = [
     process.env.INTERNAL_SERVER_URL,
     process.env.SERVER_URL,
     process.env.NEXT_PUBLIC_SERVER_URL,
-    process.env.NEXT_PUBLIC_SITE_URL,
+    !isBackendApiPath ? process.env.NEXT_PUBLIC_SITE_URL : "",
     "http://127.0.0.1:5000",
   ]
     .map((value) => normalizeBase(value))
@@ -43,7 +45,7 @@ export const getServerApiBases = () => {
     }
   }
 
-  if (publicSiteBase) {
+  if (publicSiteBase && !isBackendApiPath) {
     ordered.push(normalizeBase(publicSiteBase));
   }
 
@@ -58,10 +60,10 @@ export const getServerApiBases = () => {
 
 export const buildServerApiUrl = (path = "") => {
   const normalizedPath = String(path || "").startsWith("/") ? path : `/${path}`;
-  return `${getServerApiBase()}${normalizedPath}`;
+  return `${getServerApiBases(normalizedPath)[0] || "http://127.0.0.1:5000"}${normalizedPath}`;
 };
 
 export const buildServerApiUrls = (path = "") => {
   const normalizedPath = String(path || "").startsWith("/") ? path : `/${path}`;
-  return getServerApiBases().map((base) => `${base}${normalizedPath}`);
+  return getServerApiBases(normalizedPath).map((base) => `${base}${normalizedPath}`);
 };

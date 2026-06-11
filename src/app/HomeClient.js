@@ -35,16 +35,40 @@ import "swiper/css/pagination";
 import "swiper/css/navigation";
 import { Pagination, Autoplay, Navigation } from "swiper/modules";
 
- function Home() {
+ function Home({
+  deals: initialDeals = [],
+  stores: initialStores = [],
+  categories: initialCategories = [],
+  reviews: initialReviews = [],
+  blogs: initialBlogs = [],
+  homeAdminData: initialHomeAdminData = [],
+  totals: initialTotals = {},
+} = {}) {
   const dispatch = useDispatch();
-  const { deals = [], loading: dealsLoading } = useSelector((state) => state.deal);
-  const { stores = [], loading: storesLoading } = useSelector((state) => state.store);
-  const { categories = [], loading: categoriesLoading } = useSelector((state) => state.category);
-  const { reviews = [], loading: reviewsLoading } = useSelector((state) => state.reviews);
-  const { blogs = [], loading: blogsLoading } = useSelector((state) => state.blogs || {});
+  const { deals: liveDeals = [], loading: dealsLoading } = useSelector((state) => state.deal);
+  const { stores: liveStores = [], loading: storesLoading } = useSelector((state) => state.store);
+  const { categories: liveCategories = [], loading: categoriesLoading } = useSelector((state) => state.category);
+  const { reviews: liveReviews = [], loading: reviewsLoading } = useSelector((state) => state.reviews);
+  const { blogs: liveBlogs = [], loading: blogsLoading } = useSelector((state) => state.blogs || {});
   const homeAdmin = useSelector((state) => state.homeAdmin) || { data: [], loading: false };
   const { selectedCountry } = useSelector((state) => state.country || {});
-  const data = homeAdmin.data?.[0] || {};
+  const deals = Array.isArray(liveDeals) && liveDeals.length > 0 ? liveDeals : initialDeals;
+  const stores = Array.isArray(liveStores) && liveStores.length > 0 ? liveStores : initialStores;
+  const categories =
+    Array.isArray(liveCategories) && liveCategories.length > 0 ? liveCategories : initialCategories;
+  const reviews = Array.isArray(liveReviews) && liveReviews.length > 0 ? liveReviews : initialReviews;
+  const blogs = Array.isArray(liveBlogs) && liveBlogs.length > 0 ? liveBlogs : initialBlogs;
+  const homeAdminData =
+    Array.isArray(homeAdmin.data) && homeAdmin.data.length > 0 ? homeAdmin.data : initialHomeAdminData;
+  const data = homeAdminData?.[0] || {};
+  const totalDealsCount =
+    Number(initialTotals?.deals || 0) > 0 ? Number(initialTotals.deals) : deals.length || 0;
+  const totalStoresCount =
+    Number(initialTotals?.stores || 0) > 0 ? Number(initialTotals.stores) : stores.length || 0;
+  const totalCategoriesCount =
+    Number(initialTotals?.categories || 0) > 0
+      ? Number(initialTotals.categories)
+      : categories.length || 0;
   const safeFilter = (arr, callback) => Array.isArray(arr) ? arr.filter(callback) : [];
   const latestBlogs = Array.isArray(blogs)
     ? [...blogs].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)).slice(0, 6)
@@ -207,15 +231,15 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
             <div className="mt-7 grid gap-3 sm:grid-cols-3">
               <div className="coupon-mini-stat">
                 <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#7a879d]">Total deals</p>
-                <p className="mt-1 text-lg font-extrabold text-[#172338]">{deals.length || 0}+</p>
+                <p className="mt-1 text-lg font-extrabold text-[#172338]">{totalDealsCount}+</p>
               </div>
               <div className="coupon-mini-stat">
                 <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#7a879d]">Total stores</p>
-                <p className="mt-1 text-lg font-extrabold text-[#172338]">{stores.length || 0}+</p>
+                <p className="mt-1 text-lg font-extrabold text-[#172338]">{totalStoresCount}+</p>
               </div>
               <div className="coupon-mini-stat">
                 <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#7a879d]">Total categories</p>
-                <p className="mt-1 text-lg font-extrabold text-[#172338]">{categories.length || 0}+</p>
+                <p className="mt-1 text-lg font-extrabold text-[#172338]">{totalCategoriesCount}+</p>
               </div>
             </div>
           </div>

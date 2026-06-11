@@ -177,6 +177,7 @@ import { cache } from "react";
 import { buildServerApiUrls } from "../../../lib/serverApi";
 import { fetchJson } from "../../../lib/serverFetchJson";
 import { buildCanonicalUrl } from "../../../lib/seoTags";
+import { getApiCountryFromRoute } from "../../../lib/publicPageData";
 
 const getCategoryBySlug = cache(async (categorySlug) => {
   const categoryName = decodeURIComponent(categorySlug).toLowerCase();
@@ -253,6 +254,33 @@ export async function generateMetadata({ params }) {
   }
 }
 
-export default function Page() {
-  return <CategoryClient />;
+export default async function Page({ params }) {
+  const { id, country } = await params;
+  const categorySlug = decodeURIComponent(String(id || "")).toLowerCase();
+  const category = await getCategoryBySlug(categorySlug);
+  const countryName = getApiCountryFromRoute(String(country || "").trim().toLowerCase());
+  const query = new URLSearchParams();
+
+  if (countryName) {
+    query.set("country", countryName);
+  }
+
+  if (category?.name) {
+    query.set("categorySelect", category.name);
+  }
+
+  let deals = null;
+  const dealUrls = buildServerApiUrls(`/api/deals${query.toString() ? `?${query.toString()}` : ""}`);
+  for (const url of dealUrls) {
+    const data = await fetchJson(url, {
+      next: { revalidate: 300 },
+      timeoutMs: 12000,
+    });
+    if (data) {
+      deals = data;
+      break;
+    }
+  }
+
+  return <CategoryClient initialDeals={Array.isArray(deals) ? deals : []} />;
 }

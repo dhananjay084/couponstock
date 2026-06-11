@@ -11,6 +11,7 @@ import DealCard from "../../../components/cards/DealCard";
 import HeadingText from "../../../components/Minor/HeadingText";
 import FAQAccordion from "../../../components/Minor/Faq";
 import { GridSkeleton, TextSkeleton } from "../../../components/skeletons/InlineSkeletons";
+import ArrowScrollRow from "../../../components/Minor/ArrowScrollRow";
 import CountryAvailabilityGate from "../../../components/Minor/CountryAvailabilityGate";
 import { getCachedStoreDetailPayload } from "../../../lib/storeDetailCache";
 import { buildPublicApiUrl } from "../../../lib/publicApiBase";

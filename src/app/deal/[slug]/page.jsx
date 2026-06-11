@@ -1,7 +1,23 @@
 import DealClient from "./DealClient";
+import { buildServerApiUrls } from "../../../lib/serverApi";
+import { fetchJson } from "../../../lib/serverFetchJson";
 import { titleize } from "../../../lib/slugify";
 import { buildCanonicalUrl } from "../../../lib/seoTags";
-import { fetchDealDetailPageData } from "../../../lib/publicPageData";
+
+const getDealBySlug = async (slug = "") => {
+  const normalizedSlug = String(slug || "").trim();
+  if (!normalizedSlug) return null;
+
+  const urls = buildServerApiUrls(`/api/deals/slug/${encodeURIComponent(normalizedSlug)}`);
+  for (const url of urls) {
+    const data = await fetchJson(url, {
+      cache: "no-store",
+      timeoutMs: 12000,
+    });
+    if (data) return data;
+  }
+  return null;
+};
 
 export async function generateMetadata({ params }) {
   const { slug, country } = await params;
@@ -26,12 +42,13 @@ export async function generateMetadata({ params }) {
 
 export default async function Page({ params, searchParams }) {
   const { slug, country } = await params;
-  const initialData = await fetchDealDetailPageData(slug, country);
+  const deal = await getDealBySlug(slug);
   const resolvedSearchParams = await searchParams;
 
   return (
     <DealClient
-      {...initialData}
+      deal={deal}
+      initialRelatedDeals={[]}
       initialCategory={String(resolvedSearchParams?.category || "").trim()}
     />
   );

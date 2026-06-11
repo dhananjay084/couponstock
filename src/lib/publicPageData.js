@@ -53,12 +53,12 @@ export async function fetchHomePageData(countryCode = "") {
   const homepageDealsQuery = buildQueryString({
     ...countryQuery,
     showOnHomepage: true,
-    limit: 120,
+    limit: 60,
   });
   const homepageStoresQuery = buildQueryString({
     ...countryQuery,
     showOnHomepage: true,
-    limit: 120,
+    limit: 40,
   });
   const dealCountQuery = buildQueryString({
     ...countryQuery,
@@ -71,11 +71,11 @@ export async function fetchHomePageData(countryCode = "") {
 
   const [deals, stores, categories, reviews, blogs, homeAdminResponse, dealCountResponse, storeCountResponse] = await Promise.all([
     fetchFromCandidates(`/api/deals${homepageDealsQuery}`, {
-      next: { revalidate: 300 },
+      cache: "no-store",
       timeoutMs: SERVER_FETCH_TIMEOUT_MS,
     }),
     fetchFromCandidates(`/api/stores${homepageStoresQuery}`, {
-      next: { revalidate: 300 },
+      cache: "no-store",
       timeoutMs: SERVER_FETCH_TIMEOUT_MS,
     }),
     fetchFromCandidates("/api/categories", {
@@ -122,14 +122,14 @@ export async function fetchHomePageData(countryCode = "") {
 export async function fetchStoreListingPageData(countryCode = "") {
   const country = getApiCountryFromRoute(countryCode);
   const countryQuery = country ? { country } : {};
+  const storeListQuery = buildQueryString({
+    ...countryQuery,
+    limit: 80,
+  });
 
-  const [stores, deals, homeAdminResponse] = await Promise.all([
-    fetchFromCandidates(`/api/stores${buildQueryString(countryQuery)}`, {
-      next: { revalidate: 300 },
-      timeoutMs: SERVER_FETCH_TIMEOUT_MS,
-    }),
-    fetchFromCandidates(`/api/deals${buildQueryString(countryQuery)}`, {
-      next: { revalidate: 300 },
+  const [stores, homeAdminResponse] = await Promise.all([
+    fetchFromCandidates(`/api/stores${storeListQuery}`, {
+      cache: "no-store",
       timeoutMs: SERVER_FETCH_TIMEOUT_MS,
     }),
     fetchFromCandidates(`/api/admin${buildQueryString(country ? { country } : {})}`, {
@@ -140,7 +140,7 @@ export async function fetchStoreListingPageData(countryCode = "") {
 
   return {
     stores: Array.isArray(stores) ? stores : [],
-    deals: Array.isArray(deals) ? deals : [],
+    deals: [],
     homeAdminData: Array.isArray(homeAdminResponse?.data) ? homeAdminResponse.data : [],
   };
 }
@@ -148,14 +148,22 @@ export async function fetchStoreListingPageData(countryCode = "") {
 export async function fetchDealListingPageData(countryCode = "") {
   const country = getApiCountryFromRoute(countryCode);
   const countryQuery = country ? { country } : {};
+  const dealListQuery = buildQueryString({
+    ...countryQuery,
+    limit: 80,
+  });
+  const storeListQuery = buildQueryString({
+    ...countryQuery,
+    limit: 60,
+  });
 
   const [deals, stores, categories, homeAdminResponse] = await Promise.all([
-    fetchFromCandidates(`/api/deals${buildQueryString(countryQuery)}`, {
-      next: { revalidate: 300 },
+    fetchFromCandidates(`/api/deals${dealListQuery}`, {
+      cache: "no-store",
       timeoutMs: SERVER_FETCH_TIMEOUT_MS,
     }),
-    fetchFromCandidates(`/api/stores${buildQueryString(countryQuery)}`, {
-      next: { revalidate: 300 },
+    fetchFromCandidates(`/api/stores${storeListQuery}`, {
+      cache: "no-store",
       timeoutMs: SERVER_FETCH_TIMEOUT_MS,
     }),
     fetchFromCandidates("/api/categories", {

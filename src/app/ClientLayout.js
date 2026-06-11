@@ -3,7 +3,7 @@
 import NavBar from "../components/NavBar";
 import Footer from "../components/Footer";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCountries, setSelectedCountry } from "../redux/country/countrySlice";
 import { findCountryNameByCode, getCountryCodeFromName, isAllowedCountryCode, splitCountryPrefix } from "../lib/countryPath";
@@ -25,7 +25,7 @@ export default function ClientLayout({ children }) {
   const isHomeRoute = layoutBasePath === "/";
   const shouldUsePageShell = !hideLayout && !isAdminRoute && !isHomeRoute;
 
-  const setGlobalCountry = () => {
+  const setGlobalCountry = useCallback(() => {
     const globalCountry = findCountryNameByCode(countries, "gl") || "Global";
     if (globalCountry && selectedCountry !== globalCountry) {
       dispatch(setSelectedCountry(globalCountry));
@@ -34,7 +34,7 @@ export default function ClientLayout({ children }) {
       window.localStorage.setItem(COUNTRY_STORAGE_KEY, globalCountry);
       window.localStorage.setItem(COUNTRY_INIT_STATUS_KEY, "global");
     }
-  };
+  }, [countries, dispatch, selectedCountry]);
 
   useEffect(() => {
     if (!countries.length) dispatch(fetchCountries());
@@ -115,7 +115,7 @@ export default function ClientLayout({ children }) {
         maximumAge: 24 * 60 * 60 * 1000,
       }
     );
-  }, [countries, dispatch, hideLayout, pathname, selectedCountry]);
+  }, [countries, dispatch, hideLayout, pathname, selectedCountry, setGlobalCountry]);
 
   useEffect(() => {
     if (!countries.length) return;

@@ -28,7 +28,7 @@ import CloseIcon from "@mui/icons-material/Close";
 
 import { styled } from "@mui/material/styles";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import {
   searchStores,
@@ -183,7 +183,6 @@ const NavBar = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const { searchResults, loading } = useSelector((state) => state.store || {});
   // const { isAuthenticated } = useSelector((state) => state.auth);
   const { isAuthenticated, user } = useSelector((state) => state.auth);
@@ -444,7 +443,10 @@ const NavBar = () => {
   const navigateToSelectedCountry = (value) => {
     const { basePath } = splitCountryPrefix(pathname || "/");
     const nextPath = addCountryPrefix(basePath || "/", value);
-    const queryString = searchParams?.toString();
+    const queryString =
+      typeof window !== "undefined"
+        ? new URLSearchParams(window.location.search).toString()
+        : "";
     router.replace(queryString ? `${nextPath}?${queryString}` : nextPath);
   };
 

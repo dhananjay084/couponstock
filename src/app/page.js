@@ -5,6 +5,7 @@ import {
   pickDefaultEntry,
   pickEntryByCountryCode,
 } from "../lib/homeAdminSeo";
+import { fetchHomePageData } from "../lib/publicPageData";
 
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;
@@ -21,6 +22,10 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export default function Page() {
-  return <HomeClient />;
+export default async function Page({ params }) {
+  const resolvedParams = await params;
+  const country = String(resolvedParams?.country || "").trim().toLowerCase();
+  const initialData = await fetchHomePageData(country);
+
+  return <HomeClient {...initialData} />;
 }

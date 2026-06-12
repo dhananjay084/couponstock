@@ -253,6 +253,10 @@ export async function generateMetadata({ params }) {
   }
 }
 
-export default function Page() {
-  return <CategoryClient initialDeals={[]} />;
+export default async function Page({ params }) {
+  const { id } = await params;
+  const categorySlug = decodeURIComponent(String(id || "")).toLowerCase();
+  const category = await getCategoryBySlug(categorySlug);
+
+  return <CategoryClient initialDeals={[]} categoryData={category} />;
 }

@@ -19,7 +19,7 @@ import { slugify, titleize } from "../../../lib/slugify";
 import { GridSkeleton, RowSkeleton } from "../../../components/skeletons/InlineSkeletons";
 import ArrowScrollRow from "../../../components/Minor/ArrowScrollRow";
 
-const SingleCategoryContent = ({ initialDeals = [] }) => {
+const SingleCategoryContent = ({ initialDeals = [], categoryData = null }) => {
   const dispatch = useDispatch();
   const { deals: liveDeals = [] } = useSelector((state) => state.deal);
   const { selectedCountry } = useSelector((state) => state.country || {});
@@ -29,6 +29,8 @@ const SingleCategoryContent = ({ initialDeals = [] }) => {
   const params = useParams();
   const categoryParam = params?.id ? decodeURIComponent(params.id).trim().toLowerCase() : "all";
   const categoryDisplay = categoryParam === "all" ? "All" : titleize(categoryParam);
+  const pageHeading = String(categoryData?.pageHeading || "").trim() || categoryDisplay;
+  const pageDescription = String(categoryData?.pageDescription || "").trim();
   const ITEMS_PER_PAGE = 10;
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -85,8 +87,13 @@ const SingleCategoryContent = ({ initialDeals = [] }) => {
   return (
     <Box>
       <h1 className="px-4 pt-2 text-2xl font-bold text-[#592EA9]">
-        {categoryDisplay}
+        {pageHeading}
       </h1>
+      {pageDescription ? (
+        <p className="px-4 pt-2 text-sm leading-7 text-[#5B5370]">
+          {pageDescription}
+        </p>
+      ) : null}
       {/* Header */}
       <Box className="flex justify-between items-center px-4" sx={{ mb: 3, flexWrap: "wrap", gap: 2 }}>
         <Box>
@@ -297,8 +304,8 @@ const SingleCategoryContent = ({ initialDeals = [] }) => {
   );
 };
 
-const SingleCategory = ({ initialDeals = [] }) => (
-  <SingleCategoryContent initialDeals={initialDeals} />
+const SingleCategory = ({ initialDeals = [], categoryData = null }) => (
+  <SingleCategoryContent initialDeals={initialDeals} categoryData={categoryData} />
 );
 
 export default SingleCategory;

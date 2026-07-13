@@ -3,6 +3,7 @@ import Providers from "./Provider";
 import ClientLayout from "./ClientLayout"; // move client logic here
 import "react-quill/dist/quill.snow.css";
 import Script from "next/script";
+import { getConfiguredDefaultCountryCode } from "../lib/countryPath";
 
 export const metadata = {
   robots: {
@@ -12,6 +13,7 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
+  const defaultCountryCode = getConfiguredDefaultCountryCode();
   return (
     <html lang="en">
       <head>
@@ -27,7 +29,7 @@ gtag('config', 'G-GNT9Z6HJXS');`}
         </Script>
       </head>
       <body suppressHydrationWarning>
-        <Providers>
+        <Providers defaultCountryCode={defaultCountryCode}>
           <ClientLayout>{children}</ClientLayout>
         </Providers>
       </body>

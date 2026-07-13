@@ -13,8 +13,8 @@ import paymeReducer from './razorpay/paymeslice';
 import countryReducer from "./country/countrySlice";
 import referralReducer from "./referral/referralSlice";
 
-
-export const store = configureStore({
+export const createAppStore = (preloadedState) =>
+  configureStore({
   reducer: {
     deal: dealReducer,
     auth:authReducer,
@@ -32,5 +32,7 @@ export const store = configureStore({
     payme: paymeReducer,
   },
   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(paymentApi.middleware),
+    preloadedState,
+  });
 
-});
+export const store = createAppStore();

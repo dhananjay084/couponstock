@@ -3,7 +3,7 @@
 import NavBar from "../components/NavBar";
 import Footer from "../components/Footer";
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCountries, setSelectedCountry } from "../redux/country/countrySlice";
 import {
@@ -37,20 +37,6 @@ export default function ClientLayout({ children }) {
   const isAdminRoute = pathname.startsWith("/admin");
   const isHomeRoute = layoutBasePath === "/";
   const shouldUsePageShell = !hideLayout && !isAdminRoute && !isHomeRoute;
-
-  const setGlobalCountry = useCallback(() => {
-    const globalCountry =
-      findCountryNameByCode(countries, lockedCountryCode || "gl") ||
-      findCountryNameByCode(countries, "gl") ||
-      "Global";
-    if (globalCountry && selectedCountry !== globalCountry) {
-      dispatch(setSelectedCountry(globalCountry));
-    }
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem(COUNTRY_STORAGE_KEY, globalCountry);
-      window.localStorage.setItem(COUNTRY_INIT_STATUS_KEY, lockedCountryCode ? "domain" : "global");
-    }
-  }, [countries, dispatch, lockedCountryCode, selectedCountry]);
 
   useEffect(() => {
     if (!countries.length) dispatch(fetchCountries());
@@ -89,8 +75,8 @@ export default function ClientLayout({ children }) {
       const lockedCountry = findCountryNameByCode(countries, lockedCountryCode);
       if (lockedCountry && lockedCountry !== selectedCountry) {
         dispatch(setSelectedCountry(lockedCountry));
-      } else if (!lockedCountry) {
-        setGlobalCountry();
+      } else if (!lockedCountry && defaultCountryName) {
+        dispatch(setSelectedCountry(defaultCountryName));
       }
       return;
     }
@@ -100,17 +86,17 @@ export default function ClientLayout({ children }) {
 
     if (selectedCountry) return;
 
-    if (defaultCountryName) {
-      dispatch(setSelectedCountry(defaultCountryName));
-      window.localStorage.setItem(COUNTRY_STORAGE_KEY, defaultCountryName);
-      window.localStorage.setItem(COUNTRY_INIT_STATUS_KEY, "default");
-      return;
-    }
-
     const configuredDefaultCountry = findCountryNameByCode(countries, defaultCountryCode);
     if (configuredDefaultCountry) {
       dispatch(setSelectedCountry(configuredDefaultCountry));
       window.localStorage.setItem(COUNTRY_STORAGE_KEY, configuredDefaultCountry);
+      window.localStorage.setItem(COUNTRY_INIT_STATUS_KEY, "default");
+      return;
+    }
+
+    if (defaultCountryName) {
+      dispatch(setSelectedCountry(defaultCountryName));
+      window.localStorage.setItem(COUNTRY_STORAGE_KEY, defaultCountryName);
       window.localStorage.setItem(COUNTRY_INIT_STATUS_KEY, "default");
       return;
     }
@@ -122,65 +108,17 @@ export default function ClientLayout({ children }) {
       )?.country_name;
       if (matchedPersistedCountry) {
         dispatch(setSelectedCountry(matchedPersistedCountry));
+        window.localStorage.setItem(COUNTRY_INIT_STATUS_KEY, "persisted");
         return;
       }
     }
 
-    const initStatus = window.localStorage.getItem(COUNTRY_INIT_STATUS_KEY);
-    if (initStatus === "denied" || initStatus === "global") {
-      setGlobalCountry();
-      return;
+    window.localStorage.setItem(COUNTRY_STORAGE_KEY, defaultCountryName || "Global");
+    window.localStorage.setItem(COUNTRY_INIT_STATUS_KEY, "default");
+    if (defaultCountryName) {
+      dispatch(setSelectedCountry(defaultCountryName));
     }
-
-    if (!navigator.geolocation) {
-      setGlobalCountry();
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        try {
-          const { latitude, longitude } = position.coords;
-          const url = new URL("https://api.bigdatacloud.net/data/reverse-geocode-client");
-          url.searchParams.set("latitude", String(latitude));
-          url.searchParams.set("longitude", String(longitude));
-          url.searchParams.set("localityLanguage", "en");
-
-          const response = await fetch(url.toString());
-          const data = await response.json().catch(() => ({}));
-          const detectedCode = String(
-            data?.countryCode || getCountryCodeFromName(data?.countryName || "")
-          ).toLowerCase();
-
-          if (!detectedCode || !isAllowedCountryCode(detectedCode)) {
-            setGlobalCountry();
-            return;
-          }
-
-          const matchedCountry = findCountryNameByCode(countries, detectedCode);
-          if (!matchedCountry) {
-            setGlobalCountry();
-            return;
-          }
-
-          dispatch(setSelectedCountry(matchedCountry));
-          window.localStorage.setItem(COUNTRY_STORAGE_KEY, matchedCountry);
-          window.localStorage.setItem(COUNTRY_INIT_STATUS_KEY, "resolved");
-        } catch (_error) {
-          setGlobalCountry();
-        }
-      },
-      () => {
-        window.localStorage.setItem(COUNTRY_INIT_STATUS_KEY, "denied");
-        setGlobalCountry();
-      },
-      {
-        enableHighAccuracy: false,
-        timeout: 10000,
-        maximumAge: 24 * 60 * 60 * 1000,
-      }
-    );
-  }, [countries, defaultCountryCode, defaultCountryName, dispatch, hideLayout, lockedCountryCode, pathname, selectedCountry, setGlobalCountry]);
+  }, [countries, defaultCountryCode, defaultCountryName, dispatch, hideLayout, lockedCountryCode, pathname, selectedCountry]);
 
   useEffect(() => {
     if (!countries.length) return;
@@ -189,9 +127,8 @@ export default function ClientLayout({ children }) {
     const { countryCode } = splitCountryPrefix(pathname);
     if (!countryCode) return;
     if (!isAllowedCountryCode(countryCode)) {
-      const fallback = findCountryNameByCode(countries, "gl") || "Global";
-      if (fallback && fallback !== selectedCountry) {
-        dispatch(setSelectedCountry(fallback));
+      if (defaultCountryName && defaultCountryName !== selectedCountry) {
+        dispatch(setSelectedCountry(defaultCountryName));
       }
       return;
     }
@@ -207,7 +144,7 @@ export default function ClientLayout({ children }) {
     if (match && match !== selectedCountry) {
       dispatch(setSelectedCountry(match));
     }
-  }, [countries, dispatch, lockedCountryCode, pathname, selectedCountry]);
+  }, [countries, defaultCountryName, dispatch, lockedCountryCode, pathname, selectedCountry]);
 
   useEffect(() => {
     if (!selectedCountry) return;

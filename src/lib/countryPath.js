@@ -36,6 +36,7 @@ const COUNTRY_CODE_LABELS = {
 };
 
 let nameToCodeCache = null;
+let domainMapCache = null;
 
 const buildNameToCodeCache = () => {
   if (nameToCodeCache) return nameToCodeCache;
@@ -67,6 +68,58 @@ const buildNameToCodeCache = () => {
   return nameToCodeCache;
 };
 
+const normalizeHostname = (value = "") =>
+  String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/\.$/, "")
+    .replace(/^www\./, "");
+
+export const isLocalhostHostname = (hostname = "") => {
+  const normalizedHost = normalizeHostname(hostname);
+  return (
+    normalizedHost === "localhost" ||
+    normalizedHost === "127.0.0.1" ||
+    normalizedHost === "::1" ||
+    normalizedHost.endsWith(".localhost")
+  );
+};
+
+const addDomainMapEntry = (map, hostname, code) => {
+  const normalizedHost = normalizeHostname(hostname);
+  const normalizedCode = String(code || "").trim().toLowerCase();
+  if (!normalizedHost || !COUNTRY_CODE_REGEX.test(normalizedCode)) return;
+  map.set(normalizedHost, normalizedCode);
+};
+
+const buildDomainMap = () => {
+  if (domainMapCache) return domainMapCache;
+
+  const map = new Map();
+  const rawMap = String(process.env.NEXT_PUBLIC_COUNTRY_DOMAIN_MAP || "").trim();
+
+  if (rawMap) {
+    try {
+      const parsed = JSON.parse(rawMap);
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+        Object.entries(parsed).forEach(([hostname, code]) => addDomainMapEntry(map, hostname, code));
+      }
+    } catch (_error) {
+      rawMap
+        .split(",")
+        .map((entry) => entry.trim())
+        .filter(Boolean)
+        .forEach((entry) => {
+          const [hostname, code] = entry.split(/[:=]/).map((part) => part.trim());
+          if (hostname && code) addDomainMapEntry(map, hostname, code);
+        });
+    }
+  }
+
+  domainMapCache = map;
+  return domainMapCache;
+};
+
 export const getCountryCodeFromName = (countryName = "") => {
   const raw = String(countryName || "").trim();
   if (!raw) return "";
@@ -85,6 +138,27 @@ export const getCountryCodeFromName = (countryName = "") => {
 
 export const getCountryNameFromCode = (code = "") =>
   COUNTRY_CODE_LABELS[String(code || "").trim().toLowerCase()] || "";
+
+export const getCountryCodeFromHostname = (hostname = "") => {
+  const normalizedHost = normalizeHostname(hostname);
+  if (!normalizedHost) return "";
+
+  const map = buildDomainMap();
+  return map.get(normalizedHost) || "";
+};
+
+export const getFixedCountryCode = (hostname = "") => {
+  const mappedCode = getCountryCodeFromHostname(hostname);
+  if (mappedCode) return mappedCode;
+  return "";
+};
+
+export const getConfiguredDefaultCountryCode = () => {
+  const defaultCode = String(process.env.NEXT_PUBLIC_DEFAULT_COUNTRY_CODE || "").trim().toLowerCase();
+  return isAllowedCountryCode(defaultCode) ? defaultCode : "";
+};
+
+export const isFixedCountryDomain = (hostname = "") => Boolean(getFixedCountryCode(hostname));
 
 export const isCountryCodeSegment = (segment = "") =>
   COUNTRY_CODE_REGEX.test(segment || "");
@@ -112,6 +186,8 @@ export const addCountryPrefix = (pathname = "/", countryName = "") => {
   if (!code) return pathname || "/";
   const { basePath, countryCode } = splitCountryPrefix(pathname);
   const cleanBase = basePath || "/";
+  const runtimeHostname = typeof window !== "undefined" ? window.location.hostname : "";
+  if (isFixedCountryDomain(runtimeHostname)) return cleanBase || "/";
   const isNoPrefixPath = NO_COUNTRY_PREFIX_PATHS.some(
     (route) => cleanBase === route || cleanBase.startsWith(`${route}/`)
   );

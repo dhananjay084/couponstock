@@ -28,6 +28,27 @@ npm run start
 
 Environment variables are read from `.env`/hosting config. At minimum you’ll need `NEXT_PUBLIC_SERVER_URL` and `NEXT_PUBLIC_SITE_URL`.
 
+For country-specific domains, add:
+
+```bash
+NEXT_PUBLIC_DEFAULT_COUNTRY_CODE=us
+NEXT_PUBLIC_COUNTRY_DOMAIN_MAP={"mycouponstock.in":"in","mycouponstock.com":"us"}
+```
+
+`NEXT_PUBLIC_DEFAULT_COUNTRY_CODE` sets the default country the site loads with. Visitors can still change countries from the header unless the deployment is locked by `NEXT_PUBLIC_COUNTRY_DOMAIN_MAP` or `NEXT_PUBLIC_LOCALHOST_COUNTRY_CODE`.
+
+For local testing, you can also force a country on `localhost`:
+
+```bash
+NEXT_PUBLIC_LOCALHOST_COUNTRY_CODE=us
+```
+
+Or use a query param while running locally:
+
+```bash
+http://localhost:3000?country=us
+```
+
 You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.

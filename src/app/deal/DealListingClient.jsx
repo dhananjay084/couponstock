@@ -20,19 +20,17 @@ import "swiper/css/navigation";
 import { Pagination, Autoplay, Navigation } from "swiper/modules";
 import BannerCard from "../../components/cards/BannerCards";
 import { GridSkeleton, RowSkeleton } from "../../components/skeletons/InlineSkeletons";
-import { useRouter } from "next/navigation";
 import { slugify } from "../../lib/slugify";
-import { addCountryPrefix } from "../../lib/countryPath";
+import { getCountryCodesFromValue } from "../../lib/countryPath";
 
 const AllCoupons = ({
   deals: initialDeals = [],
   stores: initialStores = [],
   categories: initialCategories = [],
   homeAdminData: initialHomeAdminData = [],
+  initialCountry = "",
 } = {}) => {
   const dispatch = useDispatch();
-  const router = useRouter();
-
   const { deals: liveDeals = [], loading: dealsLoading } = useSelector((state) => state.deal || { deals: [], loading: false });
   const homeAdmin = useSelector((state) => state.homeAdmin) || { data: [], loading: false };
   const homeAdminData =
@@ -46,13 +44,14 @@ const AllCoupons = ({
         : data.bannerDeals;
   const { countries = [], loading: countriesLoading } = useSelector((state) => state.country || { countries: [], loading: false });
   const { selectedCountry } = useSelector((state) => state.country || {});
+  const resolvedCountry = selectedCountry || initialCountry;
   const countryHeading = React.useMemo(() => {
-    if (!selectedCountry) return "";
-    const label = String(selectedCountry || "").trim();
+    if (!resolvedCountry) return "";
+    const label = String(resolvedCountry || "").trim();
     if (!label) return "";
     const needsApostropheOnly = /s$/i.test(label);
     return needsApostropheOnly ? `${label}'` : `${label}'s`;
-  }, [selectedCountry]);
+  }, [resolvedCountry]);
   const { stores: liveStores = [] } = useSelector((state) => state.store || { stores: [] });
   const { categories: liveCategories = [] } = useSelector((state) => state.category || { categories: [] });
   const deals = Array.isArray(liveDeals) && liveDeals.length > 0 ? liveDeals : initialDeals;
@@ -60,6 +59,8 @@ const AllCoupons = ({
   const categories =
     Array.isArray(liveCategories) && liveCategories.length > 0 ? liveCategories : initialCategories;
   const [selectedCountries, setSelectedCountries] = React.useState([]);
+  const [selectedStore, setSelectedStore] = React.useState("");
+  const [selectedCategory, setSelectedCategory] = React.useState("");
   const [searchTerm, setSearchTerm] = React.useState("");
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
   const [offerTab, setOfferTab] = React.useState("all");
@@ -70,21 +71,26 @@ const AllCoupons = ({
   useEffect(() => {
   const fetchData = async () => {
     dispatch(fetchCountries());
-    if (selectedCountry) {
-      dispatch(getDeals(selectedCountry));
-      dispatch(getHomeAdminData(selectedCountry));
-      dispatch(getStores(selectedCountry));
+    if (resolvedCountry) {
+      dispatch(getDeals(resolvedCountry));
+      dispatch(getHomeAdminData(resolvedCountry));
+      dispatch(getStores(resolvedCountry));
     }
     dispatch(getCategories());
   };
 
   fetchData();
-}, [dispatch, selectedCountry]);
+}, [dispatch, resolvedCountry]);
 
   useEffect(() => {
-    if (!selectedCountry) return;
-    setSelectedCountries([selectedCountry]);
-  }, [selectedCountry]);
+    if (!resolvedCountry) return;
+    setSelectedCountries([resolvedCountry]);
+  }, [resolvedCountry]);
+
+  const selectedCountryCodes = React.useMemo(() => {
+    const codes = getCountryCodesFromValue([selectedCountry, initialCountry, ...selectedCountries]).filter(Boolean);
+    return [...new Set(codes)];
+  }, [initialCountry, selectedCountry, selectedCountries]);
 
 
 
@@ -101,15 +107,29 @@ const AllCoupons = ({
     return expiry >= today;
   });
 
-  // Filter deals by selected countries
-// ✅ Works even if deal.country is an array
-	const filteredActiveDeals = selectedCountries.length
-	  ? activeDeals.filter((deal) =>
-	      Array.isArray(deal.country)
-	        ? deal.country.some((c) => selectedCountries.includes(c))
-	        : selectedCountries.includes(deal.country)
-	    )
-	  : activeDeals;
+  const countryFilteredDeals = selectedCountryCodes.length
+    ? activeDeals.filter((deal) => {
+        const dealCodes = getCountryCodesFromValue(deal?.country).filter(Boolean);
+        if (dealCodes.length === 0) return true;
+        return selectedCountryCodes.some(
+          (code) => dealCodes.includes(code) || dealCodes.includes("gl")
+        );
+      })
+    : activeDeals;
+
+  const storeFilteredDeals = selectedStore
+    ? countryFilteredDeals.filter((deal) => slugify(deal.store || "") === slugify(selectedStore))
+    : countryFilteredDeals;
+
+  const categoryFilteredDeals = selectedCategory
+    ? storeFilteredDeals.filter((deal) => slugify(deal.categorySelect || "") === slugify(selectedCategory))
+    : storeFilteredDeals;
+
+  const filteredActiveDeals = selectedCategory
+    ? categoryFilteredDeals
+    : selectedStore
+      ? storeFilteredDeals
+      : countryFilteredDeals;
 
   const couponOffers = filteredActiveDeals.filter((deal) => deal?.dealCategory === "coupon");
   const dealOffers = filteredActiveDeals.filter((deal) => deal?.dealCategory === "deal");
@@ -133,7 +153,7 @@ const AllCoupons = ({
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [offerTab, selectedCountries, sortOrder]);
+  }, [offerTab, selectedCountries, selectedStore, selectedCategory, sortOrder]);
 
   const totalPages = React.useMemo(() => {
     const next = Math.ceil(sortedOffers.length / ITEMS_PER_PAGE);
@@ -292,8 +312,8 @@ useEffect(() => {
                 <select
                   onChange={(e) => {
                     const value = e.target.value;
-                    if (!value) return;
-                    router.push(addCountryPrefix(`/deal/store/${encodeURIComponent(slugify(value))}`, selectedCountry || ""));
+                    setSelectedStore(value || "");
+                    setOfferTab("all");
                   }}
                   className="w-full border border-[#D9CCF5] rounded-lg px-3 py-2 bg-white text-sm text-[#2b1c4d] focus:outline-none focus:ring-2 focus:ring-[#592EA9]/30"
                   defaultValue=""
@@ -313,8 +333,8 @@ useEffect(() => {
                 <select
                   onChange={(e) => {
                     const value = e.target.value;
-                    if (!value) return;
-                    router.push(addCountryPrefix(`/deal/category/${encodeURIComponent(slugify(value))}`, selectedCountry || ""));
+                    setSelectedCategory(value || "");
+                    setOfferTab("all");
                   }}
                   className="w-full border border-[#D9CCF5] rounded-lg px-3 py-2 bg-white text-sm text-[#2b1c4d] focus:outline-none focus:ring-2 focus:ring-[#592EA9]/30"
                   defaultValue=""
@@ -377,18 +397,20 @@ useEffect(() => {
                         .map((country) => (
                           <div
                             key={country._id}
-                            onClick={() => {
-                              const name = country.country_name;
-                              setSelectedCountries([name]);
-                              dispatch(setSelectedCountry(name));
-                              setSearchTerm("");
-                              setIsDropdownOpen(false);
-                              router.push(addCountryPrefix("/deal", name));
-                            }}
-                            className="px-4 py-2 text-sm cursor-pointer hover:bg-[#F5F1FF]"
-                          >
-                            {country.country_name}
-                          </div>
+                          onClick={() => {
+                            const name = country.country_name;
+                            setSelectedCountries([name]);
+                            dispatch(setSelectedCountry(name));
+                            setSearchTerm("");
+                            setIsDropdownOpen(false);
+                            setSelectedStore("");
+                            setSelectedCategory("");
+                            setOfferTab("all");
+                          }}
+                          className="px-4 py-2 text-sm cursor-pointer hover:bg-[#F5F1FF]"
+                        >
+                          {country.country_name}
+                        </div>
                         ))}
 
                       {countries.filter((c) =>

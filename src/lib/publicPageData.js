@@ -1,6 +1,6 @@
 import { buildServerApiUrls } from "./serverApi";
 import { fetchJson } from "./serverFetchJson";
-import { getCountryNameFromCode } from "./countryPath";
+import { getConfiguredDefaultCountryCode, getCountryNameFromCode } from "./countryPath";
 
 const DEFAULT_COUNTRY_NAME = "India";
 const SERVER_FETCH_TIMEOUT_MS = 20000;
@@ -32,6 +32,12 @@ export const getApiCountryFromRoute = (countryCode = "", { fallbackToIndia = tru
   const normalizedCode = String(countryCode || "").trim().toLowerCase();
 
   if (!normalizedCode) {
+    const defaultCode =
+      getConfiguredDefaultCountryCode() ||
+      String(process.env.NEXT_PUBLIC_LOCALHOST_COUNTRY_CODE || "").trim().toLowerCase();
+    if (defaultCode) {
+      return getCountryNameFromCode(defaultCode) || DEFAULT_COUNTRY_NAME;
+    }
     return fallbackToIndia ? DEFAULT_COUNTRY_NAME : "";
   }
 

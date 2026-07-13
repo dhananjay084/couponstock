@@ -5,10 +5,7 @@ import { Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { slugWithId } from "../../lib/slugify";
-const stripHtml = (html) => {
-  if (!html) return "";
-  return html.replace(/<[^>]*>?/gm, "");
-};
+import { htmlToPlainText } from "../../lib/plainText";
 
 const Coupons_Deals = ({ border = false, data }) => {
   const router = useRouter();
@@ -41,12 +38,10 @@ const Coupons_Deals = ({ border = false, data }) => {
       {/* Text Content */}
       <div>
         <Typography color={"#592ea9"} sx={{ fontWeight: 500, fontSize: "13px" }}>
-        {`${stripHtml(data.heading).substring(0, 40)}..`}
-
+          {`${htmlToPlainText(data.heading).substring(0, 40)}..`}
         </Typography>
         <Typography color={"black"} sx={{ fontWeight: 500, fontSize: "10px" }}>
-        {`${stripHtml(data.details).substring(0, 60)}...`}
-
+          {`${htmlToPlainText(data.details).substring(0, 60)}...`}
         </Typography>
 
         <button

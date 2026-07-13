@@ -2,11 +2,20 @@
 
 import NavBar from "../components/NavBar";
 import Footer from "../components/Footer";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCountries, setSelectedCountry } from "../redux/country/countrySlice";
-import { findCountryNameByCode, getCountryCodeFromName, isAllowedCountryCode, splitCountryPrefix } from "../lib/countryPath";
+import {
+  findCountryNameByCode,
+  getCountryCodeFromHostname,
+  getCountryCodeFromName,
+  getConfiguredDefaultCountryCode,
+  getCountryNameFromCode,
+  getFixedCountryCode,
+  isAllowedCountryCode,
+  splitCountryPrefix,
+} from "../lib/countryPath";
 import NewsLetter from "../components/Minor/NewsLetter";
 // import withSkeleton from "@/components/skeletons/WithSkeleton";
 
@@ -16,39 +25,95 @@ const COUNTRY_INIT_STATUS_KEY = "mcs:country-init-status";
 export default function ClientLayout({ children }) {
   
   const pathname = usePathname();
+  const router = useRouter();
   const dispatch = useDispatch();
   const { countries = [], selectedCountry } = useSelector((state) => state.country || {});
   const { basePath: layoutBasePath } = splitCountryPrefix(pathname);
   const hideLayout = layoutBasePath === "/login" || layoutBasePath === "/signup" || layoutBasePath === "/payment";
   const [showNewsletterPopup, setShowNewsletterPopup] = useState(false);
+  const [lockedCountryCode, setLockedCountryCode] = useState("");
+  const defaultCountryCode = getConfiguredDefaultCountryCode();
+  const defaultCountryName = getCountryNameFromCode(defaultCountryCode);
   const isAdminRoute = pathname.startsWith("/admin");
   const isHomeRoute = layoutBasePath === "/";
   const shouldUsePageShell = !hideLayout && !isAdminRoute && !isHomeRoute;
 
   const setGlobalCountry = useCallback(() => {
-    const globalCountry = findCountryNameByCode(countries, "gl") || "Global";
+    const globalCountry =
+      findCountryNameByCode(countries, lockedCountryCode || "gl") ||
+      findCountryNameByCode(countries, "gl") ||
+      "Global";
     if (globalCountry && selectedCountry !== globalCountry) {
       dispatch(setSelectedCountry(globalCountry));
     }
     if (typeof window !== "undefined") {
       window.localStorage.setItem(COUNTRY_STORAGE_KEY, globalCountry);
-      window.localStorage.setItem(COUNTRY_INIT_STATUS_KEY, "global");
+      window.localStorage.setItem(COUNTRY_INIT_STATUS_KEY, lockedCountryCode ? "domain" : "global");
     }
-  }, [countries, dispatch, selectedCountry]);
+  }, [countries, dispatch, lockedCountryCode, selectedCountry]);
 
   useEffect(() => {
     if (!countries.length) dispatch(fetchCountries());
   }, [dispatch, countries.length]);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    const hostname = window.location.hostname;
+    setLockedCountryCode(
+      getFixedCountryCode(hostname) ||
+        getCountryCodeFromHostname(hostname)
+    );
+  }, []);
+
+  useEffect(() => {
+    if (!lockedCountryCode) return;
+    if (typeof window === "undefined") return;
+
+    const { basePath, countryCode } = splitCountryPrefix(pathname || "/");
+    if (!countryCode) return;
+
+    const query = window.location.search || "";
+    const hash = window.location.hash || "";
+    const nextPath = `${basePath || "/"}${query}${hash}`;
+    if (`${pathname || "/"}${query}${hash}` !== nextPath) {
+      router.replace(nextPath);
+    }
+  }, [lockedCountryCode, pathname, router]);
+
+  useEffect(() => {
     if (!countries.length) return;
     if (hideLayout) return;
     if (pathname.startsWith("/admin")) return;
     if (pathname.startsWith("/country")) return;
+    if (lockedCountryCode) {
+      const lockedCountry = findCountryNameByCode(countries, lockedCountryCode);
+      if (lockedCountry && lockedCountry !== selectedCountry) {
+        dispatch(setSelectedCountry(lockedCountry));
+      } else if (!lockedCountry) {
+        setGlobalCountry();
+      }
+      return;
+    }
     const { countryCode } = splitCountryPrefix(pathname);
     if (countryCode) return;
-    if (selectedCountry) return;
     if (typeof window === "undefined") return;
+
+    if (selectedCountry) return;
+
+    if (defaultCountryName) {
+      dispatch(setSelectedCountry(defaultCountryName));
+      window.localStorage.setItem(COUNTRY_STORAGE_KEY, defaultCountryName);
+      window.localStorage.setItem(COUNTRY_INIT_STATUS_KEY, "default");
+      return;
+    }
+
+    const configuredDefaultCountry = findCountryNameByCode(countries, defaultCountryCode);
+    if (configuredDefaultCountry) {
+      dispatch(setSelectedCountry(configuredDefaultCountry));
+      window.localStorage.setItem(COUNTRY_STORAGE_KEY, configuredDefaultCountry);
+      window.localStorage.setItem(COUNTRY_INIT_STATUS_KEY, "default");
+      return;
+    }
 
     const persistedCountry = window.localStorage.getItem(COUNTRY_STORAGE_KEY);
     if (persistedCountry) {
@@ -115,11 +180,12 @@ export default function ClientLayout({ children }) {
         maximumAge: 24 * 60 * 60 * 1000,
       }
     );
-  }, [countries, dispatch, hideLayout, pathname, selectedCountry, setGlobalCountry]);
+  }, [countries, defaultCountryCode, defaultCountryName, dispatch, hideLayout, lockedCountryCode, pathname, selectedCountry, setGlobalCountry]);
 
   useEffect(() => {
     if (!countries.length) return;
     if (typeof window === "undefined") return;
+    if (lockedCountryCode) return;
     const { countryCode } = splitCountryPrefix(pathname);
     if (!countryCode) return;
     if (!isAllowedCountryCode(countryCode)) {
@@ -141,7 +207,7 @@ export default function ClientLayout({ children }) {
     if (match && match !== selectedCountry) {
       dispatch(setSelectedCountry(match));
     }
-  }, [countries, dispatch, pathname, selectedCountry]);
+  }, [countries, dispatch, lockedCountryCode, pathname, selectedCountry]);
 
   useEffect(() => {
     if (!selectedCountry) return;
@@ -154,7 +220,7 @@ export default function ClientLayout({ children }) {
 
   return (
     <>
-      {showNewsletterPopup && (
+        {showNewsletterPopup && (
         <div className="fixed inset-0 z-[10020] flex items-center justify-center bg-black/45 px-4">
           <div className="relative w-full max-w-md">
             <button

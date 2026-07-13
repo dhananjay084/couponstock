@@ -21,6 +21,7 @@ const AllStores = ({
   stores: initialStores = [],
   deals: initialDeals = [],
   homeAdminData: initialHomeAdminData = [],
+  initialCountry = "",
 } = {}) => {
   const dispatch = useDispatch();
 
@@ -28,18 +29,19 @@ const AllStores = ({
   const { deals: liveDeals = [] } = useSelector((state) => state.deal || {});
   const homeAdmin = useSelector((state) => state.homeAdmin) || { data: [], loading: false };
   const { selectedCountry } = useSelector((state) => state.country || {});
+  const resolvedCountry = selectedCountry || initialCountry;
   const stores = Array.isArray(liveStores) && liveStores.length > 0 ? liveStores : initialStores;
   const deals = Array.isArray(liveDeals) && liveDeals.length > 0 ? liveDeals : initialDeals;
   const homeAdminData =
     Array.isArray(homeAdmin.data) && homeAdmin.data.length > 0 ? homeAdmin.data : initialHomeAdminData;
   const data = homeAdminData?.[0] || {};
   const countryHeading = useMemo(() => {
-    if (!selectedCountry) return "";
-    const label = String(selectedCountry || "").trim();
+    if (!resolvedCountry) return "";
+    const label = String(resolvedCountry || "").trim();
     if (!label) return "";
     const needsApostropheOnly = /s$/i.test(label);
     return needsApostropheOnly ? `${label}'` : `${label}'s`;
-  }, [selectedCountry]);
+  }, [resolvedCountry]);
   const pageBannerDeals =
     Array.isArray(data.storePageBannerDeals) && data.storePageBannerDeals.length > 0
       ? data.storePageBannerDeals
@@ -74,11 +76,11 @@ const AllStores = ({
   }, [deals]);
 
   useEffect(() => {
-    if (!selectedCountry) return;
-    dispatch(getStores(selectedCountry));
-    dispatch(getDeals(selectedCountry));
-    dispatch(getHomeAdminData(selectedCountry));
-  }, [dispatch, selectedCountry]);
+    if (!resolvedCountry) return;
+    dispatch(getStores(resolvedCountry));
+    dispatch(getDeals(resolvedCountry));
+    dispatch(getHomeAdminData(resolvedCountry));
+  }, [dispatch, resolvedCountry]);
 
   return (
     <div>

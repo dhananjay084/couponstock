@@ -19,24 +19,26 @@ import { GridSkeleton, RowSkeleton } from "../../components/skeletons/InlineSkel
 const AllCategories = ({
   categories: initialCategories = [],
   homeAdminData: initialHomeAdminData = [],
+  initialCountry = "",
 } = {}) => {
   const dispatch = useDispatch();
 
   const { categories: liveCategories = [], loading } = useSelector((state) => state.category);
   const homeAdmin = useSelector((state) => state.homeAdmin) || { data: [], loading: false };
   const { selectedCountry } = useSelector((state) => state.country || {});
+  const resolvedCountry = selectedCountry || initialCountry;
   const categories =
     Array.isArray(liveCategories) && liveCategories.length > 0 ? liveCategories : initialCategories;
   const homeAdminData =
     Array.isArray(homeAdmin.data) && homeAdmin.data.length > 0 ? homeAdmin.data : initialHomeAdminData;
   const data = homeAdminData?.[0] || {};
   const countryHeading = useMemo(() => {
-    if (!selectedCountry) return "";
-    const label = String(selectedCountry || "").trim();
+    if (!resolvedCountry) return "";
+    const label = String(resolvedCountry || "").trim();
     if (!label) return "";
     const needsApostropheOnly = /s$/i.test(label);
     return needsApostropheOnly ? `${label}'` : `${label}'s`;
-  }, [selectedCountry]);
+  }, [resolvedCountry]);
   const pageBannerDeals =
     Array.isArray(data.categoryPageBannerDeals) && data.categoryPageBannerDeals.length > 0
       ? data.categoryPageBannerDeals
@@ -59,10 +61,10 @@ const AllCategories = ({
 
   useEffect(() => {
     dispatch(getCategories());
-    if (selectedCountry) {
-      dispatch(getHomeAdminData(selectedCountry));
+    if (resolvedCountry) {
+      dispatch(getHomeAdminData(resolvedCountry));
     }
-  }, [dispatch, selectedCountry]);
+  }, [dispatch, resolvedCountry]);
 
   return (
     <div className="overflow-x-hidden">

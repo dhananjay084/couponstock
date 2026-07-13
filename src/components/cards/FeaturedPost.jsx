@@ -4,23 +4,15 @@ import React from "react";
 import Image from "next/image";
 import { Typography, Button } from "@mui/material";
 import Link from "next/link";
-import DOMPurify from "dompurify";
 import { toast } from "react-toastify";
 import { slugWithId } from "../../lib/slugify";
+import { htmlToPlainText } from "../../lib/plainText";
 
 const FeaturedPost = ({ blog }) => {
   const detailUrl = `/blog/${slugWithId(blog?.heading, blog?._id)}`;
   const getFirst200Words = (htmlString) => {
-    // Strip HTML and get plain text
-    const tempDiv = document.createElement("div");
-    tempDiv.innerHTML = htmlString;
-    const plainText = tempDiv.textContent || tempDiv.innerText || "";
-
-    // Get first 200 words (or first 100 for brevity as original)
-    const truncated = plainText.split(" ").slice(0, 100).join(" ") + "...";
-
-    // Sanitize it
-    return DOMPurify.sanitize(truncated);
+    const plainText = htmlToPlainText(htmlString);
+    return plainText.split(" ").slice(0, 100).join(" ") + "...";
   };
 
   const handleClick = () => {
@@ -60,7 +52,8 @@ const FeaturedPost = ({ blog }) => {
       <p className="line-clamp-2 text-xl font-bold text-[#1A243B]">{blog.heading}</p>
       <Typography
         sx={{ fontSize: "13px", mt: 1, color: "#59637A", lineHeight: 1.6 }}
-        dangerouslySetInnerHTML={{ __html: getFirst200Words(blog.details) }}
+      >
+        {getFirst200Words(blog.details)}
       />
 
       <Button

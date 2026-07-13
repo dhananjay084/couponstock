@@ -3,13 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { slugWithId } from "../../lib/slugify";
-
-// Removes ALL HTML tags + trims text
-const stripHTML = (html = "") => {
-  if (!html) return "";
-  const clean = html.replace(/<[^>]+>/g, "");
-  return clean.length > 120 ? clean.slice(0, 120) + "..." : clean;
-};
+import { htmlToPlainText } from "../../lib/plainText";
 
 const trimText = (text = "", limit = 120, suffix = "...") => {
   if (!text) return "";
@@ -31,7 +25,7 @@ const BlogCard = ({
   compact = false,
 }) => {
   const detailUrl = `/blog/${slugWithId(blog?.heading, blog?._id)}`;
-  const rawDescription = stripHTML(blog?.details);
+  const rawDescription = htmlToPlainText(blog?.details);
   const description =
     typeof descriptionLimit === "number"
       ? trimText(rawDescription, descriptionLimit, descriptionSuffix)

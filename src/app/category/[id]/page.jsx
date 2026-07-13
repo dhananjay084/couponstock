@@ -177,6 +177,8 @@ import { cache } from "react";
 import { buildServerApiUrls } from "../../../lib/serverApi";
 import { fetchJson } from "../../../lib/serverFetchJson";
 import { buildCanonicalUrl } from "../../../lib/seoTags";
+import { getConfiguredDefaultCountryCode, getCountryNameFromCode } from "../../../lib/countryPath";
+import { fetchDealListingPageData } from "../../../lib/publicPageData";
 
 const getCategoryBySlug = cache(async (categorySlug) => {
   const categoryName = decodeURIComponent(categorySlug).toLowerCase();
@@ -254,9 +256,28 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function Page({ params }) {
-  const { id } = await params;
+  const resolvedParams = await params;
+  const { id } = resolvedParams;
+  const country = String(resolvedParams?.country || "").trim().toLowerCase();
   const categorySlug = decodeURIComponent(String(id || "")).toLowerCase();
   const category = await getCategoryBySlug(categorySlug);
+  const defaultCountryCode = getConfiguredDefaultCountryCode();
+  const fallbackCountryCode = "in";
+  const activeCountryCode = country || defaultCountryCode;
+  const initialCountry = country
+    ? getCountryNameFromCode(country) || ""
+    : getCountryNameFromCode(defaultCountryCode) || "";
+  const initialData = await fetchDealListingPageData(activeCountryCode);
+  const deals =
+    Array.isArray(initialData?.deals) && initialData.deals.length > 0
+      ? initialData.deals
+      : (await fetchDealListingPageData(fallbackCountryCode)).deals || [];
 
-  return <CategoryClient initialDeals={[]} categoryData={category} />;
+  return (
+    <CategoryClient
+      initialDeals={deals}
+      categoryData={category}
+      initialCountry={initialCountry}
+    />
+  );
 }

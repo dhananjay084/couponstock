@@ -3,13 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { slugWithId } from "../../lib/slugify";
-
-// Remove HTML + trim description (dynamic length)
-const stripHTML = (html = "", limit = 90) => {
-  if (!html) return "";
-  const clean = html.replace(/<[^>]+>/g, "");
-  return clean.length > limit ? clean.slice(0, limit) + "..." : clean;
-};
+import { htmlToPlainText } from "../../lib/plainText";
 
 const RecentBlogCard = ({ blog, large = false }) => {
   const detailUrl = `/blog/${slugWithId(blog?.heading, blog?._id)}`;
@@ -37,7 +31,7 @@ const RecentBlogCard = ({ blog, large = false }) => {
 
         {/* DESCRIPTION */}
         <p className="text-gray-500 text-[15px] leading-relaxed">
-          {stripHTML(blog.details, large ? 180 : 90)}
+          {htmlToPlainText(blog.details).slice(0, large ? 180 : 90)}
         </p>
 
         <div className="flex justify-between items-center mt-6 text-sm text-gray-400">

@@ -1,19 +1,16 @@
 import CategoryListingClient from "./CategoryListingClient";
 import { buildMetadataAlternates } from "../../lib/seoTags";
-import {
-  fetchHomeAdminEntries,
-  pickDefaultEntry,
-  pickEntryByCountryCode,
-} from "../../lib/homeAdminSeo";
+import { getConfiguredDefaultCountryCode, getCountryNameFromCode } from "../../lib/countryPath";
+import { fetchCategoryListingPageData } from "../../lib/publicPageData";
 
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;
   const country = String(resolvedParams?.country || "").trim().toLowerCase();
   const pathname = country ? `/${country}/category` : "/category";
-  const entries = await fetchHomeAdminEntries(country);
-  const selected = country
-    ? pickEntryByCountryCode(entries, country)
-    : pickDefaultEntry(entries);
+  const defaultCountryCode = getConfiguredDefaultCountryCode();
+  const activeCountryCode = country || defaultCountryCode;
+  const { homeAdminData = [] } = await fetchCategoryListingPageData(activeCountryCode);
+  const selected = Array.isArray(homeAdminData) ? homeAdminData[0] : null;
 
   return {
     title:
@@ -25,6 +22,15 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export default function Page() {
-  return <CategoryListingClient />;
+export default async function Page({ params }) {
+  const resolvedParams = await params;
+  const country = String(resolvedParams?.country || "").trim().toLowerCase();
+  const defaultCountryCode = getConfiguredDefaultCountryCode();
+  const activeCountryCode = country || defaultCountryCode;
+  const initialCountry = country
+    ? getCountryNameFromCode(country) || ""
+    : getCountryNameFromCode(defaultCountryCode) || "";
+  const initialData = await fetchCategoryListingPageData(activeCountryCode);
+
+  return <CategoryListingClient initialCountry={initialCountry} {...initialData} />;
 }

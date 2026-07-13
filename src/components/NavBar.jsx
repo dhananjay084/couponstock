@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import {
   AppBar,
+  ButtonBase,
   Toolbar,
   IconButton,
   Typography,
@@ -28,18 +29,15 @@ import CloseIcon from "@mui/icons-material/Close";
 
 import { styled } from "@mui/material/styles";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import {
   searchStores,
   clearSearchResults as clearStoreSearchResults,
 } from "../redux/store/storeSlice";
 import { logoutUser, checkCurrentUser } from "../redux/auth/authApi";
-import { fetchCountries, setSelectedCountry } from "../redux/country/countrySlice";
 import { toast } from "react-toastify";
-import { addCountryPrefix, getCountryCodeFromName, isAllowedCountryCode, splitCountryPrefix } from "../lib/countryPath";
-import { titleize } from "../lib/slugify";
-import globeImage from "../assets/globe.png";
+import { ALLOWED_COUNTRY_CODES, getConfiguredDefaultCountryCode, getCountryNameFromCode } from "../lib/countryPath";
 import CountryLink from "./Minor/CountryLink";
 
 const baseNavLinks = [
@@ -179,24 +177,46 @@ const ResultChip = styled(Box)(() => ({
   whiteSpace: "nowrap",
 }));
 
+const CountrySelectButton = styled(ButtonBase)(() => ({
+  cursor: "pointer",
+  border: "1px solid #D9CCF5",
+  borderRadius: "999px",
+  padding: "8px 12px",
+  fontSize: "0.85rem",
+  background: "#fff",
+  color: "#2b1c4d",
+  display: "flex",
+  alignItems: "center",
+  gap: "8px",
+  minWidth: 150,
+  maxWidth: 190,
+  boxShadow: "0 1px 6px rgba(0,0,0,0.05)",
+  textTransform: "none",
+  transition: "background 0.2s ease, border-color 0.2s ease, transform 0.2s ease",
+  "&:hover": {
+    transform: "translateY(-1px)",
+    background: "#F8F3FF",
+  },
+}));
+
 const NavBar = () => {
   const dispatch = useDispatch();
   const router = useRouter();
-  const pathname = usePathname();
   const { searchResults, loading } = useSelector((state) => state.store || {});
   // const { isAuthenticated } = useSelector((state) => state.auth);
   const { isAuthenticated, user } = useSelector((state) => state.auth);
-  const { countries = [], selectedCountry } = useSelector((state) => state.country || {});
+  const { selectedCountry } = useSelector((state) => state.country || {});
+  const defaultCountryName = getCountryNameFromCode(getConfiguredDefaultCountryCode());
 
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [showResults, setShowResults] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
-  const [mobileCountryAnchorEl, setMobileCountryAnchorEl] = useState(null);
+  const [countryOpen, setCountryOpen] = useState(false);
+  const [headerCountry, setHeaderCountry] = useState(defaultCountryName || "Select Country");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [adminAnchorEl, setAdminAnchorEl] = useState(null);
-  const [countryOpen, setCountryOpen] = useState(false);
   const isAdminMenuOpen = Boolean(adminAnchorEl);
   
   const handleAdminMenuOpen = (e) => setAdminAnchorEl(e.currentTarget);
@@ -211,7 +231,6 @@ const NavBar = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const open = Boolean(anchorEl);
-  const mobileCountryMenuOpen = Boolean(mobileCountryAnchorEl);
 
   const searchBarRef = useRef();
   const countryRef = useRef();
@@ -246,6 +265,10 @@ const NavBar = () => {
   }, []);
 
   useEffect(() => {
+    dispatch(checkCurrentUser());
+  }, [dispatch]);
+
+  useEffect(() => {
     const handleOutside = (event) => {
       if (countryRef.current && !countryRef.current.contains(event.target)) {
         setCountryOpen(false);
@@ -254,16 +277,6 @@ const NavBar = () => {
     document.addEventListener("mousedown", handleOutside);
     return () => document.removeEventListener("mousedown", handleOutside);
   }, []);
-  
-  
-
-  useEffect(() => {
-    dispatch(checkCurrentUser());
-  }, [dispatch]);
-  
-  useEffect(() => {
-    if (!countries.length) dispatch(fetchCountries());
-  }, [dispatch, countries.length]);
 
   // Debounce search input
   useEffect(() => {
@@ -434,35 +447,8 @@ const NavBar = () => {
     </SearchResultItem>
   );
 
-  const handleCountryChange = (e) => {
-    const value = e.target.value;
-    if (!value) return;
-    dispatch(setSelectedCountry(value));
-  };
-
-  const navigateToSelectedCountry = (value) => {
-    const { basePath } = splitCountryPrefix(pathname || "/");
-    const nextPath = addCountryPrefix(basePath || "/", value);
-    const queryString =
-      typeof window !== "undefined"
-        ? new URLSearchParams(window.location.search).toString()
-        : "";
-    router.replace(queryString ? `${nextPath}?${queryString}` : nextPath);
-  };
-
-  const selectCountry = (value) => {
-    if (!value) return;
-    dispatch(setSelectedCountry(value));
-    navigateToSelectedCountry(value);
-    setCountryOpen(false);
-    setMobileCountryAnchorEl(null);
-  };
-
   const handleMenuOpen = (e) => setAnchorEl(e.currentTarget);
   const handleMenuClose = () => setAnchorEl(null);
-
-  const handleMobileCountryMenuOpen = (e) => setMobileCountryAnchorEl(e.currentTarget);
-  const handleMobileCountryMenuClose = () => setMobileCountryAnchorEl(null);
 
   const handleProfile = () => {
     router.push("/profilep");
@@ -490,58 +476,17 @@ const NavBar = () => {
     setDrawerOpen(open);
   };
 
-  const allowedCountries = Object.values(
-    countries.reduce((acc, c) => {
-      const name = (c.country_name || "").trim();
-      if (!name) return acc;
-      const key = name.toLowerCase();
-      if (!acc[key]) {
-        acc[key] = { ...c, code: getCountryCodeFromName(name) };
-      } else {
-        const existingName = acc[key].country_name || "";
-        const existingIsTitle = existingName === titleize(existingName.toLowerCase());
-        const nextIsTitle = name === titleize(name.toLowerCase());
-        if (!existingIsTitle && nextIsTitle) {
-          acc[key] = { ...c, code: getCountryCodeFromName(name) };
-        }
-      }
-      return acc;
-    }, {})
-  ).filter((c) => isAllowedCountryCode(c.code));
+  const countryOptions = ["gl", ...ALLOWED_COUNTRY_CODES.filter((code) => code !== "gl")].map((code) => ({
+    code,
+    label: getCountryNameFromCode(code) || code.toUpperCase(),
+  }));
 
-  const selectedCode = selectedCountry ? getCountryCodeFromName(selectedCountry) : "";
-  const selectedFlagCode = selectedCode === "uk" ? "gb" : selectedCode;
-  const getFlagUrl = (code) => {
-    const flagCode = code === "uk" ? "gb" : code;
-    return flagCode ? `https://flagcdn.com/w20/${flagCode}.png` : "";
+  const selectCountry = (label) => {
+    if (!label) return;
+    setHeaderCountry(label);
+    setCountryOpen(false);
   };
-  const isGlobalCode = (code) => String(code || "").toLowerCase() === "gl";
-  const renderCountryIcon = (code, altText) => {
-    if (isGlobalCode(code)) {
-      return (
-        <Box
-          component="img"
-          src={globeImage?.src || globeImage}
-          alt="Global"
-          sx={{ width: 18, height: 18, borderRadius: "50%" }}
-        />
-      );
-    }
-    return (
-      <Box
-        component="img"
-        src={getFlagUrl(code)}
-        alt={altText}
-        sx={{ width: 18, height: 12, borderRadius: "2px" }}
-      />
-    );
-  };
-
-  const withCountry = (href) => {
-    if (!href) return href;
-    if (href.startsWith("/admin")) return href;
-    return addCountryPrefix(href, selectedCountry || "");
-  };
+  const withCountry = (href) => href;
   
 
   return (
@@ -589,95 +534,66 @@ const NavBar = () => {
             >
               MY COUPON STOCK
             </Box>
-            {/* Desktop: show selected country as text. Mobile: show a selector. */}
-            {selectedCountry && !isMobile && (
-              <Typography
-                variant="caption"
-                sx={{
-                  ml: 1,
-                  color: scrolled ? "rgba(255,255,255,0.9)" : "#592EA9",
-                  fontWeight: 600,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.04em",
+            <Box ref={countryRef} sx={{ position: "relative", ml: 1.5 }}>
+              <CountrySelectButton
+                onClick={() => setCountryOpen((v) => !v)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    setCountryOpen((v) => !v);
+                  }
                 }}
+                type="button"
+                aria-haspopup="menu"
+                aria-expanded={countryOpen ? "true" : "false"}
+                aria-label="Select country"
               >
-                {selectedCountry}
-              </Typography>
-            )}
-
-            {isMobile && (
-              <>
+                <span
+                  style={{
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {headerCountry}
+                </span>
+                <span style={{ fontSize: "0.7rem", color: "#592EA9" }}>▼</span>
+              </CountrySelectButton>
+              {countryOpen && (
                 <Box
-                  onClick={handleMobileCountryMenuOpen}
-                  role="button"
-                  aria-label="Select country"
                   sx={{
-                    ml: 1,
-                    cursor: "pointer",
-                    border: scrolled
-                      ? "1px solid rgba(255,255,255,0.45)"
-                      : "1px solid #D9CCF5",
-                    borderRadius: "999px",
-                    px: 1.2,
-                    py: 0.5,
-                    fontSize: "0.72rem",
-                    background: scrolled ? "rgba(255,255,255,0.12)" : "#fff",
-                    color: scrolled ? "#fff" : "#2b1c4d",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 0.8,
-                    maxWidth: 150,
+                    position: "absolute",
+                    top: "calc(100% + 6px)",
+                    left: 0,
+                    width: 220,
+                    maxHeight: 260,
+                    overflowY: "auto",
+                    bgcolor: "#fff",
+                    border: "1px solid #E4D8FF",
+                    borderRadius: "12px",
+                    boxShadow: "0 10px 24px rgba(0,0,0,0.12)",
+                    zIndex: 2000,
                   }}
                 >
-                  {selectedCode &&
-                    renderCountryIcon(
-                      selectedFlagCode,
-                      `${selectedCountry || "Country"} flag`
-                    )}
-                  <span
-                    style={{
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {selectedCountry || "Select"}
-                  </span>
-                  <span style={{ fontSize: "0.7rem", opacity: 0.9 }}>▼</span>
-                </Box>
-
-                <Menu
-                  anchorEl={mobileCountryAnchorEl}
-                  open={mobileCountryMenuOpen}
-                  onClose={handleMobileCountryMenuClose}
-                  PaperProps={{
-                    sx: {
-                      mt: 1,
-                      borderRadius: "12px",
-                      border: "1px solid #E4D8FF",
-                      boxShadow: "0 12px 30px rgba(0,0,0,0.12)",
-                      maxHeight: 360,
-                    },
-                  }}
-                >
-                  {allowedCountries.map((c) => (
-                    <MenuItem
-                      key={c._id}
-                      onClick={() => selectCountry(c.country_name)}
-                      sx={{ gap: 1.2, fontSize: "0.9rem", color: "#2b1c4d" }}
+                  {countryOptions.map((c) => (
+                    <Box
+                      key={c.code}
+                      onClick={() => selectCountry(c.label)}
+                      sx={{
+                        px: 2,
+                        py: 1,
+                        fontSize: "0.85rem",
+                        cursor: "pointer",
+                        color: "#2b1c4d",
+                        "&:hover": { background: "#F5F1FF" },
+                      }}
                     >
-                      {c.code && renderCountryIcon(c.code, `${c.country_name} flag`)}
-                      {c.country_name}
-                    </MenuItem>
+                      {c.label}
+                    </Box>
                   ))}
-                  {allowedCountries.length === 0 && (
-                    <MenuItem disabled sx={{ fontSize: "0.9rem" }}>
-                      No countries found
-                    </MenuItem>
-                  )}
-                </Menu>
-              </>
-            )}
+                </Box>
+              )}
+            </Box>
           </Box>
 
           {/* Right: Navigation & Icons */}
@@ -692,81 +608,6 @@ const NavBar = () => {
                 transition: "color 0.4s ease",
               }}
             >
-              <Box ref={countryRef} sx={{ position: "relative" }}>
-                <Box
-                  onClick={() => setCountryOpen((v) => !v)}
-                  sx={{
-                    cursor: "pointer",
-                    border: "1px solid #D9CCF5",
-                    borderRadius: "10px",
-                    px: 1.5,
-                    py: 0.75,
-                    fontSize: "0.85rem",
-                    background: "#fff",
-                    color: "#2b1c4d",
-                    minWidth: 140,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: 1,
-                    boxShadow: "0 1px 6px rgba(0,0,0,0.05)",
-                  }}
-                >
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    {selectedCode &&
-                      renderCountryIcon(
-                        selectedFlagCode,
-                        `${selectedCountry || "Country"} flag`
-                      )}
-                    <span>{selectedCountry || "Select Country"}</span>
-                  </Box>
-                  <span style={{ fontSize: "0.75rem", color: "#592EA9" }}>▼</span>
-                </Box>
-                {countryOpen && (
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      top: "calc(100% + 6px)",
-                      right: 0,
-                      width: 200,
-                      maxHeight: 260,
-                      overflowY: "auto",
-                      bgcolor: "#fff",
-                      border: "1px solid #E4D8FF",
-                      borderRadius: "12px",
-                      boxShadow: "0 10px 24px rgba(0,0,0,0.12)",
-                      zIndex: 2000,
-                    }}
-                  >
-                    {allowedCountries.map((c) => (
-                      <Box
-                        key={c._id}
-                        onClick={() => selectCountry(c.country_name)}
-                        sx={{
-                          px: 2,
-                          py: 1,
-                          fontSize: "0.85rem",
-                          cursor: "pointer",
-                          color: "#2b1c4d",
-                          "&:hover": { background: "#F5F1FF" },
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 1,
-                        }}
-                      >
-                        {c.code &&
-                          renderCountryIcon(c.code, `${c.country_name} flag`)}
-                        {c.country_name}
-                      </Box>
-                    ))}
-                    {allowedCountries.length === 0 && (
-                      <Box sx={{ px: 2, py: 1, fontSize: "0.85rem", color: "#777" }}>
-                        No countries found
-                      </Box>
-                    )}
-                  </Box>
-                )}
-              </Box>
               {navLinks.map((link) => (
                 <Link key={link.name} href={withCountry(link.href)} passHref>
                   <Typography
@@ -854,41 +695,41 @@ const NavBar = () => {
                 <Person3Icon />
               </IconButton>
               <IconButton
-  onClick={() => setDrawerOpen(prev => !prev)}
-  sx={{
-    color: scrolled ? "#fff" : "inherit",
-    transition: "transform 0.3s ease, opacity 0.3s ease",
-    transform: drawerOpen ? "rotate(180deg)" : "rotate(0deg)",
-  }}
-  aria-label="toggle drawer"
->
-  <Box
-    sx={{
-      position: "relative",
-      width: 24,
-      height: 24,
-    }}
-  >
-    <MenuIcon
-      sx={{
-        position: "absolute",
-        inset: 0,
-        opacity: drawerOpen ? 0 : 1,
-        transform: drawerOpen ? "scale(0.8)" : "scale(1)",
-        transition: "opacity 0.3s ease, transform 0.3s ease",
-      }}
-    />
-    <CloseIcon
-      sx={{
-        position: "absolute",
-        inset: 0,
-        opacity: drawerOpen ? 1 : 0,
-        transform: drawerOpen ? "scale(1)" : "scale(0.8)",
-        transition: "opacity 0.3s ease, transform 0.3s ease",
-      }}
-    />
-  </Box>
-</IconButton>
+                onClick={() => setDrawerOpen((prev) => !prev)}
+                sx={{
+                  color: scrolled ? "#fff" : "inherit",
+                  transition: "transform 0.3s ease, opacity 0.3s ease",
+                  transform: drawerOpen ? "rotate(180deg)" : "rotate(0deg)",
+                }}
+                aria-label="toggle drawer"
+              >
+                <Box
+                  sx={{
+                    position: "relative",
+                    width: 24,
+                    height: 24,
+                  }}
+                >
+                  <MenuIcon
+                    sx={{
+                      position: "absolute",
+                      inset: 0,
+                      opacity: drawerOpen ? 0 : 1,
+                      transform: drawerOpen ? "scale(0.8)" : "scale(1)",
+                      transition: "opacity 0.3s ease, transform 0.3s ease",
+                    }}
+                  />
+                  <CloseIcon
+                    sx={{
+                      position: "absolute",
+                      inset: 0,
+                      opacity: drawerOpen ? 1 : 0,
+                      transform: drawerOpen ? "scale(1)" : "scale(0.8)",
+                      transition: "opacity 0.3s ease, transform 0.3s ease",
+                    }}
+                  />
+                </Box>
+              </IconButton>
 
 
 
@@ -999,35 +840,24 @@ const NavBar = () => {
 
     <Divider sx={{ my: 2 }} />
 
-    <Box sx={{ mb: 2 }}>
-      <Box
+    <Box sx={{ mb: 2 }} ref={countryRef}>
+      <CountrySelectButton
         onClick={() => setCountryOpen((v) => !v)}
-        sx={{
-          cursor: "pointer",
-          border: "1px solid #D9CCF5",
-          borderRadius: "10px",
-          px: 2,
-          py: 1.2,
-          fontSize: "0.9rem",
-          background: "#fff",
-          color: "#2b1c4d",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 1,
-          boxShadow: "0 1px 6px rgba(0,0,0,0.05)",
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            setCountryOpen((v) => !v);
+          }
         }}
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded={countryOpen ? "true" : "false"}
+        aria-label="Select country"
+        sx={{ width: "100%", justifyContent: "space-between", borderRadius: "12px", px: 2, py: 1.2, fontSize: "0.9rem" }}
       >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          {selectedCode &&
-            renderCountryIcon(
-              selectedFlagCode,
-              `${selectedCountry || "Country"} flag`
-            )}
-          <span>{selectedCountry || "Select Country"}</span>
-        </Box>
+        <span>{headerCountry}</span>
         <span style={{ fontSize: "0.75rem", color: "#592EA9" }}>▼</span>
-      </Box>
+      </CountrySelectButton>
       {countryOpen && (
         <Box
           sx={{
@@ -1040,11 +870,11 @@ const NavBar = () => {
             boxShadow: "0 10px 24px rgba(0,0,0,0.12)",
           }}
         >
-          {allowedCountries.map((c) => (
+          {countryOptions.map((c) => (
             <Box
-              key={c._id}
+              key={c.code}
               onClick={() => {
-                selectCountry(c.country_name);
+                selectCountry(c.label);
                 setDrawerOpen(false);
               }}
               sx={{
@@ -1054,20 +884,11 @@ const NavBar = () => {
                 cursor: "pointer",
                 color: "#2b1c4d",
                 "&:hover": { background: "#F5F1FF" },
-                display: "flex",
-                alignItems: "center",
-                gap: 1,
               }}
             >
-              {c.code && renderCountryIcon(c.code, `${c.country_name} flag`)}
-              {c.country_name}
+              {c.label}
             </Box>
           ))}
-          {allowedCountries.length === 0 && (
-            <Box sx={{ px: 2, py: 1, fontSize: "0.9rem", color: "#777" }}>
-              No countries found
-            </Box>
-          )}
         </Box>
       )}
     </Box>
@@ -1132,13 +953,9 @@ const NavBar = () => {
     <List>
       {navLinks.map((item) => (
         <ListItem key={item.name} disablePadding>
-          <ListItemButton
-            component={Link}
-            href={withCountry(item.href)}
-            onClick={() => setDrawerOpen(false)}
-          >
-            <ListItemText primary={item.name} />
-          </ListItemButton>
+              <ListItemButton component={Link} href={withCountry(item.href)} onClick={() => setDrawerOpen(false)}>
+                <ListItemText primary={item.name} />
+              </ListItemButton>
         </ListItem>
       ))}
       {isAdmin && (

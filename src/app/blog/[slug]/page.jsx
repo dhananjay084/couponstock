@@ -4,6 +4,8 @@ import { buildCanonicalUrl } from "../../../lib/seoTags";
 import { buildServerApiUrls } from "../../../lib/serverApi";
 import { fetchJson } from "../../../lib/serverFetchJson";
 
+export const dynamic = "force-dynamic";
+
 const stripHtml = (value = "") =>
   String(value || "")
     .replace(/<[^>]+>/g, " ")

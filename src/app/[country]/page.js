@@ -2,7 +2,7 @@ import HomePage, { generateMetadata as generateHomeMetadata } from "../page";
 import { titleize } from "../../lib/slugify";
 import { buildCanonicalUrl } from "../../lib/seoTags";
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }) {
   const { country } = await params;

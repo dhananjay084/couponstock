@@ -4,6 +4,8 @@ import { fetchJson } from "../../../lib/serverFetchJson";
 import { titleize } from "../../../lib/slugify";
 import { buildCanonicalUrl } from "../../../lib/seoTags";
 
+export const dynamic = "force-dynamic";
+
 const getDealBySlug = async (slug = "") => {
   const normalizedSlug = String(slug || "").trim();
   if (!normalizedSlug) return null;

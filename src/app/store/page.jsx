@@ -8,6 +8,8 @@ import {
   pickEntryByCountryCode,
 } from "../../lib/homeAdminSeo";
 
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;
   const country = String(resolvedParams?.country || "").trim().toLowerCase();

@@ -180,6 +180,8 @@ import { buildCanonicalUrl } from "../../../lib/seoTags";
 import { getConfiguredDefaultCountryCode, getCountryNameFromCode } from "../../../lib/countryPath";
 import { fetchDealListingPageData } from "../../../lib/publicPageData";
 
+export const dynamic = "force-dynamic";
+
 const getCategoryBySlug = cache(async (categorySlug) => {
   const categoryName = decodeURIComponent(categorySlug).toLowerCase();
   const categoryUpper = categoryName.toUpperCase();

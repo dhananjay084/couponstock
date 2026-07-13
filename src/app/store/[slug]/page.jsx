@@ -6,6 +6,8 @@ import { titleize } from "../../../lib/slugify";
 import { buildCanonicalUrl } from "../../../lib/seoTags";
 import { getApiCountryFromRoute } from "../../../lib/publicPageData";
 
+export const dynamic = "force-dynamic";
+
 const getStoreBySlug = cache(async (slug) => {
   const normalizedSlug = String(slug || "").trim().toLowerCase();
   if (!normalizedSlug) return null;

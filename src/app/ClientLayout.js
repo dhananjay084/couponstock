@@ -2,36 +2,27 @@
 
 import NavBar from "../components/NavBar";
 import Footer from "../components/Footer";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCountries, setSelectedCountry } from "../redux/country/countrySlice";
 import {
   findCountryNameByCode,
-  getCountryCodeFromHostname,
-  getCountryCodeFromName,
   getConfiguredDefaultCountryCode,
   getCountryNameFromCode,
-  getFixedCountryCode,
   isAllowedCountryCode,
   splitCountryPrefix,
 } from "../lib/countryPath";
 import NewsLetter from "../components/Minor/NewsLetter";
 // import withSkeleton from "@/components/skeletons/WithSkeleton";
 
-const COUNTRY_STORAGE_KEY = "mcs:selected-country";
-const COUNTRY_INIT_STATUS_KEY = "mcs:country-init-status";
-
 export default function ClientLayout({ children }) {
-  
   const pathname = usePathname();
-  const router = useRouter();
   const dispatch = useDispatch();
   const { countries = [], selectedCountry } = useSelector((state) => state.country || {});
   const { basePath: layoutBasePath } = splitCountryPrefix(pathname);
   const hideLayout = layoutBasePath === "/login" || layoutBasePath === "/signup" || layoutBasePath === "/payment";
   const [showNewsletterPopup, setShowNewsletterPopup] = useState(false);
-  const [lockedCountryCode, setLockedCountryCode] = useState("");
   const defaultCountryCode = getConfiguredDefaultCountryCode();
   const defaultCountryName = getCountryNameFromCode(defaultCountryCode);
   const isAdminRoute = pathname.startsWith("/admin");
@@ -43,114 +34,34 @@ export default function ClientLayout({ children }) {
   }, [dispatch, countries.length]);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const hostname = window.location.hostname;
-    setLockedCountryCode(
-      getFixedCountryCode(hostname) ||
-        getCountryCodeFromHostname(hostname)
-    );
-  }, []);
-
-  useEffect(() => {
-    if (!lockedCountryCode) return;
-    if (typeof window === "undefined") return;
-
-    const { basePath, countryCode } = splitCountryPrefix(pathname || "/");
-    if (!countryCode) return;
-
-    const query = window.location.search || "";
-    const hash = window.location.hash || "";
-    const nextPath = `${basePath || "/"}${query}${hash}`;
-    if (`${pathname || "/"}${query}${hash}` !== nextPath) {
-      router.replace(nextPath);
-    }
-  }, [lockedCountryCode, pathname, router]);
-
-  useEffect(() => {
     if (!countries.length) return;
     if (hideLayout) return;
     if (pathname.startsWith("/admin")) return;
     if (pathname.startsWith("/country")) return;
-    if (lockedCountryCode) {
-      const lockedCountry = findCountryNameByCode(countries, lockedCountryCode);
-      if (lockedCountry && lockedCountry !== selectedCountry) {
-        dispatch(setSelectedCountry(lockedCountry));
-      } else if (!lockedCountry && defaultCountryName) {
-        dispatch(setSelectedCountry(defaultCountryName));
+    const { countryCode } = splitCountryPrefix(pathname);
+    const defaultCountry = findCountryNameByCode(countries, defaultCountryCode) || defaultCountryName;
+
+    if (!countryCode) {
+      if (defaultCountry && defaultCountry !== selectedCountry) {
+        dispatch(setSelectedCountry(defaultCountry));
       }
       return;
     }
-    const { countryCode } = splitCountryPrefix(pathname);
-    if (countryCode) return;
-    if (typeof window === "undefined") return;
 
-    if (selectedCountry) return;
-
-    const configuredDefaultCountry = findCountryNameByCode(countries, defaultCountryCode);
-    if (configuredDefaultCountry) {
-      dispatch(setSelectedCountry(configuredDefaultCountry));
-      window.localStorage.setItem(COUNTRY_STORAGE_KEY, configuredDefaultCountry);
-      window.localStorage.setItem(COUNTRY_INIT_STATUS_KEY, "default");
-      return;
-    }
-
-    if (defaultCountryName) {
-      dispatch(setSelectedCountry(defaultCountryName));
-      window.localStorage.setItem(COUNTRY_STORAGE_KEY, defaultCountryName);
-      window.localStorage.setItem(COUNTRY_INIT_STATUS_KEY, "default");
-      return;
-    }
-
-    const persistedCountry = window.localStorage.getItem(COUNTRY_STORAGE_KEY);
-    if (persistedCountry) {
-      const matchedPersistedCountry = countries.find(
-        (country) => String(country?.country_name || "").trim() === persistedCountry
-      )?.country_name;
-      if (matchedPersistedCountry) {
-        dispatch(setSelectedCountry(matchedPersistedCountry));
-        window.localStorage.setItem(COUNTRY_INIT_STATUS_KEY, "persisted");
-        return;
-      }
-    }
-
-    window.localStorage.setItem(COUNTRY_STORAGE_KEY, defaultCountryName || "Global");
-    window.localStorage.setItem(COUNTRY_INIT_STATUS_KEY, "default");
-    if (defaultCountryName) {
-      dispatch(setSelectedCountry(defaultCountryName));
-    }
-  }, [countries, defaultCountryCode, defaultCountryName, dispatch, hideLayout, lockedCountryCode, pathname, selectedCountry]);
-
-  useEffect(() => {
-    if (!countries.length) return;
-    if (typeof window === "undefined") return;
-    if (lockedCountryCode) return;
-    const { countryCode } = splitCountryPrefix(pathname);
-    if (!countryCode) return;
     if (!isAllowedCountryCode(countryCode)) {
-      if (defaultCountryName && defaultCountryName !== selectedCountry) {
-        dispatch(setSelectedCountry(defaultCountryName));
+      if (defaultCountry && defaultCountry !== selectedCountry) {
+        dispatch(setSelectedCountry(defaultCountry));
       }
       return;
     }
-    const selectedCode = selectedCountry ? getCountryCodeFromName(selectedCountry) : "";
-    if (
-      selectedCode &&
-      isAllowedCountryCode(selectedCode) &&
-      selectedCode !== countryCode
-    ) {
-      return;
-    }
+
     const match = findCountryNameByCode(countries, countryCode);
     if (match && match !== selectedCountry) {
       dispatch(setSelectedCountry(match));
+    } else if (!match && defaultCountry && defaultCountry !== selectedCountry) {
+      dispatch(setSelectedCountry(defaultCountry));
     }
-  }, [countries, defaultCountryName, dispatch, lockedCountryCode, pathname, selectedCountry]);
-
-  useEffect(() => {
-    if (!selectedCountry) return;
-    if (typeof window === "undefined") return;
-    window.localStorage.setItem(COUNTRY_STORAGE_KEY, selectedCountry);
-  }, [selectedCountry]);
+  }, [countries, defaultCountryCode, defaultCountryName, dispatch, hideLayout, pathname, selectedCountry]);
 
   //  const WrappedChildren = withSkeleton(() => <>{children}</>);
 

@@ -11,46 +11,6 @@
       "static/chunks/main-app.js",
       "static/css/app/page.css",
       "static/chunks/app/page.js"
-    ],
-    "/deals/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/deals/page.css",
-      "static/chunks/app/deals/page.js"
-    ],
-    "/store/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/store/page.css",
-      "static/chunks/app/store/page.js"
-    ],
-    "/category/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/category/page.css",
-      "static/chunks/app/category/page.js"
-    ],
-    "/category/[id]/loading": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/category/[id]/loading.js"
-    ],
-    "/category/[id]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/category/[id]/page.css",
-      "static/chunks/app/category/[id]/page.js"
-    ],
-    "/blogs/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/blogs/page.css",
-      "static/chunks/app/blogs/page.js"
-    ],
-    "/submit-coupon/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/submit-coupon/page.js"
     ]
   }
 }

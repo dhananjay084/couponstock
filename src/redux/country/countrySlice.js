@@ -4,6 +4,7 @@ import {
   addCountryApi,
   deleteCountryApi,
 } from "./countryApi.js";
+import { getConfiguredDefaultCountryCode, getCountryNameFromCode } from "../../lib/countryPath";
 
 // Fetch all countries
 export const fetchCountries = createAsyncThunk(
@@ -46,7 +47,7 @@ const countrySlice = createSlice({
   name: "country",
   initialState: {
     countries: [],
-    selectedCountry: null,
+    selectedCountry: getCountryNameFromCode(getConfiguredDefaultCountryCode()) || null,
     loading: false,
     error: null,
   },

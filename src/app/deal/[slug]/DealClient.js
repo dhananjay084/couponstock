@@ -17,9 +17,7 @@ import { useRouter } from "next/navigation";
 import { RowSkeleton, TextSkeleton } from "../../../components/skeletons/InlineSkeletons";
 import ArrowScrollRow from "../../../components/Minor/ArrowScrollRow";
 import CountryLink from "../../../components/Minor/CountryLink";
-import CountryAvailabilityGate from "../../../components/Minor/CountryAvailabilityGate";
 import { slugify, titleize } from "../../../lib/slugify";
-import { addCountryPrefix } from "../../../lib/countryPath";
 import { buildPublicApiUrl } from "../../../lib/publicApiBase";
 const buildDealApiUrl = (path = "") => buildPublicApiUrl(path);
 
@@ -40,7 +38,6 @@ const DealDetailsContent = ({ initialDeal, initialRelatedDeals = [], initialCate
   const [loginRedirectUrl, setLoginRedirectUrl] = useState("");
   
   const category = String(initialCategory || "").trim();
-  const { selectedCountry } = useSelector((state) => state.country || {});
   const { user, isAuthenticated } = useSelector((state) => state.auth || {});
   const router = useRouter();
   const [userId, setUserId] = useState("");
@@ -78,7 +75,7 @@ const DealDetailsContent = ({ initialDeal, initialRelatedDeals = [], initialCate
             // Optional: Redirect to slug URL
             if (res.data.slug) {
               const nextHref = `/deal/${res.data.slug}${category ? `?category=${category}` : ""}`;
-              router.replace(addCountryPrefix(nextHref, selectedCountry || ""));
+              router.replace(nextHref);
             }
           } catch (fallbackErr) {
             console.error("Fallback fetch failed:", fallbackErr);
@@ -90,7 +87,7 @@ const DealDetailsContent = ({ initialDeal, initialRelatedDeals = [], initialCate
     };
 
     fetchDealBySlug();
-  }, [slug, category, router, initialDeal, selectedCountry]);
+  }, [slug, category, router, initialDeal]);
 
   // Keep the local user id in sync after login/signup without requiring a refresh.
   useEffect(() => {
@@ -188,7 +185,7 @@ const DealDetailsContent = ({ initialDeal, initialRelatedDeals = [], initialCate
   const categoryLabel = categorySlug ? titleize(categorySlug) : "";
 
   return (
-    <CountryAvailabilityGate availableCountries={dealDetails.country} itemLabel="deal">
+    <>
       <section className="mx-4 mt-4 overflow-hidden rounded-[26px] border border-[#E3D9FF] bg-[linear-gradient(120deg,#231147_0%,#3A1D78_45%,#5D31BD_100%)] px-5 py-6 text-white shadow-[0_20px_45px_rgba(36,16,82,0.3)] sm:px-8">
         <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
           {dealDetails.dealTitle}
@@ -337,9 +334,6 @@ const DealDetailsContent = ({ initialDeal, initialRelatedDeals = [], initialCate
                 {dealDetails.expiredDate && (
                   <div><span className="font-semibold">Expiry:</span> {formatDate(dealDetails.expiredDate)}</div>
                 )}
-                {Array.isArray(dealDetails.country) && dealDetails.country.length > 0 && (
-                  <div><span className="font-semibold">Country:</span> {dealDetails.country.join(", ")}</div>
-                )}
               </div>
 
               <Button
@@ -392,7 +386,7 @@ const DealDetailsContent = ({ initialDeal, initialRelatedDeals = [], initialCate
         onClose={() => setIsModalOpen(false)}
         redirectUrl={loginRedirectUrl}
       />
-    </CountryAvailabilityGate>
+    </>
   );
 };
 

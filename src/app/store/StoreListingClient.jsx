@@ -21,27 +21,17 @@ const AllStores = ({
   stores: initialStores = [],
   deals: initialDeals = [],
   homeAdminData: initialHomeAdminData = [],
-  initialCountry = "",
 } = {}) => {
   const dispatch = useDispatch();
 
   const { stores: liveStores = [], loading, error } = useSelector((state) => state.store);
   const { deals: liveDeals = [] } = useSelector((state) => state.deal || {});
   const homeAdmin = useSelector((state) => state.homeAdmin) || { data: [], loading: false };
-  const { selectedCountry } = useSelector((state) => state.country || {});
-  const resolvedCountry = selectedCountry || initialCountry;
   const stores = Array.isArray(liveStores) && liveStores.length > 0 ? liveStores : initialStores;
   const deals = Array.isArray(liveDeals) && liveDeals.length > 0 ? liveDeals : initialDeals;
   const homeAdminData =
     Array.isArray(homeAdmin.data) && homeAdmin.data.length > 0 ? homeAdmin.data : initialHomeAdminData;
   const data = homeAdminData?.[0] || {};
-  const countryHeading = useMemo(() => {
-    if (!resolvedCountry) return "";
-    const label = String(resolvedCountry || "").trim();
-    if (!label) return "";
-    const needsApostropheOnly = /s$/i.test(label);
-    return needsApostropheOnly ? `${label}'` : `${label}'s`;
-  }, [resolvedCountry]);
   const pageBannerDeals =
     Array.isArray(data.storePageBannerDeals) && data.storePageBannerDeals.length > 0
       ? data.storePageBannerDeals
@@ -76,17 +66,16 @@ const AllStores = ({
   }, [deals]);
 
   useEffect(() => {
-    if (!resolvedCountry) return;
-    dispatch(getStores(resolvedCountry));
-    dispatch(getDeals(resolvedCountry));
-    dispatch(getHomeAdminData(resolvedCountry));
-  }, [dispatch, resolvedCountry]);
+    dispatch(getStores());
+    dispatch(getDeals());
+    dispatch(getHomeAdminData());
+  }, [dispatch]);
 
   return (
     <div>
       <section className="mx-2 mt-4 overflow-hidden rounded-[26px] border border-[#E3D9FF] bg-[linear-gradient(120deg,#231147_0%,#3A1D78_45%,#5D31BD_100%)] px-5 py-6 text-white shadow-[0_20px_45px_rgba(36,16,82,0.3)] sm:px-8">
         <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
-          {countryHeading ? `${countryHeading} ` : ""}All Stores
+          All Stores
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-white/85">
           Explore verified stores, discover active offers, and browse by letter to find your favorite brand quickly.

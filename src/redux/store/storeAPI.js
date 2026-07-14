@@ -5,9 +5,8 @@ import { buildPublicApiUrl } from "../../lib/publicApiBase";
 const BASE_URL = buildPublicApiUrl("/api/stores");
 
 
-export const getStoresAPI = async (country) => {
-  const params = country ? { country } : undefined;
-  const response = await axios.get(BASE_URL, { params });
+export const getStoresAPI = async () => {
+  const response = await axios.get(BASE_URL);
   return response.data;
 };
 
@@ -31,12 +30,11 @@ export const getStoreByIdAPI = async (id) => {
   };
   
 // New API call for searching stores
-export const searchStoresAPI = async (searchTerm, country) => {
+export const searchStoresAPI = async (searchTerm) => {
   // Make sure to encode the search term for URL safety
   const response = await axios.get(`${BASE_URL}/search`, {
     params: {
       q: searchTerm,
-      ...(country ? { country } : {}),
     },
   });
   return response.data;

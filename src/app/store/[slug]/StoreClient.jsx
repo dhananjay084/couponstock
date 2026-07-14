@@ -2,7 +2,6 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
-import { useSelector } from "react-redux";
 import axios from "axios";
 import TextLink from "../../../components/Minor/TextLink";
 import Coupons_Deals from "../../../components/cards/Coupons_Deals";
@@ -12,11 +11,9 @@ import HeadingText from "../../../components/Minor/HeadingText";
 import FAQAccordion from "../../../components/Minor/Faq";
 import { GridSkeleton, TextSkeleton } from "../../../components/skeletons/InlineSkeletons";
 import ArrowScrollRow from "../../../components/Minor/ArrowScrollRow";
-import CountryAvailabilityGate from "../../../components/Minor/CountryAvailabilityGate";
 import { getCachedStoreDetailPayload } from "../../../lib/storeDetailCache";
 import { buildPublicApiUrl } from "../../../lib/publicApiBase";
 import { slugify } from "../../../lib/slugify";
-import { addCountryPrefix, getCountryNameFromCode } from "../../../lib/countryPath";
 // import { toast } from "react-toastify";
 
 const normalizeDealCategory = (value) => String(value || "").trim().toLowerCase();
@@ -26,7 +23,6 @@ const getDealStoreKeys = (deal = {}) =>
 const IndividualStore = ({ store, initialDeals = [], initialPopularStores = [] }) => {
   const params = useParams();
   const { slug } = params;
-  const { selectedCountry } = useSelector((state) => state.country || {});
   const [isDescExpanded, setIsDescExpanded] = useState(false);
   const [cachedPayload, setCachedPayload] = useState(null);
   const [cacheLoaded, setCacheLoaded] = useState(false);
@@ -71,10 +67,7 @@ const IndividualStore = ({ store, initialDeals = [], initialPopularStores = [] }
     null;
   const routeStoreKey = slugify(String(slug || ""));
   const storeNameKey = slugify(storeFromList?.storeName || "");
-  const storeOfferHref = addCountryPrefix(
-    `/deal/store/${encodeURIComponent(storeNameKey || routeStoreKey)}`,
-    params?.country || ""
-  );
+  const storeOfferHref = `/deal/store/${encodeURIComponent(storeNameKey || routeStoreKey)}`;
   const belongsToStore = (deal) => {
     const dealStoreKeys = getDealStoreKeys(deal);
     if (dealStoreKeys.length === 0) return false;
@@ -141,7 +134,7 @@ const IndividualStore = ({ store, initialDeals = [], initialPopularStores = [] }
     return () => {
       active = false;
     };
-  }, [slug, selectedCountry, storeData?.slug]);
+  }, [slug, storeData?.slug]);
 
   useEffect(() => {
     const resolvedStore = storeData || cachedStore || store || null;
@@ -156,16 +149,8 @@ const IndividualStore = ({ store, initialDeals = [], initialPopularStores = [] }
     const loadDeals = async () => {
       try {
         setIsLoadingDeals(true);
-        const activeCountryCode = String(params?.country || "").trim().toLowerCase();
-        const selectedCountryName =
-          String(selectedCountry || "").trim() ||
-          getCountryNameFromCode(activeCountryCode) ||
-          "";
         const response = await axios.get(buildPublicApiUrl("/api/deals"), {
           params: {
-            ...(selectedCountryName && selectedCountryName.toLowerCase() !== "global"
-              ? { country: selectedCountryName }
-              : {}),
             store: storeName,
             limit: 120,
           },
@@ -188,7 +173,7 @@ const IndividualStore = ({ store, initialDeals = [], initialPopularStores = [] }
     return () => {
       active = false;
     };
-  }, [params?.country, selectedCountry, slug, storeData, cachedStore, store, initialDeals]);
+  }, [slug, storeData, cachedStore, store, initialDeals]);
 
   const resolvedDeals = useMemo(() => {
     const liveDeals = Array.isArray(storeDeals) ? storeDeals.filter((deal) => belongsToStore(deal)) : [];
@@ -293,8 +278,7 @@ const IndividualStore = ({ store, initialDeals = [], initialPopularStores = [] }
   const totalOffers = topCodes.length + topDeals.length;
 
   return (
-    <CountryAvailabilityGate availableCountries={storeFromList.country} itemLabel="store">
-      <div>
+    <div>
       <section className="mx-6 mt-2 overflow-hidden rounded-[26px] border border-[#E3D9FF] bg-[linear-gradient(120deg,#231147_0%,#3A1D78_45%,#5D31BD_100%)] px-5 py-6 text-white shadow-[0_20px_45px_rgba(36,16,82,0.3)] sm:px-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
           <div className="h-16 w-16 flex-shrink-0 rounded-full bg-white/95 p-2 ring-2 ring-white/30 shadow sm:h-20 sm:w-20">
@@ -462,7 +446,6 @@ const IndividualStore = ({ store, initialDeals = [], initialPopularStores = [] }
 
       <FAQAccordion />
       </div>
-    </CountryAvailabilityGate>
   );
 };
 

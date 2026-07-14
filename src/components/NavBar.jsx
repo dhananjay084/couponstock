@@ -3,7 +3,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import {
   AppBar,
-  ButtonBase,
   Toolbar,
   IconButton,
   Typography,
@@ -37,7 +36,6 @@ import {
 } from "../redux/store/storeSlice";
 import { logoutUser, checkCurrentUser } from "../redux/auth/authApi";
 import { toast } from "react-toastify";
-import { ALLOWED_COUNTRY_CODES, getConfiguredDefaultCountryCode, getCountryNameFromCode } from "../lib/countryPath";
 import CountryLink from "./Minor/CountryLink";
 
 const baseNavLinks = [
@@ -177,43 +175,17 @@ const ResultChip = styled(Box)(() => ({
   whiteSpace: "nowrap",
 }));
 
-const CountrySelectButton = styled(ButtonBase)(() => ({
-  cursor: "pointer",
-  border: "1px solid #D9CCF5",
-  borderRadius: "999px",
-  padding: "8px 12px",
-  fontSize: "0.85rem",
-  background: "#fff",
-  color: "#2b1c4d",
-  display: "flex",
-  alignItems: "center",
-  gap: "8px",
-  minWidth: 150,
-  maxWidth: 190,
-  boxShadow: "0 1px 6px rgba(0,0,0,0.05)",
-  textTransform: "none",
-  transition: "background 0.2s ease, border-color 0.2s ease, transform 0.2s ease",
-  "&:hover": {
-    transform: "translateY(-1px)",
-    background: "#F8F3FF",
-  },
-}));
-
 const NavBar = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const { searchResults, loading } = useSelector((state) => state.store || {});
   // const { isAuthenticated } = useSelector((state) => state.auth);
   const { isAuthenticated, user } = useSelector((state) => state.auth);
-  const { selectedCountry } = useSelector((state) => state.country || {});
-  const defaultCountryName = getCountryNameFromCode(getConfiguredDefaultCountryCode());
 
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [showResults, setShowResults] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
-  const [countryOpen, setCountryOpen] = useState(false);
-  const [headerCountry, setHeaderCountry] = useState(defaultCountryName || "Select Country");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [adminAnchorEl, setAdminAnchorEl] = useState(null);
@@ -233,7 +205,6 @@ const NavBar = () => {
   const open = Boolean(anchorEl);
 
   const searchBarRef = useRef();
-  const countryRef = useRef();
   const scrollRafRef = useRef(null);
   const lastSearchKeyRef = useRef("");
 
@@ -268,16 +239,6 @@ const NavBar = () => {
     dispatch(checkCurrentUser());
   }, [dispatch]);
 
-  useEffect(() => {
-    const handleOutside = (event) => {
-      if (countryRef.current && !countryRef.current.contains(event.target)) {
-        setCountryOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleOutside);
-    return () => document.removeEventListener("mousedown", handleOutside);
-  }, []);
-
   // Debounce search input
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -297,18 +258,13 @@ const NavBar = () => {
       return;
     }
 
-    const key = `${selectedCountry || "all"}::${query.toLowerCase()}`;
+    const key = query.toLowerCase();
     if (lastSearchKeyRef.current === key) {
       return;
     }
     lastSearchKeyRef.current = key;
-    dispatch(
-      searchStores({
-        searchTerm: query,
-        country: selectedCountry || undefined,
-      })
-    );
-  }, [debouncedSearchTerm, dispatch, selectedCountry]);
+    dispatch(searchStores({ searchTerm: query }));
+  }, [debouncedSearchTerm, dispatch]);
 
   // Close search results when clicking outside
   useEffect(() => {
@@ -342,17 +298,6 @@ const NavBar = () => {
     const text = String(value || "").trim();
     if (!text) return "";
     return text.length > max ? `${text.slice(0, max)}...` : text;
-  };
-
-  const countryLabel = (countryValue) => {
-    if (Array.isArray(countryValue) && countryValue.length > 0) {
-      const firstTwo = countryValue.filter(Boolean).slice(0, 2);
-      return firstTwo.join(", ");
-    }
-    if (typeof countryValue === "string" && countryValue.trim()) {
-      return countryValue.trim();
-    }
-    return selectedCountry || "Global";
   };
 
   const renderResultsHeader = () => (
@@ -442,7 +387,6 @@ const NavBar = () => {
         }}
       >
         {store.storeType && <ResultChip>{store.storeType}</ResultChip>}
-        <ResultChip>{countryLabel(store.country)}</ResultChip>
       </Box>
     </SearchResultItem>
   );
@@ -476,16 +420,6 @@ const NavBar = () => {
     setDrawerOpen(open);
   };
 
-  const countryOptions = ["gl", ...ALLOWED_COUNTRY_CODES.filter((code) => code !== "gl")].map((code) => ({
-    code,
-    label: getCountryNameFromCode(code) || code.toUpperCase(),
-  }));
-
-  const selectCountry = (label) => {
-    if (!label) return;
-    setHeaderCountry(label);
-    setCountryOpen(false);
-  };
   const withCountry = (href) => href;
   
 
@@ -533,66 +467,6 @@ const NavBar = () => {
               }}
             >
               MY COUPON STOCK
-            </Box>
-            <Box ref={countryRef} sx={{ position: "relative", ml: 1.5 }}>
-              <CountrySelectButton
-                onClick={() => setCountryOpen((v) => !v)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") {
-                    event.preventDefault();
-                    setCountryOpen((v) => !v);
-                  }
-                }}
-                type="button"
-                aria-haspopup="menu"
-                aria-expanded={countryOpen ? "true" : "false"}
-                aria-label="Select country"
-              >
-                <span
-                  style={{
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  {headerCountry}
-                </span>
-                <span style={{ fontSize: "0.7rem", color: "#592EA9" }}>▼</span>
-              </CountrySelectButton>
-              {countryOpen && (
-                <Box
-                  sx={{
-                    position: "absolute",
-                    top: "calc(100% + 6px)",
-                    left: 0,
-                    width: 220,
-                    maxHeight: 260,
-                    overflowY: "auto",
-                    bgcolor: "#fff",
-                    border: "1px solid #E4D8FF",
-                    borderRadius: "12px",
-                    boxShadow: "0 10px 24px rgba(0,0,0,0.12)",
-                    zIndex: 2000,
-                  }}
-                >
-                  {countryOptions.map((c) => (
-                    <Box
-                      key={c.code}
-                      onClick={() => selectCountry(c.label)}
-                      sx={{
-                        px: 2,
-                        py: 1,
-                        fontSize: "0.85rem",
-                        cursor: "pointer",
-                        color: "#2b1c4d",
-                        "&:hover": { background: "#F5F1FF" },
-                      }}
-                    >
-                      {c.label}
-                    </Box>
-                  ))}
-                </Box>
-              )}
             </Box>
           </Box>
 
@@ -839,59 +713,6 @@ const NavBar = () => {
     </Box>
 
     <Divider sx={{ my: 2 }} />
-
-    <Box sx={{ mb: 2 }} ref={countryRef}>
-      <CountrySelectButton
-        onClick={() => setCountryOpen((v) => !v)}
-        onKeyDown={(event) => {
-          if (event.key === "Enter" || event.key === " ") {
-            event.preventDefault();
-            setCountryOpen((v) => !v);
-          }
-        }}
-        type="button"
-        aria-haspopup="menu"
-        aria-expanded={countryOpen ? "true" : "false"}
-        aria-label="Select country"
-        sx={{ width: "100%", justifyContent: "space-between", borderRadius: "12px", px: 2, py: 1.2, fontSize: "0.9rem" }}
-      >
-        <span>{headerCountry}</span>
-        <span style={{ fontSize: "0.75rem", color: "#592EA9" }}>▼</span>
-      </CountrySelectButton>
-      {countryOpen && (
-        <Box
-          sx={{
-            mt: 1,
-            maxHeight: 260,
-            overflowY: "auto",
-            bgcolor: "#fff",
-            border: "1px solid #E4D8FF",
-            borderRadius: "12px",
-            boxShadow: "0 10px 24px rgba(0,0,0,0.12)",
-          }}
-        >
-          {countryOptions.map((c) => (
-            <Box
-              key={c.code}
-              onClick={() => {
-                selectCountry(c.label);
-                setDrawerOpen(false);
-              }}
-              sx={{
-                px: 2,
-                py: 1,
-                fontSize: "0.9rem",
-                cursor: "pointer",
-                color: "#2b1c4d",
-                "&:hover": { background: "#F5F1FF" },
-              }}
-            >
-              {c.label}
-            </Box>
-          ))}
-        </Box>
-      )}
-    </Box>
 
     {/* 🔍 Search bar inside Drawer (mobile only) */}
     <Box

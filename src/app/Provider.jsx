@@ -7,17 +7,15 @@ import { Provider } from "react-redux";
 import { createAppStore } from "../redux/store";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { getCountryNameFromCode } from "../lib/countryPath";
 
-export default function Providers({ children, defaultCountryCode = "" }) {
+export default function Providers({ children }) {
   const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
   const storeRef = useRef(null);
   if (!storeRef.current) {
-    const defaultCountryName = getCountryNameFromCode(defaultCountryCode);
     storeRef.current = createAppStore({
       country: {
         countries: [],
-        selectedCountry: defaultCountryName || null,
+        selectedCountry: null,
         loading: false,
         error: null,
       },

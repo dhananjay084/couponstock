@@ -28,7 +28,6 @@ import NumberStats from "../components/numbers/number";
 import { GridSkeleton, RowSkeleton } from "../components/skeletons/InlineSkeletons";
 import ArrowScrollRow from "../components/Minor/ArrowScrollRow";
 import CountryLink from "../components/Minor/CountryLink";
-import { addCountryPrefix } from "../lib/countryPath";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -51,7 +50,6 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
   const { reviews: liveReviews = [], loading: reviewsLoading } = useSelector((state) => state.reviews);
   const { blogs: liveBlogs = [], loading: blogsLoading } = useSelector((state) => state.blogs || {});
   const homeAdmin = useSelector((state) => state.homeAdmin) || { data: [], loading: false };
-  const { selectedCountry } = useSelector((state) => state.country || {});
   const deals = Array.isArray(liveDeals) && liveDeals.length > 0 ? liveDeals : initialDeals;
   const stores = Array.isArray(liveStores) && liveStores.length > 0 ? liveStores : initialStores;
   const categories =
@@ -125,14 +123,13 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
   }, []);
 
   useEffect(() => {
-    if (!selectedCountry) return;
-    dispatch(getDeals(selectedCountry));
-    dispatch(getStores(selectedCountry));
+    dispatch(getDeals());
+    dispatch(getStores());
     dispatch(getCategories());
     dispatch(fetchReviews());
     dispatch(fetchBlogs());
-    dispatch(getHomeAdminData(selectedCountry));
-  }, [dispatch, selectedCountry]);
+    dispatch(getHomeAdminData());
+  }, [dispatch]);
 
   const stats = [
     { number: "200+", label: "Happy Clients" },
@@ -405,7 +402,7 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
       <TextLink
         text="Today's Top"
         colorText="Deals"
-        link={addCountryPrefix("/deal/todays-top", selectedCountry || "")}
+        link="/deal/todays-top"
         linkText="View All"
       />
 
@@ -665,7 +662,7 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
           <p>No reviews found.</p>
         )}
       </ArrowScrollRow>
-      <TextLink text="Deal of the " colorText="Week" link={addCountryPrefix("/deal/deal-of-week", selectedCountry || "")} linkText="View All" />
+      <TextLink text="Deal of the " colorText="Week" link="/deal/deal-of-week" linkText="View All" />
       <div className="coupon-section coupon-section-inner mx-4 grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-6">
         {dealsLoading && deals.length === 0 ? (
           <GridSkeleton count={6} className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-6 col-span-full" itemClassName="aspect-square rounded-2xl bg-gray-200" />
@@ -722,7 +719,7 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
                 </CountryLink>
               ))}
               {heroPopularStores.length === 0 && (
-                <span className="text-xs text-white/75">No stores available for selected country.</span>
+                <span className="text-xs text-white/75">No stores available right now.</span>
               )}
             </div>
           </div>

@@ -12,19 +12,16 @@ import { slugify } from "../lib/slugify";
 import { useDispatch, useSelector } from "react-redux";
 import { getStores } from "../redux/store/storeSlice";
 import CountryLink from "./Minor/CountryLink";
-import { addCountryPrefix } from "../lib/countryPath";
 
 const toStoreSlug = (name) => slugify(name.replace(/&/g, "and"));
 
 const Footer = () => {
   const dispatch = useDispatch();
-  const { selectedCountry } = useSelector((state) => state.country || {});
   const { stores = [] } = useSelector((state) => state.store || {});
 
   useEffect(() => {
-    if (!selectedCountry) return;
-    dispatch(getStores(selectedCountry));
-  }, [dispatch, selectedCountry]);
+    dispatch(getStores());
+  }, [dispatch]);
 
   const grouped = useMemo(() => {
     const popular = stores.filter((store) => store.popularStore).slice(0, 12);
@@ -35,7 +32,7 @@ const Footer = () => {
 
   const renderStoreLinks = (items) => {
     if (!items.length) {
-      return <span className="text-[#9FAAC0]">No stores for selected country.</span>;
+      return <span className="text-[#9FAAC0]">No stores available right now.</span>;
     }
     return items.map((store) => {
       const name = store.storeName || "Store";
@@ -91,14 +88,8 @@ const Footer = () => {
           <div>
             <h3 className="mb-4 text-[12px] font-bold uppercase tracking-[0.2em] text-white">Global Coupons</h3>
             <ul className="space-y-2.5">
-              <li><Link href={addCountryPrefix("/deal", "Global")}>Global Coupons</Link></li>
-              <li><Link href={addCountryPrefix("/deal", "India")}>India Coupons</Link></li>
-              <li><Link href={addCountryPrefix("/deal", "USA")}>USA Coupons</Link></li>
-              <li><Link href={addCountryPrefix("/deal", "UK")}>UK Coupons</Link></li>
-              <li><Link href={addCountryPrefix("/deal", "Spain")}>Spain Coupons</Link></li>
-              <li><Link href={addCountryPrefix("/deal", "Germany")}>Germany Coupons</Link></li>
-              <li><Link href={addCountryPrefix("/deal", "France")}>France Coupons</Link></li>
-              <li><Link href={addCountryPrefix("/deal", "Portugal")}>Portugal Coupons</Link></li>
+              <li><Link href="/deal">All Coupons</Link></li>
+              <li><Link href="/deals">All Deals</Link></li>
             </ul>
           </div>
 

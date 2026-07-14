@@ -4,10 +4,8 @@ import axios from 'axios';
 
 const BASE = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/admin`;
 // Fetch entries
-export const getHomeAdminData = createAsyncThunk('homeAdmin/get', async (country) => {
-  const res = await axios.get(BASE, {
-    params: country ? { country } : undefined,
-  });
+export const getHomeAdminData = createAsyncThunk('homeAdmin/get', async () => {
+  const res = await axios.get(BASE);
   
   return res.data.data;
 });

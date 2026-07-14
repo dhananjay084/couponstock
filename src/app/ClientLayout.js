@@ -4,64 +4,18 @@ import NavBar from "../components/NavBar";
 import Footer from "../components/Footer";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchCountries, setSelectedCountry } from "../redux/country/countrySlice";
-import {
-  findCountryNameByCode,
-  getConfiguredDefaultCountryCode,
-  getCountryNameFromCode,
-  isAllowedCountryCode,
-  splitCountryPrefix,
-} from "../lib/countryPath";
+import { splitCountryPrefix } from "../lib/countryPath";
 import NewsLetter from "../components/Minor/NewsLetter";
 // import withSkeleton from "@/components/skeletons/WithSkeleton";
 
 export default function ClientLayout({ children }) {
   const pathname = usePathname();
-  const dispatch = useDispatch();
-  const { countries = [], selectedCountry } = useSelector((state) => state.country || {});
   const { basePath: layoutBasePath } = splitCountryPrefix(pathname);
   const hideLayout = layoutBasePath === "/login" || layoutBasePath === "/signup" || layoutBasePath === "/payment";
   const [showNewsletterPopup, setShowNewsletterPopup] = useState(false);
-  const defaultCountryCode = getConfiguredDefaultCountryCode();
-  const defaultCountryName = getCountryNameFromCode(defaultCountryCode);
   const isAdminRoute = pathname.startsWith("/admin");
   const isHomeRoute = layoutBasePath === "/";
   const shouldUsePageShell = !hideLayout && !isAdminRoute && !isHomeRoute;
-
-  useEffect(() => {
-    if (!countries.length) dispatch(fetchCountries());
-  }, [dispatch, countries.length]);
-
-  useEffect(() => {
-    if (!countries.length) return;
-    if (hideLayout) return;
-    if (pathname.startsWith("/admin")) return;
-    if (pathname.startsWith("/country")) return;
-    const { countryCode } = splitCountryPrefix(pathname);
-    const defaultCountry = findCountryNameByCode(countries, defaultCountryCode) || defaultCountryName;
-
-    if (!countryCode) {
-      if (defaultCountry && defaultCountry !== selectedCountry) {
-        dispatch(setSelectedCountry(defaultCountry));
-      }
-      return;
-    }
-
-    if (!isAllowedCountryCode(countryCode)) {
-      if (defaultCountry && defaultCountry !== selectedCountry) {
-        dispatch(setSelectedCountry(defaultCountry));
-      }
-      return;
-    }
-
-    const match = findCountryNameByCode(countries, countryCode);
-    if (match && match !== selectedCountry) {
-      dispatch(setSelectedCountry(match));
-    } else if (!match && defaultCountry && defaultCountry !== selectedCountry) {
-      dispatch(setSelectedCountry(defaultCountry));
-    }
-  }, [countries, defaultCountryCode, defaultCountryName, dispatch, hideLayout, pathname, selectedCountry]);
 
   //  const WrappedChildren = withSkeleton(() => <>{children}</>);
 

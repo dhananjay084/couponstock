@@ -12,7 +12,6 @@ import { getStores } from "../../redux/store/storeSlice";
 import { getCategories } from "../../redux/category/categorySlice";
 import { toast } from "react-toastify";
 import AjioBanner from '../../assets/AjioBanner.png'
-import { fetchCountries, setSelectedCountry } from "../../redux/country/countrySlice";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -21,14 +20,12 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
 import BannerCard from "../../components/cards/BannerCards";
 import { GridSkeleton, RowSkeleton } from "../../components/skeletons/InlineSkeletons";
 import { slugify } from "../../lib/slugify";
-import { getCountryCodesFromValue } from "../../lib/countryPath";
 
 const AllCoupons = ({
   deals: initialDeals = [],
   stores: initialStores = [],
   categories: initialCategories = [],
   homeAdminData: initialHomeAdminData = [],
-  initialCountry = "",
 } = {}) => {
   const dispatch = useDispatch();
   const { deals: liveDeals = [], loading: dealsLoading } = useSelector((state) => state.deal || { deals: [], loading: false });
@@ -42,55 +39,28 @@ const AllCoupons = ({
       : Array.isArray(data.listingBannerDeals) && data.listingBannerDeals.length > 0
         ? data.listingBannerDeals
         : data.bannerDeals;
-  const { countries = [], loading: countriesLoading } = useSelector((state) => state.country || { countries: [], loading: false });
-  const { selectedCountry } = useSelector((state) => state.country || {});
-  const resolvedCountry = selectedCountry || initialCountry;
-  const countryHeading = React.useMemo(() => {
-    if (!resolvedCountry) return "";
-    const label = String(resolvedCountry || "").trim();
-    if (!label) return "";
-    const needsApostropheOnly = /s$/i.test(label);
-    return needsApostropheOnly ? `${label}'` : `${label}'s`;
-  }, [resolvedCountry]);
   const { stores: liveStores = [] } = useSelector((state) => state.store || { stores: [] });
   const { categories: liveCategories = [] } = useSelector((state) => state.category || { categories: [] });
   const deals = Array.isArray(liveDeals) && liveDeals.length > 0 ? liveDeals : initialDeals;
   const stores = Array.isArray(liveStores) && liveStores.length > 0 ? liveStores : initialStores;
   const categories =
     Array.isArray(liveCategories) && liveCategories.length > 0 ? liveCategories : initialCategories;
-  const [selectedCountries, setSelectedCountries] = React.useState([]);
   const [selectedStore, setSelectedStore] = React.useState("");
   const [selectedCategory, setSelectedCategory] = React.useState("");
-  const [searchTerm, setSearchTerm] = React.useState("");
-  const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
   const [offerTab, setOfferTab] = React.useState("all");
   const [sortOrder, setSortOrder] = React.useState("latest");
   const ITEMS_PER_PAGE = 20;
   const [currentPage, setCurrentPage] = React.useState(1);
-  const dropdownRef = React.useRef();
   useEffect(() => {
   const fetchData = async () => {
-    dispatch(fetchCountries());
-    if (resolvedCountry) {
-      dispatch(getDeals(resolvedCountry));
-      dispatch(getHomeAdminData(resolvedCountry));
-      dispatch(getStores(resolvedCountry));
-    }
+    dispatch(getDeals());
+    dispatch(getHomeAdminData());
+    dispatch(getStores());
     dispatch(getCategories());
   };
 
   fetchData();
-}, [dispatch, resolvedCountry]);
-
-  useEffect(() => {
-    if (!resolvedCountry) return;
-    setSelectedCountries([resolvedCountry]);
-  }, [resolvedCountry]);
-
-  const selectedCountryCodes = React.useMemo(() => {
-    const codes = getCountryCodesFromValue([selectedCountry, initialCountry, ...selectedCountries]).filter(Boolean);
-    return [...new Set(codes)];
-  }, [initialCountry, selectedCountry, selectedCountries]);
+}, [dispatch]);
 
 
 
@@ -107,19 +77,9 @@ const AllCoupons = ({
     return expiry >= today;
   });
 
-  const countryFilteredDeals = selectedCountryCodes.length
-    ? activeDeals.filter((deal) => {
-        const dealCodes = getCountryCodesFromValue(deal?.country).filter(Boolean);
-        if (dealCodes.length === 0) return true;
-        return selectedCountryCodes.some(
-          (code) => dealCodes.includes(code) || dealCodes.includes("gl")
-        );
-      })
-    : activeDeals;
-
   const storeFilteredDeals = selectedStore
-    ? countryFilteredDeals.filter((deal) => slugify(deal.store || "") === slugify(selectedStore))
-    : countryFilteredDeals;
+    ? activeDeals.filter((deal) => slugify(deal.store || "") === slugify(selectedStore))
+    : activeDeals;
 
   const categoryFilteredDeals = selectedCategory
     ? storeFilteredDeals.filter((deal) => slugify(deal.categorySelect || "") === slugify(selectedCategory))
@@ -129,7 +89,7 @@ const AllCoupons = ({
     ? categoryFilteredDeals
     : selectedStore
       ? storeFilteredDeals
-      : countryFilteredDeals;
+      : activeDeals;
 
   const couponOffers = filteredActiveDeals.filter((deal) => deal?.dealCategory === "coupon");
   const dealOffers = filteredActiveDeals.filter((deal) => deal?.dealCategory === "deal");
@@ -153,7 +113,7 @@ const AllCoupons = ({
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [offerTab, selectedCountries, selectedStore, selectedCategory, sortOrder]);
+  }, [offerTab, selectedStore, selectedCategory, sortOrder]);
 
   const totalPages = React.useMemo(() => {
     const next = Math.ceil(sortedOffers.length / ITEMS_PER_PAGE);
@@ -182,27 +142,15 @@ const AllCoupons = ({
   const showingTo = Math.min(currentPage * ITEMS_PER_PAGE, sortedOffers.length);
 
 
-
-
-useEffect(() => {
-  const handleClickOutside = (event) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-      setIsDropdownOpen(false);
-    }
-  };
-  document.addEventListener("mousedown", handleClickOutside);
-  return () => document.removeEventListener("mousedown", handleClickOutside);
-}, []);
-
   return (
     <>
       <main className="site-shell px-2 pb-10">
 	      <section className="mx-2 mt-4 overflow-hidden rounded-[26px] border border-[#E3D9FF] bg-[linear-gradient(120deg,#231147_0%,#3A1D78_45%,#5D31BD_100%)] px-5 py-6 text-white shadow-[0_20px_45px_rgba(36,16,82,0.3)] sm:px-8">
 	        <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
-	          {countryHeading ? `${countryHeading} ` : ""}All Deals & Coupon Codes
+	          All Deals & Coupon Codes
 	        </h1>
 	        <p className="mt-2 max-w-2xl text-sm text-white/85">
-	          Browse active offers from verified stores and filter instantly by country, store, or category.
+	          Browse active offers from verified stores and filter instantly by store or category.
 	        </p>
         <div className="mt-4 flex flex-wrap gap-2">
           <span className="rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold">
@@ -289,7 +237,7 @@ useEffect(() => {
               <TextLink text="All" colorText="Offers" link="" linkText="" noSectionWrap />
 	              <div className="flex flex-wrap items-center gap-3">
 	                <span className="text-xs font-medium tracking-wide text-[#6B5B95]">
-	                  Filter by store, category or country
+	                  Filter by store or category
 	                </span>
                   <label className="flex items-center gap-2 text-xs font-medium text-[#6B5B95]">
                     <span>Sort by</span>
@@ -348,82 +296,6 @@ useEffect(() => {
                 </select>
               </label>
 
-              {/* Country Select Search Dropdown */}
-              <label className="flex flex-col gap-1 text-sm">
-                <span className="text-[#4A3C6A]">Country</span>
-                <div className="relative w-full" ref={dropdownRef}>
-                  <div
-                    className="flex items-center gap-2 border border-[#D9CCF5] rounded-lg px-3 py-2 bg-white cursor-text overflow-x-auto scrollbar-hide whitespace-nowrap focus-within:ring-2 focus-within:ring-[#592EA9]/30"
-                    onClick={() => setIsDropdownOpen(true)}
-                    style={{ maxHeight: "44px" }}
-                  >
-                    {selectedCountries.map((country) => (
-                      <span
-                        key={country}
-                        className="inline-flex items-center bg-[#EEE6FF] text-[#4B1F86] px-2 py-1 rounded-full text-xs shrink-0"
-                      >
-                        {country}
-                        <button
-                          type="button"
-                          className="ml-2 text-[#4B1F86] hover:text-[#3a146d]"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedCountries((prev) => prev.filter((c) => c !== country));
-                          }}
-                        >
-                          ✕
-                        </button>
-                      </span>
-                    ))}
-
-                    <input
-                      type="text"
-                      placeholder={selectedCountries.length ? "" : "Search country..."}
-                      className="flex-1 outline-none text-sm bg-transparent min-w-[80px]"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      onFocus={() => setIsDropdownOpen(true)}
-                    />
-                  </div>
-
-                  {isDropdownOpen && (
-                    <div className="absolute top-full left-0 w-full bg-white border border-gray-200 rounded-lg shadow-lg mt-1 max-h-60 overflow-y-auto z-20">
-                      {(countriesLoading && countries.length === 0) ? (
-                        <div className="px-4 py-2 text-sm text-gray-500">Loading countries...</div>
-                      ) : countries
-                        .filter((c) =>
-                          c.country_name.toLowerCase().includes(searchTerm.toLowerCase())
-                        )
-                        .map((country) => (
-                          <div
-                            key={country._id}
-                          onClick={() => {
-                            const name = country.country_name;
-                            setSelectedCountries([name]);
-                            dispatch(setSelectedCountry(name));
-                            setSearchTerm("");
-                            setIsDropdownOpen(false);
-                            setSelectedStore("");
-                            setSelectedCategory("");
-                            setOfferTab("all");
-                          }}
-                          className="px-4 py-2 text-sm cursor-pointer hover:bg-[#F5F1FF]"
-                        >
-                          {country.country_name}
-                        </div>
-                        ))}
-
-                      {countries.filter((c) =>
-                        c.country_name.toLowerCase().includes(searchTerm.toLowerCase())
-                      ).length === 0 && (
-                        <div className="px-4 py-2 text-sm text-gray-500">
-                          No countries found.
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </label>
 	            </div>
 	          </div>
 	        </div>

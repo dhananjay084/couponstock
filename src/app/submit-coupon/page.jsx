@@ -6,7 +6,6 @@ import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { fetchCountries } from "../../redux/country/countrySlice";
 import { getStores } from "../../redux/store/storeSlice";
 import { getCategories } from "../../redux/category/categorySlice";
 
@@ -23,17 +22,14 @@ const schema = Yup.object().shape({
   discount: Yup.string().required("Discount is required"),
   expiredDate: Yup.date().required("Expiry date is required"),
   store: Yup.string().required("Store is required"),
-  country: Yup.array().min(1, "Select at least one country").required("Country is required"),
 });
 
 export default function SubmitCouponPage() {
   const dispatch = useDispatch();
-  const { countries = [], selectedCountry } = useSelector((state) => state.country || {});
   const { stores = [] } = useSelector((state) => state.store || {});
   const { categories = [] } = useSelector((state) => state.category || {});
 
   useEffect(() => {
-    dispatch(fetchCountries());
     dispatch(getStores());
     dispatch(getCategories());
   }, [dispatch]);
@@ -51,7 +47,6 @@ export default function SubmitCouponPage() {
     discount: "",
     expiredDate: "",
     store: "",
-    country: selectedCountry ? [selectedCountry] : [],
   };
 
   const handleSubmit = async (values, { resetForm, setSubmitting }) => {
@@ -215,29 +210,6 @@ export default function SubmitCouponPage() {
                     <Field name="expiredDate" type="date" className="mt-2 w-full rounded-xl border border-[#E1D7FF] bg-white px-3 py-2.5 text-sm focus:border-[#592EA9] focus:ring-2 focus:ring-[#592EA9]/20" />
                     {touched.expiredDate && errors.expiredDate && (
                       <p className="text-red-500 text-xs mt-1">{errors.expiredDate}</p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block text-xs uppercase tracking-[0.2em] text-[#7b6aa8]">Country</label>
-                    <select
-                      multiple
-                      value={values.country}
-                      onChange={(e) =>
-                        setFieldValue(
-                          "country",
-                          Array.from(e.target.selectedOptions, (opt) => opt.value)
-                        )
-                      }
-                      className="mt-2 w-full rounded-xl border border-[#E1D7FF] bg-white px-3 py-2.5 text-sm focus:border-[#592EA9] focus:ring-2 focus:ring-[#592EA9]/20"
-                    >
-                      {countries.map((c) => (
-                        <option key={c._id} value={c.country_name}>
-                          {c.country_name}
-                        </option>
-                      ))}
-                    </select>
-                    {touched.country && errors.country && (
-                      <p className="text-red-500 text-xs mt-1">{errors.country}</p>
                     )}
                   </div>
                 </div>

@@ -4,7 +4,7 @@ import { buildCanonicalUrl } from "../../../lib/seoTags";
 import { buildServerApiUrls } from "../../../lib/serverApi";
 import { fetchJson } from "../../../lib/serverFetchJson";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 const stripHtml = (value = "") =>
   String(value || "")
@@ -34,7 +34,7 @@ async function getBlogPageData(slug = "") {
   }
 
   const currentBlog = await fetchFromCandidates(buildServerApiUrls(`/api/blogs/${blogId}`), {
-    cache: "no-store",
+    next: { revalidate: 300 },
     timeoutMs: 12000,
   });
 

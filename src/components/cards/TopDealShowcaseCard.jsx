@@ -3,16 +3,13 @@
 import React from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
 import { FiExternalLink } from "react-icons/fi";
 import CountryLink from "../Minor/CountryLink";
 import { slugify } from "../../lib/slugify";
-import { addCountryPrefix } from "../../lib/countryPath";
 
 const TopDealShowcaseCard = ({ deal, store }) => {
   if (!deal) return null;
   const router = useRouter();
-  const { selectedCountry } = useSelector((state) => state.country || {});
 
   const urlSlug = deal?.slug || deal?._id;
   const dealHref = urlSlug
@@ -22,11 +19,10 @@ const TopDealShowcaseCard = ({ deal, store }) => {
   const storeName = store?.storeName || deal?.store || "Store";
   const derivedStoreSlug = store?.slug || (deal?.store ? slugify(deal.store) : "");
   const storeHref = derivedStoreSlug ? `/store/${derivedStoreSlug}` : "/store";
-  const resolvedDealHref = addCountryPrefix(dealHref, selectedCountry || "");
 
   const handleCardOpen = () => {
     if (!urlSlug) return;
-    router.push(resolvedDealHref);
+    router.push(dealHref);
   };
 
   const handleCardKeyDown = (event) => {

@@ -19,19 +19,17 @@ const StoreDealsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const { deals = [], loading: dealsLoading } = useSelector((state) => state.deal || { deals: [], loading: false });
-  const { selectedCountry } = useSelector((state) => state.country || {});
 
   useEffect(() => {
-    if (!selectedCountry) return;
-    dispatch(getDeals(selectedCountry));
-  }, [dispatch, selectedCountry]);
+    dispatch(getDeals());
+  }, [dispatch]);
 
   const filteredDeals = deals.filter((deal) => slugify(deal.store || "") === storeSlug);
   const hasDeals = filteredDeals.length > 0;
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [storeSlug, selectedCountry]);
+  }, [storeSlug]);
 
   const totalPages = useMemo(() => {
     const next = Math.ceil(filteredDeals.length / ITEMS_PER_PAGE);

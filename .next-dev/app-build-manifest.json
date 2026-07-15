@@ -6,33 +6,21 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
+    "/loading": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/loading.js"
+    ],
     "/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/css/app/page.css",
       "static/chunks/app/page.js"
     ],
-    "/login/page": [
+    "/deals/loading": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/login/page.js"
-    ],
-    "/admin/home/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/admin/home/page.js"
-    ],
-    "/admin/deals/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/admin/deals/page.css",
-      "static/chunks/app/admin/deals/page.js"
-    ],
-    "/deal/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/deal/page.css",
-      "static/chunks/app/deal/page.js"
+      "static/chunks/app/deals/loading.js"
     ],
     "/deals/page": [
       "static/chunks/webpack.js",
@@ -40,48 +28,16 @@
       "static/css/app/deals/page.css",
       "static/chunks/app/deals/page.js"
     ],
+    "/store/loading": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/store/loading.js"
+    ],
     "/store/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/css/app/store/page.css",
       "static/chunks/app/store/page.js"
-    ],
-    "/category/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/category/page.css",
-      "static/chunks/app/category/page.js"
-    ],
-    "/blogs/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/blogs/page.css",
-      "static/chunks/app/blogs/page.js"
-    ],
-    "/store/[slug]/loading": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/store/[slug]/loading.js"
-    ],
-    "/store/[slug]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/store/[slug]/page.js"
-    ],
-    "/deal/[slug]/loading": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/deal/[slug]/loading.js"
-    ],
-    "/deal/[slug]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/deal/[slug]/page.js"
-    ],
-    "/_not-found/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/_not-found/page.js"
     ]
   }
 }

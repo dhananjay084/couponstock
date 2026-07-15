@@ -6,8 +6,6 @@ import CouponModal from "../modals/couponModels";
 import { toast } from "react-toastify";
 import CountryLink from "../Minor/CountryLink";
 import { useRouter } from "next/navigation";
-import { addCountryPrefix } from "../../lib/countryPath";
-import { useSelector } from "react-redux";
 
 const Coupons_Deals = ({ border, disabled, data }) => {
   if (!data) return null;
@@ -15,7 +13,6 @@ const Coupons_Deals = ({ border, disabled, data }) => {
   const { dealDescription, dealImage, homePageTitle, dealCategory } = data;
   const [modalOpen, setModalOpen] = useState(false);
   const router = useRouter();
-  const { selectedCountry } = useSelector((state) => state.country || {});
   const urlSlug = data?.slug || data?._id;
   const dealHref = urlSlug
     ? `/deal/${urlSlug}${data?.categorySelect ? `?category=${data.categorySelect}` : ""}`
@@ -30,7 +27,7 @@ const Coupons_Deals = ({ border, disabled, data }) => {
       toast.error("Deal details not available!");
       return;
     }
-    router.push(addCountryPrefix(dealHref, selectedCountry || ""));
+    router.push(dealHref);
   };
 
   return (

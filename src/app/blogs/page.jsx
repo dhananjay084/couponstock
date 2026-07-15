@@ -1,6 +1,8 @@
 import BlogsClient from "./BlogsClient";
 import { fetchBlogsListingPageData } from "../../lib/publicPageData";
 
+export const revalidate = 30;
+
 export const metadata = {
   title: "Money Saving Blog | Coupons, Deals & Shopping Guides | MyCouponStock",
   description:

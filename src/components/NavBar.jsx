@@ -483,7 +483,7 @@ const NavBar = () => {
               }}
             >
               {navLinks.map((link) => (
-                <Link key={link.name} href={withCountry(link.href)} passHref>
+                <Link key={link.name} href={withCountry(link.href)} prefetch>
                   <Typography
                     variant="body1"
                     sx={{

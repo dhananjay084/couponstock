@@ -22,7 +22,6 @@ import ArrowScrollRow from "../../../components/Minor/ArrowScrollRow";
 const SingleCategoryContent = ({ initialDeals = [], categoryData = null }) => {
   const dispatch = useDispatch();
   const { deals: liveDeals = [] } = useSelector((state) => state.deal);
-  const { selectedCountry } = useSelector((state) => state.country || {});
   const deals = Array.isArray(liveDeals) && liveDeals.length > 0 ? liveDeals : initialDeals;
 
   // Read the category from the dynamic route param `[id]`
@@ -41,7 +40,7 @@ const SingleCategoryContent = ({ initialDeals = [], categoryData = null }) => {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [categoryParam, selectedCountry]);
+  }, [categoryParam]);
 
   const totalPages = useMemo(() => {
     const next = Math.ceil(filteredDeals.length / ITEMS_PER_PAGE);
@@ -80,9 +79,8 @@ const SingleCategoryContent = ({ initialDeals = [], categoryData = null }) => {
   const handleClose = () => setAnchorEl(null);
 
   useEffect(() => {
-    if (!selectedCountry) return;
-    dispatch(getDeals(selectedCountry));
-  }, [dispatch, selectedCountry]);
+    dispatch(getDeals());
+  }, [dispatch]);
 
   return (
     <Box>

@@ -1,8 +1,7 @@
 import StoreListingClient from "./StoreListingClient";
 import { buildMetadataAlternates } from "../../lib/seoTags";
-import { fetchStoreListingPageData } from "../../lib/publicPageData";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 30;
 
 export async function generateMetadata({ params }) {
   return {
@@ -12,7 +11,6 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export default async function Page({ params }) {
-  const initialData = await fetchStoreListingPageData();
-  return <StoreListingClient {...initialData} />;
+export default function Page() {
+  return <StoreListingClient stores={[]} deals={[]} homeAdminData={[]} />;
 }

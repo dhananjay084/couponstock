@@ -1,6 +1,7 @@
 import { buildServerApiUrls } from "./serverApi";
 import { fetchJson } from "./serverFetchJson";
 const SERVER_FETCH_TIMEOUT_MS = 20000;
+const LISTING_REVALIDATE_SECONDS = 30;
 
 const buildQueryString = (params = {}) => {
   const query = new URLSearchParams();
@@ -41,35 +42,35 @@ export async function fetchHomePageData(countryCode = "") {
 
   const [deals, stores, categories, reviews, blogs, homeAdminResponse, dealCountResponse, storeCountResponse] = await Promise.all([
     fetchFromCandidates(`/api/deals${homepageDealsQuery}`, {
-      cache: "no-store",
+      next: { revalidate: LISTING_REVALIDATE_SECONDS },
       timeoutMs: SERVER_FETCH_TIMEOUT_MS,
     }),
     fetchFromCandidates(`/api/stores${homepageStoresQuery}`, {
-      cache: "no-store",
+      next: { revalidate: LISTING_REVALIDATE_SECONDS },
       timeoutMs: SERVER_FETCH_TIMEOUT_MS,
     }),
     fetchFromCandidates("/api/categories", {
-      next: { revalidate: 300 },
+      next: { revalidate: LISTING_REVALIDATE_SECONDS },
       timeoutMs: SERVER_FETCH_TIMEOUT_MS,
     }),
     fetchFromCandidates("/api/reviews", {
-      next: { revalidate: 300 },
+      next: { revalidate: LISTING_REVALIDATE_SECONDS },
       timeoutMs: SERVER_FETCH_TIMEOUT_MS,
     }),
     fetchFromCandidates("/api/blogs", {
-      next: { revalidate: 300 },
+      next: { revalidate: LISTING_REVALIDATE_SECONDS },
       timeoutMs: SERVER_FETCH_TIMEOUT_MS,
     }),
     fetchFromCandidates("/api/admin", {
-      next: { revalidate: 300 },
+      next: { revalidate: LISTING_REVALIDATE_SECONDS },
       timeoutMs: SERVER_FETCH_TIMEOUT_MS,
     }),
     fetchFromCandidates(`/api/deals${dealCountQuery}`, {
-      cache: "no-store",
+      next: { revalidate: LISTING_REVALIDATE_SECONDS },
       timeoutMs: SERVER_FETCH_TIMEOUT_MS,
     }),
     fetchFromCandidates(`/api/stores${storeCountQuery}`, {
-      cache: "no-store",
+      next: { revalidate: LISTING_REVALIDATE_SECONDS },
       timeoutMs: SERVER_FETCH_TIMEOUT_MS,
     }),
   ]);
@@ -96,11 +97,11 @@ export async function fetchStoreListingPageData(countryCode = "") {
 
   const [stores, homeAdminResponse] = await Promise.all([
     fetchFromCandidates(`/api/stores${storeListQuery}`, {
-      cache: "no-store",
+      next: { revalidate: LISTING_REVALIDATE_SECONDS },
       timeoutMs: SERVER_FETCH_TIMEOUT_MS,
     }),
     fetchFromCandidates("/api/admin", {
-      next: { revalidate: 300 },
+      next: { revalidate: LISTING_REVALIDATE_SECONDS },
       timeoutMs: SERVER_FETCH_TIMEOUT_MS,
     }),
   ]);
@@ -122,19 +123,19 @@ export async function fetchDealListingPageData(countryCode = "") {
 
   const [deals, stores, categories, homeAdminResponse] = await Promise.all([
     fetchFromCandidates(`/api/deals${dealListQuery}`, {
-      cache: "no-store",
+      next: { revalidate: LISTING_REVALIDATE_SECONDS },
       timeoutMs: SERVER_FETCH_TIMEOUT_MS,
     }),
     fetchFromCandidates(`/api/stores${storeListQuery}`, {
-      cache: "no-store",
+      next: { revalidate: LISTING_REVALIDATE_SECONDS },
       timeoutMs: SERVER_FETCH_TIMEOUT_MS,
     }),
     fetchFromCandidates("/api/categories", {
-      next: { revalidate: 300 },
+      next: { revalidate: LISTING_REVALIDATE_SECONDS },
       timeoutMs: SERVER_FETCH_TIMEOUT_MS,
     }),
     fetchFromCandidates("/api/admin", {
-      next: { revalidate: 300 },
+      next: { revalidate: LISTING_REVALIDATE_SECONDS },
       timeoutMs: SERVER_FETCH_TIMEOUT_MS,
     }),
   ]);
@@ -167,7 +168,7 @@ export async function fetchCategoryListingPageData(countryCode = "") {
 
 export async function fetchBlogsListingPageData() {
   const blogs = await fetchFromCandidates("/api/blogs", {
-    next: { revalidate: 300 },
+    next: { revalidate: LISTING_REVALIDATE_SECONDS },
     timeoutMs: SERVER_FETCH_TIMEOUT_MS,
   });
 
@@ -183,7 +184,7 @@ export async function fetchStoreDetailPageData(slug = "", countryCode = "") {
   }
 
   const store = await fetchFromCandidates(`/api/stores/slug/${encodeURIComponent(normalizedSlug)}`, {
-    next: { revalidate: 300 },
+    next: { revalidate: LISTING_REVALIDATE_SECONDS },
     timeoutMs: SERVER_FETCH_TIMEOUT_MS,
   });
 
@@ -198,11 +199,11 @@ export async function fetchStoreDetailPageData(slug = "", countryCode = "") {
 
   const [initialDeals, initialPopularStores] = await Promise.all([
     fetchFromCandidates(`/api/deals${dealsQuery}`, {
-      next: { revalidate: 300 },
+      next: { revalidate: LISTING_REVALIDATE_SECONDS },
       timeoutMs: SERVER_FETCH_TIMEOUT_MS,
     }),
     fetchFromCandidates("/api/stores?popularStore=true&limit=12", {
-      next: { revalidate: 300 },
+      next: { revalidate: LISTING_REVALIDATE_SECONDS },
       timeoutMs: SERVER_FETCH_TIMEOUT_MS,
     }),
   ]);
@@ -221,7 +222,7 @@ export async function fetchDealDetailPageData(slug = "", countryCode = "") {
   }
 
   const deal = await fetchFromCandidates(`/api/deals/slug/${encodeURIComponent(normalizedSlug)}`, {
-    cache: "no-store",
+    next: { revalidate: LISTING_REVALIDATE_SECONDS },
     timeoutMs: SERVER_FETCH_TIMEOUT_MS,
   });
 
@@ -237,7 +238,7 @@ export async function fetchDealDetailPageData(slug = "", countryCode = "") {
 
   const initialRelatedDeals = deal.categorySelect
       ? await fetchFromCandidates(`/api/deals${relatedQuery}`, {
-        next: { revalidate: 300 },
+        next: { revalidate: LISTING_REVALIDATE_SECONDS },
         timeoutMs: SERVER_FETCH_TIMEOUT_MS,
       })
     : [];

@@ -2,7 +2,7 @@ import HomeClient from "./HomeClient";
 import { buildMetadataAlternates } from "../lib/seoTags";
 import { fetchHomePageData } from "../lib/publicPageData";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 30;
 
 export async function generateMetadata({ params }) {
   return {

@@ -2,14 +2,11 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { slugify } from "../../lib/slugify";
-import { addCountryPrefix } from "../../lib/countryPath";
 
 const PopularBrandCardWithText = ({ data = {} }) => {
   const router = useRouter();
-  const { selectedCountry } = useSelector((state) => state.country || {});
 
   const storeName = data.storeName || data.store || data.homePageTitle || "Store Name";
   const storeImage =
@@ -31,7 +28,7 @@ const PopularBrandCardWithText = ({ data = {} }) => {
         return;
       }
       const dealHref = `/deal/${dealSlug}${data.categorySelect ? `?category=${data.categorySelect}` : ""}`;
-      router.push(addCountryPrefix(dealHref, selectedCountry || ""));
+      router.push(dealHref);
       return;
     }
 
@@ -42,7 +39,7 @@ const PopularBrandCardWithText = ({ data = {} }) => {
         toast.error("Store slug not found!");
         return;
       }
-      router.push(addCountryPrefix(`/store/${storeSlug}`, selectedCountry || ""));
+      router.push(`/store/${storeSlug}`);
       return;
     }
 

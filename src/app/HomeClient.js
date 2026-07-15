@@ -165,6 +165,7 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
   );
   const homepageTopDeals = topDeals.slice(0, 6);
   const homepageWeeklyDeals = weeklyDeals.slice(0, 6);
+  const homepageCouponDeals = couponDeals.slice(0, 9);
   const brandStores = safeFilter(stores, (store) => store?.showOnHomepage && store?.storeType === "Brands");
   const popularBrands = safeFilter(stores, (store) => store?.showOnHomepage && store?.storeType === "Popular");
   const popularStores = safeFilter(stores, (store) => store?.showOnHomepage && store?.storeType === "Popular Store");
@@ -574,8 +575,8 @@ import { Pagination, Autoplay, Navigation } from "swiper/modules";
       <TextLink text="Coupons" colorText="& Deals" link="/deal" linkText="View All" />
       <div className="coupon-section coupon-section-inner grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {dealsLoading && deals.length === 0 ? (
-          <GridSkeleton count={6} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" itemClassName="h-40 rounded-lg bg-gray-200" />
-        ) : couponDeals.map((deal) => (
+          <GridSkeleton count={9} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" itemClassName="h-40 rounded-lg bg-gray-200" />
+        ) : homepageCouponDeals.map((deal) => (
           <Coupons_Deals key={deal._id} data={deal} border={true} />
         ))}
       </div>

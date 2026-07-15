@@ -2,7 +2,7 @@ import DealListingClient from "../deal/DealListingClient";
 import { buildMetadataAlternates } from "../../lib/seoTags";
 import { fetchDealListingPageData } from "../../lib/publicPageData";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 30;
 
 export async function generateMetadata({ params }) {
   return {

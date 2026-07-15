@@ -2,7 +2,6 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams, useRouter } from "next/navigation";
 import TextLink from "../../../components/Minor/TextLink";
 import TopDealShowcaseCard from "../../../components/cards/TopDealShowcaseCard";
 import DealOfWeek from "../../../components/cards/DealOfWeek";
@@ -10,8 +9,6 @@ import HeadingText from "../../../components/Minor/HeadingText";
 import { GridSkeleton } from "../../../components/skeletons/InlineSkeletons";
 import { getDeals } from "../../../redux/deal/dealSlice";
 import { getStores } from "../../../redux/store/storeSlice";
-import { setSelectedCountry } from "../../../redux/country/countrySlice";
-import { addCountryPrefix, getCountryCodeFromName } from "../../../lib/countryPath";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -57,34 +54,16 @@ const CONFIG = {
 export default function DealTypeListingClient({ variant = "top" }) {
   const config = CONFIG[variant] || CONFIG.top;
   const dispatch = useDispatch();
-  const router = useRouter();
-  const params = useParams();
   const [currentPage, setCurrentPage] = useState(1);
   const { deals = [], loading: dealsLoading } = useSelector((state) => state.deal || {});
   const { stores = [], loading: storesLoading } = useSelector((state) => state.store || {});
-  const { selectedCountry } = useSelector((state) => state.country || {});
-  const routeCountry = String(params?.country || "").trim();
-  const routeCountryCode = getCountryCodeFromName(routeCountry);
-  const selectedCountryCode = getCountryCodeFromName(selectedCountry);
-  const resolvedCountry = selectedCountry || routeCountry || "";
-  const resolvedCountryCode = selectedCountryCode || routeCountryCode;
-  const requestCountry = resolvedCountryCode === "gl" ? "" : resolvedCountry;
-  const basePath = variant === "week" ? "/deal/deal-of-week" : "/deal/todays-top";
 
   useEffect(() => {
-    if (!selectedCountry) return;
-    if (selectedCountryCode === routeCountryCode) return;
-    router.replace(addCountryPrefix(basePath, selectedCountry));
-  }, [basePath, routeCountryCode, router, selectedCountry, selectedCountryCode]);
-
-  useEffect(() => {
-    if (!resolvedCountry) return;
-    dispatch(setSelectedCountry(resolvedCountry));
-    dispatch(getDeals(requestCountry));
+    dispatch(getDeals());
     if (variant === "top") {
-      dispatch(getStores(requestCountry));
+      dispatch(getStores());
     }
-  }, [dispatch, requestCountry, resolvedCountry, variant]);
+  }, [dispatch, variant]);
 
   const filteredDeals = useMemo(
     () => deals.filter((deal) => config.matcher(deal)),
@@ -103,7 +82,7 @@ export default function DealTypeListingClient({ variant = "top" }) {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [variant, resolvedCountry]);
+  }, [variant]);
 
   const totalPages = useMemo(() => {
     const next = Math.ceil(filteredDeals.length / ITEMS_PER_PAGE);
